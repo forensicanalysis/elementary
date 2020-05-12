@@ -3,8 +3,8 @@ module x
 go 1.14
 
 require (
-	github.com/forensicanalysis/forensicstore v0.15.1
-	github.com/forensicanalysis/forensicworkflows v0.12.1
+	github.com/forensicanalysis/forensicstore v0.16.1
+	github.com/forensicanalysis/forensicworkflows v0.12.2-0.20200511223403-e063bde9a9cd
 	github.com/spf13/cobra v1.0.0
 )
 

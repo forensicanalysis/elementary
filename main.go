@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/forensicanalysis/forensicstore"
 	forensicstoreCmd "github.com/forensicanalysis/forensicstore/cmd"
 	workflowCmd "github.com/forensicanalysis/forensicworkflows/cmd"
 )
@@ -17,8 +18,20 @@ import (
 func main() {
 	var debugLog bool
 
+	version := ""
+	version += fmt.Sprintf("\n %-30s v%d\n", "forensicstore format:", forensicstore.Version)
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		for _, i := range info.Deps {
+			if i.Path == "github.com/forensicanalysis/forensicstore" || i.Path == "github.com/forensicanalysis/forensicworkflows" {
+				version += fmt.Sprintf(" %-30s %s\n", path.Base(i.Path)+" library:", i.Version)
+			}
+		}
+	}
+
 	rootCmd := cobra.Command{
 		Use:                "elementary",
+		Version:            version,
 		FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if debugLog {
@@ -29,25 +42,26 @@ func main() {
 			}
 		},
 	}
+	archiveCommand := &cobra.Command{
+		Use:   "archive",
+		Short: "Insert or retrieve files from the forensicstore",
+	}
+	archiveCommand.AddCommand(
+		forensicstoreCmd.Pack(),
+		forensicstoreCmd.Unpack(),
+		forensicstoreCmd.Ls(),
+	)
 	rootCmd.AddCommand(
 		workflowCmd.Run(),
 		workflowCmd.Install(),
 		workflowCmd.Workflow(),
-		forensicstoreCmd.Item(),
+		forensicstoreCmd.Element(),
 		forensicstoreCmd.Create(),
 		forensicstoreCmd.Validate(),
+		archiveCommand,
 	)
 	rootCmd.PersistentFlags().BoolVar(&debugLog, "debug", false, "show log messages")
-
-	info, ok := debug.ReadBuildInfo()
-	if ok {
-		fmt.Println(rootCmd.Name())
-		for _, i := range info.Deps {
-			if i.Path == "github.com/forensicanalysis/forensicstore" || i.Path == "github.com/forensicanalysis/forensicworkflows" {
-				fmt.Printf(" %-20s %s\n", path.Base(i.Path)+":", i.Version)
-			}
-		}
-	}
+	rootCmd.PersistentFlags().MarkHidden("debug")
 
 	err := rootCmd.Execute()
 	if err != nil {
