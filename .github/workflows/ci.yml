@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+
+  elementary:
+    name: elementary
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Download dependencies
+        run: go mod download
+      - name: Install golangci-lint & go-acc
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.25.0
+        shell: bash
+      - name: Test Build
+        run: go build .
+
+      - name: Lint
+        run: golangci-lint run --verbose --config test/.golangci.yml --enable gofmt --enable goimports
+        if: matrix.os != 'windows-latest'
+      - name: Lint Windows
+        run: golangci-lint run --verbose --config test/.golangci.yml
+        if: matrix.os == 'windows-latest'
+
+      - name: Go Build
+        run: |
+          mkdir bin
+          mv elementary* bin
+        shell: bash
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary ${{ matrix.os }}
+          path: bin

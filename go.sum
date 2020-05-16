@@ -125,12 +125,10 @@ github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
-github.com/forensicanalysis/forensicstore v0.16.0 h1:6C9N12M0DgshmyihT1mhnDH7kDgypMiB+24wkPKbbbU=
-github.com/forensicanalysis/forensicstore v0.16.0/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
-github.com/forensicanalysis/forensicstore v0.16.1 h1:z9QwsoRhojE1KXHXqPOdOK4tlO8ova6DzSgCFjRsJ9s=
-github.com/forensicanalysis/forensicstore v0.16.1/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
-github.com/forensicanalysis/forensicworkflows v0.12.2-0.20200511223403-e063bde9a9cd h1:oKh0lkinUwLU7xGwz2K9EPatBxzrPPmlIMHhPZM1hoA=
-github.com/forensicanalysis/forensicworkflows v0.12.2-0.20200511223403-e063bde9a9cd/go.mod h1:1nD446ElqEhPACvNegWnaBY0beTAV0HD9sgKCibDNwA=
+github.com/forensicanalysis/forensicstore v0.16.5 h1:L+0FQvO1qe+63ndylChw3knTG1mkAGC/WaNL9rwe1kg=
+github.com/forensicanalysis/forensicstore v0.16.5/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
+github.com/forensicanalysis/forensicworkflows v0.13.0 h1:1V46sIINEF9wZc+BlBvIk5P40hVYpC69yNoNKtsi21I=
+github.com/forensicanalysis/forensicworkflows v0.13.0/go.mod h1:vR0DtVtagLQw1wgEkHLyI8BHuV4DShTeFmxBN2ySmws=
 github.com/forensicanalysis/fslib v0.14.0 h1:74iTH9Ljd4Kl9mpVeMZksvgddbBOCaEMScL4CkzgTdU=
 github.com/forensicanalysis/fslib v0.14.0/go.mod h1:VfD1k6bSBa1IS/fhAfWBnIPhDi1uZP0+ryD8D8BwsZI=
 github.com/forensicanalysis/stixgo v0.1.0 h1:MC5qNS4Yr+nYk7zM2otFoBRB3FjkxskFShSXMS3N/Ic=

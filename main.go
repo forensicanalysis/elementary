@@ -23,7 +23,9 @@ func main() {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, i := range info.Deps {
-			if i.Path == "github.com/forensicanalysis/forensicstore" || i.Path == "github.com/forensicanalysis/forensicworkflows" {
+			isForensicstore := i.Path == "github.com/forensicanalysis/forensicstore"
+			isForensicworkflows := i.Path == "github.com/forensicanalysis/forensicworkflows"
+			if isForensicstore || isForensicworkflows {
 				version += fmt.Sprintf(" %-30s %s\n", path.Base(i.Path)+" library:", i.Version)
 			}
 		}
@@ -61,7 +63,7 @@ func main() {
 		archiveCommand,
 	)
 	rootCmd.PersistentFlags().BoolVar(&debugLog, "debug", false, "show log messages")
-	rootCmd.PersistentFlags().MarkHidden("debug")
+	_ = rootCmd.PersistentFlags().MarkHidden("debug")
 
 	err := rootCmd.Execute()
 	if err != nil {
