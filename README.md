@@ -6,6 +6,18 @@
 
 The elementary tool can process forensicstores created with the [artifactcollector](https://github.com/forensicanalysis/artifactcollector).
 
+## Installation
+
+[Download the latest release](https://github.com/forensicanalysis/elementary/releases) or use Go:
+
+```bash
+go get -u github.com/forensicanalysis/forensicworkflows
+```
+
+## Usage
+
+For all commands see `elementary --help`. For all features and flags append `--help` to any command.
+
 ### Unpack a forensicstore
 
 ```bash
@@ -48,6 +60,7 @@ elementary run networking pc2dd9f0f_2020-05-16T16-46-25.forensicstore
 
 - Most commands only process Windows artifacts
 - Prefetch files are super slow
+- Script commands require Python 3.9.0a on Windows
 
 ## Contact
 
