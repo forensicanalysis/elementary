@@ -1,4 +1,4 @@
-module x
+module github.com/forensicanalysis/elementary
 
 go 1.14
 
