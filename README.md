@@ -8,11 +8,9 @@ The elementary tool can process forensicstores created with the [artifactcollect
 
 ## Installation
 
-[Download the latest release](https://github.com/forensicanalysis/elementary/releases) or use Go:
+Just get the binary:
 
-```bash
-go get -u github.com/forensicanalysis/forensicworkflows
-```
+### [💾 Download](https://github.com/forensicanalysis/elementary/releases)
 
 ## Usage
 
@@ -59,7 +57,7 @@ elementary run networking pc2dd9f0f_2020-05-16T16-46-25.forensicstore
 ## Limitations
 
 - Most commands only process Windows artifacts
-- Prefetch files are super slow
+- Prefetch file processing is very slow
 - Script commands require Python 3.9.0a on Windows
 
 ## Contact
