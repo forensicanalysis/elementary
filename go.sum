@@ -34,8 +34,6 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/ChrisTrenkamp/goxpath v0.0.0-20170922090931-c385f95c6022/go.mod h1:nuWgzSkT5PnyOd+272uUmV0dnAnAn42Mk7PiQC5VzN4=
 github.com/Microsoft/go-winio v0.4.14 h1:+hMXMk01us9KgxGb7ftKQt2Xpf5hH/yky+TDA+qxleU=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
-github.com/NearlyUnique/pflag v1.0.4-0.20190604125058-e20cc26a6365 h1:vtob6xD5mMtplVjmDgwtCp7JAF4YFYh+7ETcASQU0eY=
-github.com/NearlyUnique/pflag v1.0.4-0.20190604125058-e20cc26a6365/go.mod h1:WX5p/hxvcZN2qF5mjJaAGY5KeaB/uMBWADGVylZ5hps=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/QcloudApi/qcloud_sign_golang v0.0.0-20141224014652-e4130a326409/go.mod h1:1pk82RBxDY/JZnPQrtqHlUFfCctgdorsd9M06fMynOM=
 github.com/Unknwon/com v0.0.0-20151008135407-28b053d5a292/go.mod h1:KYCjqMOeHpNuTOiFQU6WEcTG7poCJrUs0YgyHNtn1no=
@@ -129,8 +127,8 @@ github.com/forensicanalysis/forensicstore v0.16.5 h1:L+0FQvO1qe+63ndylChw3knTG1m
 github.com/forensicanalysis/forensicstore v0.16.5/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
 github.com/forensicanalysis/forensicstore v0.16.8 h1:ygnkSwGF7/5/Ls1FX9yBRTZ3IeocYG+zL/Agyrxgw80=
 github.com/forensicanalysis/forensicstore v0.16.8/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
-github.com/forensicanalysis/forensicworkflows v0.13.1 h1:dwC10B3VLU5fpUiDMzWjveP3nVwhTGCJSBUZOXFc/+s=
-github.com/forensicanalysis/forensicworkflows v0.13.1/go.mod h1:Jvi2w2+y0VtofbdlUWTkj3OQJVW8vXKvjLEvabbaQys=
+github.com/forensicanalysis/forensicworkflows v0.14.0 h1:OsXdHzrOE/GIN2eC1Pdgr7IrcDwFOBxpxCM4pexVVNc=
+github.com/forensicanalysis/forensicworkflows v0.14.0/go.mod h1:GqBgPwqKwx0Tm6ej5ivTg2HxKrbR0ZOD4ieLunUTX+Y=
 github.com/forensicanalysis/fslib v0.14.0 h1:74iTH9Ljd4Kl9mpVeMZksvgddbBOCaEMScL4CkzgTdU=
 github.com/forensicanalysis/fslib v0.14.0/go.mod h1:VfD1k6bSBa1IS/fhAfWBnIPhDi1uZP0+ryD8D8BwsZI=
 github.com/forensicanalysis/stixgo v0.1.0 h1:MC5qNS4Yr+nYk7zM2otFoBRB3FjkxskFShSXMS3N/Ic=
@@ -407,6 +405,10 @@ github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkU
 github.com/spf13/cobra v1.0.0 h1:6m/oheQuQ13N9ks4hubMG6BnvwOeaJrqSPLahSnczz8=
 github.com/spf13/cobra v1.0.0/go.mod h1:/6GTrnGXV9HjY+aR4k0oJ5tcvakLuG6EuKReYlHNrgE=
 github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb68N+wFjFa4jdeBTo=
+github.com/spf13/pflag v1.0.2/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
+github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
+github.com/spf13/pflag v1.0.5 h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
+github.com/spf13/pflag v1.0.5/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 github.com/spf13/viper v1.4.0/go.mod h1:PTJ7Z/lr49W6bUbkmS1V3by4uWynFiR9p7+dSq/yZzE=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
