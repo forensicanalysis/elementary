@@ -34,13 +34,53 @@ jobs:
         shell: bash
         id: release
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Windows
+        id: upload-windows-release-asset
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./${{ matrix.os }}.zip
-          asset_name: ${{ matrix.os }}.zip
+          asset_name: windows.zip
           asset_content_type: application/zip
+        if: matrix.os == 'windows-latest'
+      - name: Upload macOS
+        id: upload-macos-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ./${{ matrix.os }}.zip
+          asset_name: macos.zip
+          asset_content_type: application/zip
+        if: matrix.os == 'macos-latest'
+      - name: Upload Linux
+        id: upload-linux-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ./${{ matrix.os }}.zip
+          asset_name: linux.zip
+          asset_content_type: application/zip
+        if: matrix.os == 'linux-latest'
+
+      - name: Checkout forensicanalysis/homebrew-tap
+        uses: actions/checkout@v2
+        with:
+          repository: forensicanalysis/homebrew-tap
+          path: homebrew-tap
+          ssh-key: ${{ secrets.TAP_DEPLOY_KEY }}
+      - run: python .github/workflows/create_release.py $GITHUB_EVENT_PATH ${{ steps.upload-windows-release-asset.outputs.browser_download_url }}
+      - name: Update homebrew-tap
+        run: |
+          git config --global user.email "git@cugu.eu"
+          git config --global user.name "Update Bot"
+          git add Formular/elementary.rb elementary.json
+          git commit -m "Update formulars"
+          git push origin master
+        working-directory: homebrew-tap
+        if: matrix.os == 'windows-latest'
