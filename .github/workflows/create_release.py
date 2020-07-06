@@ -50,10 +50,10 @@ scoop_template = """{
 }
 """
 
-with open(sys.argv[1], encoding="utf8") as io, open("Formula/elementary.rb", "w+") as homebrew, open("elementary.json", "w+") as scoop:
+with open(sys.argv[1], encoding="utf8") as io, \
+        open("Formula/elementary.rb", "w+", encoding="utf8") as homebrew, \
+        open("elementary.json", "w+", encoding="utf8") as scoop:
     release = json.load(io)
-
-    print(release)
 
     with urllib.request.urlopen(release["release"]["tarball_url"]) as f:
         tarball = f.read()
