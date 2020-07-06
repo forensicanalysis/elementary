@@ -76,8 +76,10 @@ jobs:
           repository: forensicanalysis/homebrew-tap
           path: homebrew-tap
           ssh-key: ${{ secrets.TAP_DEPLOY_KEY }}
+        if: matrix.os == 'windows-latest'
       - run: python ../.github/workflows/create_release.py $GITHUB_EVENT_PATH ${{ steps.upload-windows-release-asset.outputs.browser_download_url }}
         working-directory: homebrew-tap
+        if: matrix.os == 'windows-latest'
       - name: Update homebrew-tap
         run: |
           git config --global user.email "git@cugu.eu"
