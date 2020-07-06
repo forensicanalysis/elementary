@@ -53,13 +53,15 @@ scoop_template = """{
 with open(sys.argv[1]) as io, open("Formula/elementary.rb", "w+") as homebrew, open("elementary.json", "w+") as scoop:
     release = json.load(io)
 
-    with urllib.request.urlopen(release["tarball_url"]) as f:
+    print(release)
+
+    with urllib.request.urlopen(release["release"]["tarball_url"]) as f:
         tarball = f.read()
         sha256 = hashlib.sha256(tarball).hexdigest()
 
-        homebrew.write(homebrew_template % (release["tarball_url"], sha256))
+        homebrew.write(homebrew_template % (release["release"]["tarball_url"], sha256))
 
     with urllib.request.urlopen(sys.argv[2]) as f:
         zipfile = f.read()
         sha256 = hashlib.sha256(zipfile).hexdigest()
-        scoop.write(scoop_template % (release["tag_name"][1:], sys.argv[2], sha256))
+        scoop.write(scoop_template % (release["release"]["tag_name"][1:], sys.argv[2], sha256))
