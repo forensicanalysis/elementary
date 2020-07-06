@@ -85,7 +85,7 @@ jobs:
         run: |
           git config --global user.email "git@cugu.eu"
           git config --global user.name "Update Bot"
-          git add Formular/elementary.rb elementary.json
+          git add Formula/elementary.rb elementary.json
           git commit -m "Update formulars"
           git push origin master
         working-directory: homebrew-tap
