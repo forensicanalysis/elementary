@@ -80,6 +80,7 @@ jobs:
       - run: python ../.github/workflows/create_release.py $GITHUB_EVENT_PATH ${{ steps.upload-windows-release-asset.outputs.browser_download_url }}
         working-directory: homebrew-tap
         if: matrix.os == 'windows-latest'
+        shell: bash
       - name: Update homebrew-tap
         run: |
           git config --global user.email "git@cugu.eu"
@@ -89,3 +90,4 @@ jobs:
           git push origin master
         working-directory: homebrew-tap
         if: matrix.os == 'windows-latest'
+        shell: bash
