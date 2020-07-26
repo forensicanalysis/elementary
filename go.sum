@@ -129,6 +129,8 @@ github.com/forensicanalysis/forensicstore v0.17.1 h1:Kq/MErrr1mura+feyranINHWuh8
 github.com/forensicanalysis/forensicstore v0.17.1/go.mod h1:G0iROQuB+eFW9lhyuNTfbSLSyojKAT2eFWIweRHbMT4=
 github.com/forensicanalysis/forensicworkflows v0.15.0 h1:rwjKotjLs4Mz/vDVoGRhvn0bu8bi313yBOKuXjB3Uq4=
 github.com/forensicanalysis/forensicworkflows v0.15.0/go.mod h1:KBWdoVujzNgNEvyUhdDy3DU05CM4HTVTquOz/TZlUGc=
+github.com/forensicanalysis/forensicworkflows v0.15.1 h1:gbQV3Y16IIGeDMC/ftiBdJ3FgwIXXO9aQ01ViWVxlAE=
+github.com/forensicanalysis/forensicworkflows v0.15.1/go.mod h1:KBWdoVujzNgNEvyUhdDy3DU05CM4HTVTquOz/TZlUGc=
 github.com/forensicanalysis/fslib v0.14.0 h1:74iTH9Ljd4Kl9mpVeMZksvgddbBOCaEMScL4CkzgTdU=
 github.com/forensicanalysis/fslib v0.14.0/go.mod h1:VfD1k6bSBa1IS/fhAfWBnIPhDi1uZP0+ryD8D8BwsZI=
 github.com/forensicanalysis/stixgo v0.1.0 h1:MC5qNS4Yr+nYk7zM2otFoBRB3FjkxskFShSXMS3N/Ic=
