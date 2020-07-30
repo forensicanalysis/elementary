@@ -9,7 +9,7 @@ build-ui:
 
 build:
 	go get github.com/cugu/go-resources/cmd/resources@v0.3.1
-	resources -package assets -output elementary/assets/config.generated.go -trim "scripts/" scripts/scripts/* scripts/req*
+	resources -package assets -output cmd/elementary/assets/config.generated.go -trim "scripts/" scripts/scripts/* scripts/req*
 	go mod tidy
 	cd cmd/elementary && go build .
 
