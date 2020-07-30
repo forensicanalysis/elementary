@@ -1,0 +1,8 @@
+tasks:
+  - command: hotfixes
+  - command: networking
+  - command: run-keys
+  - command: services
+  - command: shimcache
+  - command: software
+  - command: prefetch
