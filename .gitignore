@@ -12,7 +12,6 @@ assets
 
 .DS_Store
 *.zip
-*.json
 item.db
 config/scripts/forensicstore
 
