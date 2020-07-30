@@ -40,7 +40,7 @@ type Command struct {
 	Handler    func(io.Writer, io.Reader, *pflag.FlagSet) error
 }
 
-func Application(name string, width, height int, static http.FileSystem, uiRoot bool, cmds ...*Command) *cobra.Command {
+func Application(name string, static http.FileSystem, cmds ...*Command) *cobra.Command {
 	rootCmd := &cobra.Command{Use: name}
 
 	rootCmd.AddCommand(Commandline(cmds...)...)

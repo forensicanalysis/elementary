@@ -7,6 +7,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/Velocidex/ordereddict v0.0.0-20200419183704-bc44e4ef79c7
 	github.com/agext/levenshtein v1.2.3 // indirect
+	github.com/akavel/rsrc v0.9.0 // indirect
 	github.com/asticode/go-astikit v0.8.0
 	github.com/asticode/go-astilectron v0.16.0
 	github.com/asticode/go-astilectron-bootstrap v0.4.1

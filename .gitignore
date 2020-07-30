@@ -9,6 +9,7 @@ test/data/*
 !test/data/test.yml
 
 assets
+dist
 
 .DS_Store
 *.zip
@@ -16,7 +17,6 @@ item.db
 config/scripts/forensicstore
 
 node_modules
-frontend/dist
 
 # local env files
 .env.local
@@ -35,3 +35,5 @@ yarn-error.log*
 *.sln
 *.sw?
 testdata
+
+pkged.go

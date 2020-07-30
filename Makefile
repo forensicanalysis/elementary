@@ -28,7 +28,8 @@ build-gui: pack-gui
 pack-server: install-ui build-ui
 	cp -r ui/dist cmd/elementary-server/dist
 	go get -u github.com/markbates/pkger/cmd/pkger
-	cd cmd/elementary-server && pkger -o assets
+	mkdir cmd/elementary-server/assets
+	pkger -o cmd/elementary-server/assets
 
 build-server: pack-server
 	cd cmd/elementary-server && go build .
