@@ -28,7 +28,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - run: make pack-cli pack-gui pack-server
+      - run: make pack-cli
+      - run: make pack-gui
+      - run: make pack-server
 
       - name: Download dependencies
         run: go mod download
@@ -61,7 +63,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - run: make pack-cli pack-gui pack-server
+      - run: make pack-cli
+      - run: make pack-gui
+      - run: make pack-server
 
       - name: Download dependencies
         run: go mod download
@@ -104,11 +108,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Setup Build
-        run: go generate
+      - run: make build
 
       - name: Setup node
         uses: actions/setup-node@v1
@@ -149,8 +149,8 @@ jobs:
           name: test.forensicstore
           path: test.forensicstore
 
-  process:
-    name: Run Process
+  case0:
+    name: Test Case 0
     needs: collect
     runs-on: ubuntu-latest
     steps:
@@ -365,7 +365,7 @@ jobs:
       - run: elementary run --debug export-timesketch --filter type=uninstall_entry --format jsonl example2.forensicstore
 
   scripts:
-    name: Python Script Plugin Tests
+    name: Test Scripts
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -393,20 +393,6 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash) -f coverage.xml
         shell: bash
-
-  docs:
-    name: Test Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup go 1.14
-        uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
-      - run: go get -u github.com/cugu/godoc2readme
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: godoc2readme --template docs/readme-template.md . > README2.md
-      - run: diff README.md README2.md
 
   build:
     name: Build elementary CLI
