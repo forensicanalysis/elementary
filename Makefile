@@ -21,9 +21,9 @@ pack-gui: install-ui build-ui
 	rm -rf cmd/ui/resources/app
 	mv ui/dist cmd/elementary-gui/resources/app
 	cp -r cmd/elementary-gui/resources/start/* cmd/elementary-gui/resources/app
+	cd cmd/elementary-gui && astilectron-bundler
 
 build-gui: pack-gui
-	cd cmd/elementary-gui && astilectron-bundler
 
 pack-server: install-ui build-ui
 	cp -r ui/dist cmd/elementary-server/dist

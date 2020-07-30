@@ -117,6 +117,7 @@ jobs:
         run: npm install -g bats
 
       - run: go install .
+        working-directory: cmd/elementary
         shell: bash
       - name: Install forensicstore
         run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
@@ -174,6 +175,7 @@ jobs:
         run: |
           go install .
           elementary install -f --debug
+        working-directory: cmd/elementary
 
       - name: download test.forensicstore
         uses: actions/download-artifact@v2
@@ -217,7 +219,6 @@ jobs:
       - run: make build
       - name: Setup Build
         run: |
-          go generate
           go install .
           elementary install -f
         working-directory: cmd/elementary
@@ -253,7 +254,6 @@ jobs:
       - run: make build
       - name: Setup Build
         run: |
-          go generate
           go install .
           elementary install -f
         working-directory: cmd/elementary
@@ -286,7 +286,6 @@ jobs:
       - run: make build
       - name: Setup Build
         run: |
-          go generate
           go install .
           elementary install -f
         working-directory: cmd/elementary
@@ -320,7 +319,6 @@ jobs:
       - run: make build
       - name: Setup Build
         run: |
-          go generate
           go install .
           elementary install -f
         working-directory: cmd/elementary
@@ -353,7 +351,6 @@ jobs:
       - run: make build
       - name: Setup Build
         run: |
-          go generate
           go install .
           elementary install -f
         working-directory: cmd/elementary
