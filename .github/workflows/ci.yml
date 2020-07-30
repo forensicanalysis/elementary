@@ -9,7 +9,7 @@ on:
 jobs:
 
   lint:
-    name: Lint elementary
+    name: Lint Elementary
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -44,7 +44,7 @@ jobs:
         if: matrix.os == 'windows-latest'
 
   test:
-    name: Test elementary
+    name: Unittest Elementary
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -85,7 +85,7 @@ jobs:
         shell: bash
 
   cli-integrationtests:
-    name: Test CLI Integration
+    name: Integration Test CLI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -392,7 +392,7 @@ jobs:
         shell: bash
 
   build:
-    name: Build elementary CLI
+    name: Build Elementary CLI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -419,7 +419,7 @@ jobs:
           path: cmd/elementary/bin
 
   build-gui:
-    name: Build elementary GUI
+    name: Build Elementary GUI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -443,7 +443,7 @@ jobs:
           path: cmd/elementary-gui/output
 
   build-server:
-    name: Build elementary Server
+    name: Build Elementary Server
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

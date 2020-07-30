@@ -35,7 +35,6 @@ import (
 	forensicstoreCmd "github.com/forensicanalysis/forensicstore/cmd"
 )
 
-
 func main() {
 	var debugLog bool
 
