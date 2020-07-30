@@ -8,6 +8,8 @@ test/data/*
 !test/data/import.json
 !test/data/test.yml
 
+assets
+
 .DS_Store
 *.zip
 *.json

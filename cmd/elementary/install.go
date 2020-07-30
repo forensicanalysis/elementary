@@ -35,7 +35,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/cmd/cli/assets"
+	"github.com/forensicanalysis/elementary/cmd/elementary/assets"
 	"github.com/forensicanalysis/elementary/commands"
 )
 

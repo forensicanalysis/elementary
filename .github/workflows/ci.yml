@@ -89,6 +89,8 @@ jobs:
         with: {go-version: '1.14'}
       - uses: actions/setup-python@v1
         with: {python-version: '3.8'}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - run: make build
       - name: Go Build
         run: |
@@ -117,6 +119,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
         with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - run: make build-gui
       - name: Upload
         uses: actions/upload-artifact@master
@@ -125,7 +129,7 @@ jobs:
           path: cmd/elementary-gui/output
 
   build-server:
-    name: Build elementary GUI
+    name: Build elementary Server
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -139,6 +143,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
         with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
       - run: make build-server
       - name: Go Build
         run: |
