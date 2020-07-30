@@ -28,6 +28,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - run: make pack-cli pack-gui pack-server
+
       - name: Download dependencies
         run: go mod download
       - name: Install golangci-lint
@@ -59,6 +61,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - run: make pack-cli pack-gui pack-server
+
       - name: Download dependencies
         run: go mod download
 
@@ -76,89 +80,8 @@ jobs:
         run: bash <(curl -s https://codecov.io/bash) -f coverage.txt
         shell: bash
 
-  build:
-    name: Build elementary CLI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    steps:
-      - name: Setup go 1.14
-        uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
-        with: {python-version: '3.8'}
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: make build
-      - name: Go Build
-        run: |
-          mkdir bin
-          mv elementary* bin
-        shell: bash
-        working-directory: cmd/elementary
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary ${{ matrix.os }}
-          path: cmd/elementary/bin
-
-  build-gui:
-    name: Build elementary GUI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    steps:
-      - name: Setup go 1.14
-        uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
-        with: {python-version: '3.8'}
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with: {node-version: '12'}
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: make build-gui
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary ${{ matrix.os }}
-          path: cmd/elementary-gui/output
-
-  build-server:
-    name: Build elementary Server
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
-    steps:
-      - name: Setup go 1.14
-        uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
-        with: {python-version: '3.8'}
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with: {node-version: '12'}
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: make build-server
-      - name: Go Build
-        run: |
-          mkdir bin
-          mv elementary* bin
-        shell: bash
-        working-directory: cmd/elementary-server
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary ${{ matrix.os }}
-          path: cmd/elementary-server/bin
-
   cli-integrationtests:
-    name: CLI Integration
+    name: Test CLI Integration
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -210,38 +133,8 @@ jobs:
         shell: bash
         if: matrix.os == 'windows-latest'
 
-  scripts:
-    name: Python Script Plugin Tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    steps:
-      - uses: actions/setup-python@v1
-        with: {python-version: '3.8'}
-      - run: pip install pylint pytest pytest-cov
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - run: pip install -r scripts/requirements.txt
-      - name: Python Lint
-        run: pylint *.py --rcfile ../../test/.pylintrc
-        shell: bash
-        working-directory: scripts/scripts
-      - name: Download testdata
-        run: bash test/download_testdata.sh
-        shell: bash
-      - name: Python Test
-        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts/scripts test/python
-        shell: bash
-      - name: Upload coverage
-        env:
-          CI: "true"
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: bash <(curl -s https://codecov.io/bash) -f coverage.xml
-        shell: bash
-
   collect:
-    name: Run Collect
+    name: Test Collect
     runs-on: windows-latest
     steps:
       - name: Collect artifacts
@@ -471,8 +364,38 @@ jobs:
       - run: elementary run --debug software --add-to-store --format csv example2.forensicstore
       - run: elementary run --debug export-timesketch --filter type=uninstall_entry --format jsonl example2.forensicstore
 
+  scripts:
+    name: Python Script Plugin Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - run: pip install pylint pytest pytest-cov
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: pip install -r scripts/requirements.txt
+      - name: Python Lint
+        run: pylint *.py --rcfile ../../test/.pylintrc
+        shell: bash
+        working-directory: scripts/scripts
+      - name: Download testdata
+        run: bash test/download_testdata.sh
+        shell: bash
+      - name: Python Test
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts/scripts test/python
+        shell: bash
+      - name: Upload coverage
+        env:
+          CI: "true"
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.xml
+        shell: bash
+
   docs:
-    name: Documentation
+    name: Test Documentation
     runs-on: ubuntu-latest
     steps:
       - name: Setup go 1.14
@@ -484,3 +407,84 @@ jobs:
         uses: actions/checkout@v2
       - run: godoc2readme --template docs/readme-template.md . > README2.md
       - run: diff README.md README2.md
+
+  build:
+    name: Build elementary CLI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Go Build
+        run: |
+          mkdir bin
+          mv elementary* bin
+        shell: bash
+        working-directory: cmd/elementary
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary ${{ matrix.os }}
+          path: cmd/elementary/bin
+
+  build-gui:
+    name: Build elementary GUI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build-gui
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary ${{ matrix.os }}
+          path: cmd/elementary-gui/output
+
+  build-server:
+    name: Build elementary Server
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build-server
+      - name: Go Build
+        run: |
+          mkdir bin
+          mv elementary* bin
+        shell: bash
+        working-directory: cmd/elementary-server
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary ${{ matrix.os }}
+          path: cmd/elementary-server/bin
