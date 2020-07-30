@@ -195,7 +195,6 @@ jobs:
         run: elementary run --debug services --format csv test.forensicstore
       - name: run shimcache
         run: elementary run --debug shimcache --format csv test.forensicstore
-
       - name: run yara
         run: elementary run --debug yara --format csv test.forensicstore
 
@@ -439,7 +438,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@master
         with:
-          name: elementary ${{ matrix.os }}
+          name: elementary-gui ${{ matrix.os }}
           path: cmd/elementary-gui/output
 
   build-server:
@@ -469,5 +468,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@master
         with:
-          name: elementary ${{ matrix.os }}
+          name: elementary-server ${{ matrix.os }}
           path: cmd/elementary-server/bin
