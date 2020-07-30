@@ -68,7 +68,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 }
 
 func insertTasks(storeURL string, workflow *daggy.Workflow) error {
-	store, teardown, err := forensicstore.New(storeURL)
+	store, teardown, err := forensicstore.Open(storeURL)
 	if err != nil {
 		return err
 	}

@@ -36,6 +36,7 @@ jobs:
         run: go mod download
       - name: Install golangci-lint
         run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.25.0
+        shell: bash
       - name: Lint
         run: golangci-lint run --verbose --config test/.golangci.yml --enable gofmt --enable goimports cmd/elementary cmd/elementary-server commands daggy server
         if: matrix.os != 'windows-latest'
