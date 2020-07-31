@@ -1,0 +1,7 @@
+.DS_Store
+Thumbs.db
+.idea/
+bind*
+output
+windows.syso
+resources/app

@@ -78,7 +78,7 @@ issues:
   exclude-use-default: false
 
   exclude:
-    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv|teardown). is not checked
+    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv|teardown.*). is not checked
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
 

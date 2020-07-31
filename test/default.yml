@@ -1,0 +1,43 @@
+tasks:
+  - command: hotfixes
+    arguments:
+      format: table
+      output: hotfixes.txt
+
+  - command: networking
+    arguments:
+      format: table
+      output: networking.txt
+
+  - command: run-keys
+    arguments:
+      format: table
+      output: run-keys.txt
+
+  - command: services
+    arguments:
+      format: table
+      output: services.txt
+
+  - command: software
+    arguments:
+      format: table
+      output: software.txt
+
+  - command: prefetch
+    arguments:
+      format: table
+      output: prefetch.txt
+
+  - command: usb
+    arguments:
+      format: table
+      output: usb.txt
+
+  - command: eventlogs
+    arguments:
+      format: table
+      output: eventlogs.txt
+
+# plaso
+# shimcache

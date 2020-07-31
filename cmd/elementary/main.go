@@ -33,7 +33,6 @@ import (
 
 	"github.com/forensicanalysis/forensicstore"
 	forensicstoreCmd "github.com/forensicanalysis/forensicstore/cmd"
-	workflowCmd "github.com/forensicanalysis/forensicworkflows/cmd"
 )
 
 func main() {
@@ -44,9 +43,7 @@ func main() {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
 		for _, i := range info.Deps {
-			isForensicstore := i.Path == "github.com/forensicanalysis/forensicstore"
-			isForensicworkflows := i.Path == "github.com/forensicanalysis/forensicworkflows"
-			if isForensicstore || isForensicworkflows {
+			if i.Path == "github.com/forensicanalysis/forensicstore" {
 				version += fmt.Sprintf(" %-30s %s\n", path.Base(i.Path)+" library:", i.Version)
 			}
 		}
@@ -75,9 +72,9 @@ func main() {
 		forensicstoreCmd.Ls(),
 	)
 	rootCmd.AddCommand(
-		workflowCmd.Run(),
-		workflowCmd.Install(),
-		workflowCmd.Workflow(),
+		run(),
+		install(),
+		workflow(),
 		forensicstoreCmd.Element(),
 		forensicstoreCmd.Create(),
 		forensicstoreCmd.Validate(),

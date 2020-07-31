@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  elementary:
-    name: elementary
+  lint:
+    name: Lint Elementary
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -19,29 +19,455 @@ jobs:
         uses: actions/setup-go@v2
         with: {go-version: '1.14'}
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - run: make pack-cli
+      - run: make pack-gui
+      - run: make pack-server
+
       - name: Download dependencies
         run: go mod download
-      - name: Install golangci-lint & go-acc
+      - name: Install golangci-lint
         run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.25.0
         shell: bash
-      - name: Test Build
-        run: go build .
-
       - name: Lint
-        run: golangci-lint run --verbose --config test/.golangci.yml --enable gofmt --enable goimports
+        run: golangci-lint run --verbose --config test/.golangci.yml --enable gofmt --enable goimports cmd/elementary cmd/elementary-server commands daggy server
         if: matrix.os != 'windows-latest'
       - name: Lint Windows
-        run: golangci-lint run --verbose --config test/.golangci.yml
+        run: golangci-lint run --verbose --config test/.golangci.yml cmd/elementary cmd/elementary-server commands daggy server
         if: matrix.os == 'windows-latest'
 
+  test:
+    name: Unittest Elementary
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - run: make pack-cli
+      - run: make pack-gui
+      - run: make pack-server
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Install  go-acc
+        run: go get -u github.com/ory/go-acc
+      - name: Download testdata
+        run: bash test/download_testdata.sh
+        shell: bash
+      - name: Test
+        run: go-acc ./...
+      - name: Upload coverage
+        env:
+          CI: "true"
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.txt
+        shell: bash
+
+  cli-integrationtests:
+    name: Integration Test CLI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - run: doskey python3=python
+        if: matrix.os == 'windows-latest'
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - run: make build
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with: {node-version: '12'}
+      - name: Install bats
+        run: npm install -g bats
+
+      - run: go install .
+        working-directory: cmd/elementary
+        shell: bash
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - name: Download testdata
+        run: bash test/download_testdata.sh
+        shell: bash
+      - name: Bats test Unix
+        run: bats test/bats/elementary.bats test/bats/elementary_unix.bats
+        shell: bash
+        if: matrix.os != 'windows-latest'
+      - name: Bats test Windows
+        run: bats test/bats/elementary.bats
+        shell: bash
+        if: matrix.os == 'windows-latest'
+
+  collect:
+    name: Test Collect
+    runs-on: windows-latest
+    steps:
+      - name: Collect artifacts
+        run: |
+          curl --fail --output windows.zip --location https://github.com/forensicanalysis/artifactcollector/releases/download/v0.15.0/windows.zip
+          unzip windows.zip
+          ./artifactcollector.exe
+          mv *.forensicstore test.forensicstore
+      - name: upload test.forensicstore
+        uses: actions/upload-artifact@v2
+        with:
+          name: test.forensicstore
+          path: test.forensicstore
+
+  case0:
+    name: Test Case 0
+    needs: collect
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f --debug
+        working-directory: cmd/elementary
+
+      - name: download test.forensicstore
+        uses: actions/download-artifact@v2
+        with:
+          name: test.forensicstore
+
+      # - name: run import-json
+      #   run: elementary run --debug import-json --format csv test.forensicstore
+      #   shell: bash
+      - name: run networking
+        run: elementary run --debug networking --format csv test.forensicstore
+      - name: run prefetch
+        run: elementary run --debug prefetch --format csv test.forensicstore
+      - name: run run-keys
+        run: elementary run --debug run-keys --format csv test.forensicstore
+      - name: run services
+        run: elementary run --debug services --format csv test.forensicstore
+      - name: run shimcache
+        run: elementary run --debug shimcache --format csv test.forensicstore
+      - name: run yara
+        run: elementary run --debug yara --format csv test.forensicstore
+
+  case1:
+    name: Test Case 1 (import-file, eventlogs, sigma)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f
+        working-directory: cmd/elementary
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - run: curl --fail --output master.zip --location https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES/archive/master.zip
+      - run: unzip master.zip
+      - run: forensicstore create case1.forensicstore
+      - run: elementary run --debug import-file --file EVTX-ATTACK-SAMPLES-master case1.forensicstore
+      - run: elementary run --debug eventlogs --format none --add-to-store case1.forensicstore
+      - run: elementary run --debug sigma case1.forensicstore
+
+  case2:
+    name: Test Case 2 (import-image, hotfixes)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f
+        working-directory: cmd/elementary
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - run: forensicstore create case2.forensicstore
+      - run: curl --fail --output win10_mock.zip --location https://download.artifacthub.org/windows/win10_mock.zip
+      - run: unzip win10_mock.zip
+      - run: elementary run --debug import-image --input-dir . --input-file win10_mock.vhd case2.forensicstore
+      - run: elementary run --debug hotfixes --format csv case2.forensicstore
+
+  case3:
+    name: Test Case 3 (import-forensicstore, plaso)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f
+        working-directory: cmd/elementary
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
+      - run: forensicstore create case3.forensicstore
+      - run: elementary run --debug import-forensicstore --file example2.forensicstore case3.forensicstore
+      - run: elementary run --debug plaso case3.forensicstore
+
+  case4:
+    name: Test Case 4 (usb, export)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f
+        working-directory: cmd/elementary
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - run: curl --fail --output usb.forensicstore --location https://download.artifacthub.org/forensics/usb.forensicstore
+      - run: elementary run --debug usb --format csv usb.forensicstore
+      - run: elementary run --debug export --format csv usb.forensicstore
+
+  case5:
+    name: Test Case 5 (software, export-timesketch)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
+      - name: Setup Build
+        run: |
+          go install .
+          elementary install -f
+        working-directory: cmd/elementary
+      - name: Install forensicstore
+        run: go get github.com/forensicanalysis/forensicstore/cmd/forensicstore
+
+      - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
+      - run: elementary run --debug software --add-to-store --format csv example2.forensicstore
+      - run: elementary run --debug export-timesketch --filter type=uninstall_entry --format jsonl example2.forensicstore
+
+  scripts:
+    name: Test Scripts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - run: pip install pylint pytest pytest-cov
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: pip install -r scripts/requirements.txt
+      - name: Python Lint
+        run: pylint *.py --rcfile ../../test/.pylintrc
+        shell: bash
+        working-directory: scripts/scripts
+      - name: Download testdata
+        run: bash test/download_testdata.sh
+        shell: bash
+      - name: Python Test
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts/scripts test/python
+        shell: bash
+      - name: Upload coverage
+        env:
+          CI: "true"
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash) -f coverage.xml
+        shell: bash
+
+  build:
+    name: Build Elementary CLI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build
       - name: Go Build
         run: |
           mkdir bin
           mv elementary* bin
         shell: bash
+        working-directory: cmd/elementary
       - name: Upload
         uses: actions/upload-artifact@master
         with:
           name: elementary ${{ matrix.os }}
-          path: bin
+          path: cmd/elementary/bin
+
+  build-gui:
+    name: Build Elementary GUI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build-gui
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary-gui ${{ matrix.os }}
+          path: cmd/elementary-gui/output
+
+  build-server:
+    name: Build Elementary Server
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - uses: actions/setup-python@v1
+        with: {python-version: '3.8'}
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with: {node-version: '12'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - run: make build-server
+      - name: Go Build
+        run: |
+          mkdir bin
+          mv elementary* bin
+        shell: bash
+        working-directory: cmd/elementary-server
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: elementary-server ${{ matrix.os }}
+          path: cmd/elementary-server/bin

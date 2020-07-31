@@ -1,0 +1,39 @@
+.idea
+.pytest_cache
+__pycache__
+.coverage
+coverage.xml
+
+test/data/*
+!test/data/import.json
+!test/data/test.yml
+
+assets
+dist
+
+.DS_Store
+*.zip
+item.db
+config/scripts/forensicstore
+
+node_modules
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+testdata
+
+pkged.go
