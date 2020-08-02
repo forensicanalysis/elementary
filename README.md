@@ -1,7 +1,7 @@
 <h1 align="center">elementary</h1>
 
 <p  align="center">
- <a href="https://github.com/forensicanalysis/forensicworkflows/actions"><img src="https://github.com/forensicanalysis/elementary/workflows/CI/badge.svg" alt="build" /></a>
+ <a href="https://github.com/forensicanalysis/elementary/actions"><img src="https://github.com/forensicanalysis/elementary/workflows/CI/badge.svg" alt="build" /></a>
  <a href="https://codecov.io/gh/forensicanalysis/elementary"><img src="https://codecov.io/gh/forensicanalysis/elementary/branch/master/graph/badge.svg" alt="coverage" /></a>
  <a href="https://goreportcard.com/report/github.com/forensicanalysis/elementary"><img src="https://goreportcard.com/badge/github.com/forensicanalysis/elementary" alt="report" /></a>
  <a href="https://pkg.go.dev/github.com/forensicanalysis/elementary"><img src="https://img.shields.io/badge/go.dev-documentation-007d9c?logo=go&logoColor=white" alt="doc" /></a>
