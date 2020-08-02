@@ -7,6 +7,8 @@
 The elementary tool can process forensicstores created with the [artifactcollector](https://github.com/forensicanalysis/artifactcollector).
 
 ## Installation
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fforensicanalysis%2Felementary.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fforensicanalysis%2Felementary?ref=badge_shield)
+
 
 Just get the binary:
 
@@ -63,3 +65,7 @@ elementary run networking pc2dd9f0f_2020-05-16T16-46-25.forensicstore
 ## Contact
 
 For feedback, questions and discussions you can use the [Open Source DFIR Slack](https://github.com/open-source-dfir/slack).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fforensicanalysis%2Felementary.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fforensicanalysis%2Felementary?ref=badge_large)
