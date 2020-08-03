@@ -8,8 +8,34 @@ on:
 
 jobs:
 
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go 1.14
+        uses: actions/setup-go@v2
+        with: {go-version: '1.14'}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - run: make build
+      - run: make build-gui
+      - run: make build-server
+      - uses: actions/upload-artifact@master
+        with: {name: 'config.generated.go',  path: 'cmd/elementary/assets/config.generated.go'}
+      - uses: actions/upload-artifact@master
+        with: {name: 'bind.go',  path: 'cmd/elementary-gui/bind*.go'}
+      - uses: actions/upload-artifact@master
+        with: {name: 'pkged.go',  path: 'cmd/elementary-server/assets/pkged.go'}
+
   lint:
     name: Lint Elementary
+    needs: prepare
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -28,12 +54,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      - run: make pack-cli
-      - run: make pack-gui
-      - run: make pack-server
+      - uses: actions/download-artifact@v2
+        with: {name: config.generated.go}
+      - uses: actions/download-artifact@v2
+        with: {name: bind.go}
+      - uses: actions/download-artifact@v2
+        with: {name: pkged.go}
 
-      - name: Download dependencies
-        run: go mod download
       - name: Install golangci-lint
         run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.25.0
         shell: bash
@@ -401,8 +428,6 @@ jobs:
       - name: Setup go 1.14
         uses: actions/setup-go@v2
         with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
-        with: {python-version: '3.8'}
       - name: Checkout code
         uses: actions/checkout@v2
       - run: make build
