@@ -24,7 +24,7 @@
     "minimist": "1.2.5",
     "register-service-worker": "^1.6.2",
     "roboto-fontface": "*",
-    "sass-loader": "^8.0.0",
+    "sass-loader": "^9.0.0",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.5",
     "vue-code-highlight": "^0.7.4",
@@ -54,7 +54,7 @@
     "fibers": "^5.0.0",
     "node-sass": "^4.12.0",
     "sass": "^1.24.0",
-    "sass-loader": "^8.0.0",
+    "sass-loader": "^9.0.0",
     "vue-cli-plugin-vuetify": "^2.0.2",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.4.3"
