@@ -6,7 +6,7 @@ build-ui:
 
 build-cli:
 	go get -u github.com/markbates/pkger/cmd/pkger
-	cd cmd/elementary && pkger -o /cmd/elementary
+	pkger -o /cmd/elementary
 	go mod tidy
 	cd cmd/elementary && go build .
 
