@@ -158,7 +158,7 @@ jobs:
           name: elementary ${{ matrix.os }}
       - run: curl --fail --output ${{ matrix.os }}.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/${{ matrix.os }}.zip
       - run: unzip ${{ matrix.os }}.zip
-       run: chmod +x elementary
+      - run: chmod +x elementary
 
       - name: Set system path
         run: echo "##[add-path]$PWD"
