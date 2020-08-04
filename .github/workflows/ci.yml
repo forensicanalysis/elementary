@@ -204,7 +204,6 @@ jobs:
     steps:
       - uses: actions/setup-python@v1
         with: {python-version: '3.8'}
-
       - name: download test.forensicstore
         uses: actions/download-artifact@v2
         with:
@@ -213,7 +212,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
-
+      - run: chmod +x elementary
       # - name: run import-json
       #   run: elementary run --debug import-json --format csv test.forensicstore
       #   shell: bash
@@ -239,6 +238,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
+      - run: chmod +x elementary
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
       - run: curl --fail --output master.zip --location https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES/archive/master.zip
@@ -255,15 +255,13 @@ jobs:
     steps:
       - uses: actions/setup-python@v1
         with: {python-version: '3.8'}
-
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
-
+      - run: chmod +x elementary
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
-
       - run: ./forensicstore create case2.forensicstore
       - run: curl --fail --output win10_mock.zip --location https://download.artifacthub.org/windows/win10_mock.zip
       - run: unzip win10_mock.zip
@@ -279,6 +277,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
+      - run: chmod +x elementary
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
       - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
@@ -293,12 +292,11 @@ jobs:
     steps:
       - uses: actions/setup-python@v1
         with: {python-version: '3.8'}
-
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
-
+      - run: chmod +x elementary
       - run: curl --fail --output usb.forensicstore --location https://download.artifacthub.org/forensics/usb.forensicstore
       - run: ./elementary run --debug usb --format csv usb.forensicstore
       - run: ./elementary run --debug export --format csv usb.forensicstore
