@@ -342,6 +342,7 @@ jobs:
 
   case5:
     name: Test Case 5 (software, export-timesketch)
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

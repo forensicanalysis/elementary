@@ -1,7 +1,7 @@
-.PHONY: build build-ui build-server build-ui pack-server
+.PHONY: build-cli build-ui build-server build-ui
 
 build-ui:
-    cd ui && yarn install
+	cd ui && yarn install
 	cd ui && yarn build
 
 build-cli:
