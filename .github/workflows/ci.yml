@@ -158,6 +158,7 @@ jobs:
           name: elementary ${{ matrix.os }}
       - run: curl --fail --output ${{ matrix.os }}.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/${{ matrix.os }}.zip
       - run: unzip ${{ matrix.os }}.zip
+       run: chmod +x elementary
 
       - name: Set system path
         run: echo "##[add-path]$PWD"
@@ -213,6 +214,7 @@ jobs:
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
+      - run: ./elementary install -f
       # - name: run import-json
       #   run: elementary run --debug import-json --format csv test.forensicstore
       #   shell: bash
@@ -239,6 +241,7 @@ jobs:
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
+      - run: ./elementary install -f
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
       - run: curl --fail --output master.zip --location https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES/archive/master.zip
@@ -260,6 +263,7 @@ jobs:
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
+      - run: ./elementary install -f
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
       - run: ./forensicstore create case2.forensicstore
@@ -278,6 +282,7 @@ jobs:
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
+      - run: ./elementary install -f
       - run: curl --fail --output ubuntu-latest.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/ubuntu-latest.zip
       - run: unzip ubuntu-latest.zip
       - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
@@ -297,6 +302,7 @@ jobs:
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
+      - run: ./elementary install -f
       - run: curl --fail --output usb.forensicstore --location https://download.artifacthub.org/forensics/usb.forensicstore
       - run: ./elementary run --debug usb --format csv usb.forensicstore
       - run: ./elementary run --debug export --format csv usb.forensicstore
@@ -308,12 +314,12 @@ jobs:
     steps:
       - uses: actions/setup-python@v1
         with: {python-version: '3.8'}
-
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
           name: elementary ubuntu-latest
-
+      - run: chmod +x elementary
+      - run: ./elementary install -f
       - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
       - run: ./elementary run --debug software --add-to-store --format csv example2.forensicstore
       - run: ./elementary run --debug export-timesketch --filter type=uninstall_entry --format jsonl example2.forensicstore
