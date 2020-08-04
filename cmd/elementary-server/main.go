@@ -31,7 +31,7 @@ import (
 )
 
 func main() {
-	var static pkger.Dir = "/cmd/elementary-server/dist"
+	var static pkger.Dir = "/ui/dist"
 	rootCmd := server.Application("fstore", static, server.Commands()...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)
