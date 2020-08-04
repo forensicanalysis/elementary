@@ -8,8 +8,8 @@ build-ui:
 	cd ui && yarn build
 
 pack-cli:
-	go get github.com/cugu/go-resources/cmd/resources@v0.3.1
-	resources -package assets -output cmd/elementary/assets/config.generated.go -trim "scripts/" scripts/scripts/* scripts/req*
+	go get -u github.com/markbates/pkger/cmd/pkger
+	cd /cmd/elementary && pkger -o /cmd/elementary
 	go mod tidy
 
 build: pack-cli
@@ -21,6 +21,7 @@ pack-gui: install-ui build-ui
 	rm -rf cmd/ui/resources/app
 	mv ui/dist cmd/elementary-gui/resources/app
 	cp -r cmd/elementary-gui/resources/start/* cmd/elementary-gui/resources/app
+	rm -f cmd/elementary-gui/bind.go
 	cd cmd/elementary-gui && astilectron-bundler
 
 build-gui: pack-gui
@@ -28,8 +29,8 @@ build-gui: pack-gui
 pack-server: install-ui build-ui
 	cp -r ui/dist cmd/elementary-server/dist
 	go get -u github.com/markbates/pkger/cmd/pkger
-	mkdir cmd/elementary-server/assets
 	pkger -o cmd/elementary-server/assets
+	go mod tidy
 
 build-server: pack-server
 	cd cmd/elementary-server && go build .

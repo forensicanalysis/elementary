@@ -24,7 +24,6 @@ package main
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -33,9 +32,9 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"github.com/markbates/pkger"
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/cmd/elementary/assets"
 	"github.com/forensicanalysis/elementary/commands"
 )
 
@@ -164,20 +163,41 @@ func contains(l []string, s string) bool {
 }
 
 func unpack(appDir string) (err error) {
-	for name, data := range assets.FS {
-		name = filepath.FromSlash(name)
-		dest := filepath.Join(appDir, name[1:])
-		log.Println("unpack", dest)
-		err = os.MkdirAll(filepath.Dir(dest), 0700)
+	return pkger.Walk("/scripts", func(name string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		err = ioutil.WriteFile(dest, data, 0700)
+		if info.IsDir() {
+			return nil
+		}
+
+		p, err := pkger.Parse(name)
 		if err != nil {
 			return err
 		}
-	}
-	return err
+
+		src, err := pkger.Open(name)
+		if err != nil {
+			return err
+		}
+		defer src.Close()
+
+		destPath := filepath.Join(appDir, strings.TrimPrefix(p.Name, "/scripts/"))
+		log.Println("unpack", destPath)
+		err = os.MkdirAll(filepath.Dir(destPath), 0700)
+		if err != nil {
+			return err
+		}
+
+		dest, err := os.Create(destPath)
+		if err != nil {
+			return err
+		}
+		defer dest.Close()
+
+		_, err = io.Copy(dest, src)
+		return err
+	})
 }
 
 func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error {
