@@ -2,10 +2,6 @@ package main
 
 import "os"
 
-func RestoreAssets(dir string, s string) error {
-	panic("Dummy method")
-}
-
 func Asset(name string) ([]byte, error) {
 	panic("Dummy method")
 }

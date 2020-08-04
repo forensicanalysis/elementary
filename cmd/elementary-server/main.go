@@ -26,6 +26,7 @@ import (
 	"os"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
+
 	"github.com/forensicanalysis/elementary/server"
 )
 
