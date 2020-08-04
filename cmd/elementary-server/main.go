@@ -25,13 +25,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/markbates/pkger"
-
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/forensicanalysis/elementary/server"
 )
 
 func main() {
-	var static pkger.Dir = "/ui/dist"
+	static := &assetfs.AssetFS{Asset: Asset, AssetDir: AssetDir, AssetInfo: AssetInfo, Prefix: "data"}
 	rootCmd := server.Application("fstore", static, server.Commands()...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)

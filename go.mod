@@ -15,9 +15,9 @@ require (
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/forensicanalysis/forensicstore v0.17.1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
@@ -25,8 +25,8 @@ require (
 	github.com/hashicorp/hcl/v2 v2.4.0 // indirect
 	github.com/hashicorp/logutils v1.0.0
 	github.com/hashicorp/terraform v0.12.24
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/markbates/pkger v0.17.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect

@@ -32,7 +32,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/markbates/pkger"
 	"github.com/spf13/cobra"
 
 	"github.com/forensicanalysis/elementary/commands"
@@ -163,41 +162,7 @@ func contains(l []string, s string) bool {
 }
 
 func unpack(appDir string) (err error) {
-	return pkger.Walk("/scripts", func(name string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-
-		p, err := pkger.Parse(name)
-		if err != nil {
-			return err
-		}
-
-		src, err := pkger.Open(name)
-		if err != nil {
-			return err
-		}
-		defer src.Close()
-
-		destPath := filepath.Join(appDir, strings.TrimPrefix(p.Name, "/scripts/"))
-		log.Println("unpack", destPath)
-		err = os.MkdirAll(filepath.Dir(destPath), 0700)
-		if err != nil {
-			return err
-		}
-
-		dest, err := os.Create(destPath)
-		if err != nil {
-			return err
-		}
-		defer dest.Close()
-
-		_, err = io.Copy(dest, src)
-		return err
-	})
+	return RestoreAssets(appDir, "")
 }
 
 func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error {
