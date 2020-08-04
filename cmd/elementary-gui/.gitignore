@@ -1,7 +1,7 @@
 .DS_Store
 Thumbs.db
 .idea/
-bind*
+bind_*
 output
 windows.syso
 resources/app

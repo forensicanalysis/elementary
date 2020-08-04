@@ -36,4 +36,4 @@ yarn-error.log*
 *.sw?
 testdata
 
-pkged.go
+bindata.generated.go

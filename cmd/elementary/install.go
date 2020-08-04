@@ -24,7 +24,6 @@ package main
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -35,7 +34,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/cmd/elementary/assets"
 	"github.com/forensicanalysis/elementary/commands"
 )
 
@@ -164,20 +162,7 @@ func contains(l []string, s string) bool {
 }
 
 func unpack(appDir string) (err error) {
-	for name, data := range assets.FS {
-		name = filepath.FromSlash(name)
-		dest := filepath.Join(appDir, name[1:])
-		log.Println("unpack", dest)
-		err = os.MkdirAll(filepath.Dir(dest), 0700)
-		if err != nil {
-			return err
-		}
-		err = ioutil.WriteFile(dest, data, 0700)
-		if err != nil {
-			return err
-		}
-	}
-	return err
+	return RestoreAssets(appDir, "")
 }
 
 func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error {

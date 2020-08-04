@@ -1,35 +1,30 @@
-.PHONY: install-ui build build-ui build-server build-ui pack-server
-
-install-ui:
-	cd ui && yarn install
-	go get -u github.com/asticode/go-astilectron-bundler/...
+.PHONY: build-cli build-ui build-server build-ui
 
 build-ui:
+	cd ui && yarn install
 	cd ui && yarn build
 
-pack-cli:
-	go get github.com/cugu/go-resources/cmd/resources@v0.3.1
-	resources -package assets -output cmd/elementary/assets/config.generated.go -trim "scripts/" scripts/scripts/* scripts/req*
+build-cli:
+	go get -u github.com/asticode/go-bindata/...
+	rm cmd/elementary/bindata.dummy.go
+	go-bindata -prefix "scripts/" -o cmd/elementary/bindata.generated.go scripts/...
 	go mod tidy
-
-build: pack-cli
 	cd cmd/elementary && go build .
 
-pack-gui: install-ui build-ui
+build-gui: build-ui
 	sed 's_=/_=_g' ui/dist/index.html > tmp
 	mv tmp ui/dist/index.html
 	rm -rf cmd/ui/resources/app
 	mv ui/dist cmd/elementary-gui/resources/app
 	cp -r cmd/elementary-gui/resources/start/* cmd/elementary-gui/resources/app
+	rm -f cmd/elementary-gui/bind.go
+	go get -u github.com/asticode/go-astilectron-bundler/...
+	rm cmd/elementary-gui/bindata.dummy.go
 	cd cmd/elementary-gui && astilectron-bundler
 
-build-gui: pack-gui
-
-pack-server: install-ui build-ui
-	cp -r ui/dist cmd/elementary-server/dist
-	go get -u github.com/markbates/pkger/cmd/pkger
-	mkdir cmd/elementary-server/assets
-	pkger -o cmd/elementary-server/assets
-
-build-server: pack-server
+build-server: build-ui
+	go get -u github.com/asticode/go-bindata/...
+	rm cmd/elementary-server/bindata.dummy.go
+	go-bindata -prefix "ui/dist/" -o cmd/elementary-server/bindata.generated.go ui/dist/...
+	go mod tidy
 	cd cmd/elementary-server && go build .
