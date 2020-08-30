@@ -11,7 +11,7 @@
     "@koumoul/vjsf": "^1.10.2",
     "@mdi/font": "^5.0.0",
     "animate.css": "^4.1.0",
-    "axios": "^0.19.0",
+    "axios": "^0.20.0",
     "clone-deep": "^4.0.1",
     "core-js": "^3.4.3",
     "d3": "^5.14.2",
