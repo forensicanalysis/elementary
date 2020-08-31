@@ -1,9 +1,9 @@
 {
   "extends": [
     "config:base",
-    ":preserveSemverRanges",
-    "schedule:earlyMondays"
+    "schedule:earlyMondays",
+    ":automergeMinor"
   ],
-  "groupName": "all",
-  "gomodTidy": true
+  "gomodTidy": true,
+  "ignoreDeps": ["sass-loader"]
 }
