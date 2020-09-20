@@ -2,8 +2,14 @@
   "extends": [
     "config:base",
     "schedule:earlyMondays",
-    ":automergeMinor"
+    ":automergeMinor",
+    ":automergePr"
   ],
   "gomodTidy": true,
-  "ignoreDeps": ["sass-loader"]
+  "ignoreDeps": [
+    "sass-loader"
+  ],
+  "labels": [
+    "Type: Maintenance"
+  ]
 }
