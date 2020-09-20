@@ -1,12 +1,14 @@
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  timeout: 3m
+  timeout: 5m
 
   # include test files or not, default is true
   tests: false
 
   skip-files:
     - ".*\\.generated\\.*."
+  skip-dirs:
+    - cmd/elementary-gui
 
 # all available settings of specific linters
 linters-settings:
@@ -81,4 +83,5 @@ issues:
     - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv|teardown.*). is not checked
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
+    - G307 # Deferring unsafe method "Close" on type "*os.File"
 

@@ -126,7 +126,7 @@ func setup(auth *types.AuthConfig, pull bool) {
 	}
 }
 
-func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig) {
+func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig) { // nolint: unused
 	// remove old images
 	options := types.ImageListOptions{All: true}
 	imageSummaries, err := cli.ImageList(ctx, options)
@@ -152,7 +152,7 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	}
 }
 
-func contains(l []string, s string) bool {
+func contains(l []string, s string) bool { // nolint: unused
 	for _, e := range l {
 		if e == s {
 			return true
@@ -165,7 +165,7 @@ func unpack(appDir string) (err error) {
 	return RestoreAssets(appDir, "")
 }
 
-func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error {
+func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error { // nolint: unused
 	if auth != nil {
 		body, err := cli.RegistryLogin(ctx, *auth)
 		if err != nil {
