@@ -6,7 +6,7 @@ build-ui:
 
 build-cli:
 	go get -u github.com/asticode/go-bindata/...
-	rm cmd/elementary/bindata.dummy.go
+	rm -f cmd/elementary/bindata.dummy.go
 	go-bindata -prefix "scripts/" -o cmd/elementary/bindata.generated.go scripts/...
 	go mod tidy
 	cd cmd/elementary && go build .

@@ -91,7 +91,7 @@ func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) err
 				return err
 			}
 
-			events, err := getEvents(r)
+			events, err := getEvents(exportPath.String(), r)
 			if err != nil {
 				return err
 			}
@@ -105,11 +105,18 @@ func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) err
 	return nil
 }
 
-func getEvents(file io.ReadSeeker) ([]forensicstore.JSONElement, error) {
+func getEvents(originPath string, file io.ReadSeeker) ([]forensicstore.JSONElement, error) {
 	var elements []forensicstore.JSONElement
 
 	chunks, err := evtx.GetChunks(file)
-	if err != nil {
+	if err != nil && err.Error() == "Unsupported EVTX version." {
+		evtxVersionError, _ := json.Marshal(map[string]interface{}{
+			"origin": map[string]string{"path": originPath},
+			"type":   "eventlog",
+			"errors": []string{err.Error()},
+		})
+		return []forensicstore.JSONElement{evtxVersionError}, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -128,6 +135,7 @@ func getEvents(file io.ReadSeeker) ([]forensicstore.JSONElement, error) {
 				}
 
 				event.Set("type", "eventlog")
+				event.Set("origin", map[string]string{"path": originPath})
 				// self.maybeExpandMessage(event)
 
 				serialized, err := json.Marshal(event)

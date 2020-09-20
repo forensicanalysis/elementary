@@ -230,7 +230,9 @@ func (o *outputWriter) getColumns(element forensicstore.JSONElement) []string {
 }
 
 func (o *outputWriter) WriteFooter() {
-	o.writeLine(o.buffer.Bytes())
+	if o.buffer.Len() > 0 {
+		o.writeLine(o.buffer.Bytes())
+	}
 
 	switch o.format {
 	case csvFormat:
