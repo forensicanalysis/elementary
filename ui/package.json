@@ -10,7 +10,7 @@
   "dependencies": {
     "@koumoul/vjsf": "1.12.2",
     "@mdi/font": "5.5.55",
-    "animate.css": "4.1.0",
+    "animate.css": "4.1.1",
     "axios": "0.20.0",
     "clone-deep": "4.0.1",
     "core-js": "3.6.5",
