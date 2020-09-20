@@ -15,7 +15,7 @@
     "clone-deep": "4.0.1",
     "core-js": "3.6.5",
     "d3": "5.14.2",
-    "d3-dag": "0.3.3",
+    "d3-dag": "0.4.4",
     "electron": "9.1.1",
     "epic-spinners": "1.1.0",
     "hexyjs": "2.1.2",
