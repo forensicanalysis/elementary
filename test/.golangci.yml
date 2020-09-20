@@ -7,6 +7,8 @@ run:
 
   skip-files:
     - ".*\\.generated\\.*."
+  skip-dirs:
+    - cmd/elementary-gui
 
 # all available settings of specific linters
 linters-settings:

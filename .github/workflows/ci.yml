@@ -93,7 +93,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        wd: [cmd/elementary, cmd/elementary-server, commands, daggy, server]
     steps:
       - name: Setup go 1.14
         uses: actions/setup-go@v2
@@ -104,14 +103,12 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
-          working-directory: ${{ matrix.wd }}
           args: --verbose --config test/.golangci.yml --enable gofmt --enable goimports
         if: matrix.os != 'windows-latest'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
-          working-directory: ${{ matrix.wd }}
           args: --verbose --config test/.golangci.yml
         if: matrix.os == 'windows-latest'
 
