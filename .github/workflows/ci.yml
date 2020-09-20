@@ -102,13 +102,13 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: v1.25
           args: --verbose --config test/.golangci.yml --enable gofmt --enable goimports
         if: matrix.os != 'windows-latest'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.29
+          version: v1.25
           args: --verbose --config test/.golangci.yml
         if: matrix.os == 'windows-latest'
 
