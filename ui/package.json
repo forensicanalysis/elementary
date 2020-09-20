@@ -13,7 +13,7 @@
     "animate.css": "4.1.0",
     "axios": "0.20.0",
     "clone-deep": "4.0.1",
-    "core-js": "3.6.0",
+    "core-js": "3.6.5",
     "d3": "5.14.2",
     "d3-dag": "0.3.3",
     "electron": "9.1.1",
