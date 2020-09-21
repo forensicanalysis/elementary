@@ -3531,10 +3531,10 @@ d3-contour@1:
   dependencies:
     d3-array "^1.1.1"
 
-d3-dag@0.4.4:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/d3-dag/-/d3-dag-0.4.4.tgz#538450cc9a59b32b7b4e3994c8a7f391da045f18"
-  integrity sha512-/tLZZwh80plFddvbigXW0aveRILV1t/30U40hOAYW//IjOEGI+jq9UQQxoP5is4ut3badOv/jYTZW9POCw3YzQ==
+d3-dag@0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/d3-dag/-/d3-dag-0.4.5.tgz#a0431f4181eb6366695040bbd8b97bbaa0977781"
+  integrity sha512-BgV7oBZ1RvDJ5TxrCv0hax/dnSp89bzmfGaWIO0VSgB19jNcjBWBrrG2uJCrDx0IRYYOiR0Fq7rGaqb+NvTUZQ==
   dependencies:
     "@rollup/plugin-replace" "^2.3.3"
     "@types/d3-array" "^2.0.0"
