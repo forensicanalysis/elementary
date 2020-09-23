@@ -9,7 +9,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/akavel/rsrc v0.9.0 // indirect
 	github.com/asticode/go-astikit v0.8.0
-	github.com/asticode/go-astilectron v0.16.0
+	github.com/asticode/go-astilectron v0.17.0
 	github.com/asticode/go-astilectron-bootstrap v0.4.1
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
@@ -26,7 +26,6 @@ require (
 	github.com/hashicorp/terraform v0.13.2
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/markbates/pkger v0.17.1
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
