@@ -1,15 +1,34 @@
 {
-  "extends": [
-    "config:base",
-    "schedule:earlyMondays",
-    ":automergeMinor",
-    ":automergePr"
-  ],
-  "gomodTidy": true,
-  "ignoreDeps": [
-    "sass-loader"
-  ],
-  "labels": [
-    "Type: Maintenance"
-  ]
+    "extends": [
+        "config:base"
+    ],
+    "packageRules": [
+        {
+            "datasources": [
+                "go"
+            ],
+            "extends": [
+                ":automergeMinor",
+                ":automergePr"
+            ],
+            "postUpdateOptions": [
+                "gomodTidy"
+            ]
+        },
+        {
+            "datasources": [
+                "npm"
+            ],
+            "groupName": "npm"
+        }
+    ],
+    "labels": [
+        "Type: Maintenance"
+    ],
+    "assignees": [
+        "cugu"
+    ],
+    "ignoreDeps": [
+        "sass-loader"
+    ]
 }
