@@ -1047,10 +1047,10 @@
     cssnano-preset-default "^4.0.0"
     postcss "^7.0.0"
 
-"@koumoul/vjsf@1.13.0":
-  version "1.13.0"
-  resolved "https://registry.yarnpkg.com/@koumoul/vjsf/-/vjsf-1.13.0.tgz#7255d624957240be48567173392ee6e5a45a65ac"
-  integrity sha512-TTTidW4FKYamB/3hHVFlloW1TEtv/MvpLwV0Ngo1pfqb3UQ4Z+Jq5VPnLSqRbWKbFWwq+UzcnCYziw5kS+WEMg==
+"@koumoul/vjsf@1.14.0":
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/@koumoul/vjsf/-/vjsf-1.14.0.tgz#1e9f5cf64d24caef317baf429ed29ead81a6ab55"
+  integrity sha512-zkfrBXFTGwyy+fxFMLh2+1w3OJQHl2TbrUp4uJLIvcTF4TmRU3Gq3SP5+af62QuneBB/TRdM/N8EtYN0xwH/Zw==
   dependencies:
     "@mdi/js" "^5.5.55"
     debounce "^1.2.0"
@@ -10464,10 +10464,10 @@ vuetify-loader@1.6.0:
     file-loader "^4.0.0"
     loader-utils "^1.2.0"
 
-vuetify@2.3.10:
-  version "2.3.10"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.3.10.tgz#c8cbc77ee1224b5a132f501a3762dee6d8c95a06"
-  integrity sha512-KzL/MhZ7ajubm9kwbdCoA/cRV50RX+a5Hcqiwt7Am1Fni2crDtl2no05UNwKroTfscrYYf07gq3WIFSurPsnCA==
+vuetify@2.3.12:
+  version "2.3.12"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.3.12.tgz#799410de0878d8aae10cfae14e40549b9a88ca87"
+  integrity sha512-FSt1pzpf0/Lh0xuctAPB7RiLbUl7bzVc7ejbXLLhfmgm7zD7yabuhVYuyVda/SzokjZMGS3j1lNu2lLfdrz0oQ==
 
 vuex@3.5.1:
   version "3.5.1"
