@@ -1047,10 +1047,10 @@
     cssnano-preset-default "^4.0.0"
     postcss "^7.0.0"
 
-"@koumoul/vjsf@1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@koumoul/vjsf/-/vjsf-1.14.0.tgz#1e9f5cf64d24caef317baf429ed29ead81a6ab55"
-  integrity sha512-zkfrBXFTGwyy+fxFMLh2+1w3OJQHl2TbrUp4uJLIvcTF4TmRU3Gq3SP5+af62QuneBB/TRdM/N8EtYN0xwH/Zw==
+"@koumoul/vjsf@1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@koumoul/vjsf/-/vjsf-1.15.0.tgz#a2b95703132e3771b0ea257747963748a8afe979"
+  integrity sha512-QZsKCZwukQ+biRQ6fu64eLfVXhVeMy5jIOxvhGyJe1v3IblZA7uiOhq4fG8TOZK3Xcb94voWx6pOC5WO93p89w==
   dependencies:
     "@mdi/js" "^5.5.55"
     debounce "^1.2.0"
