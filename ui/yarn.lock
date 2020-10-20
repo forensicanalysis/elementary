@@ -10318,10 +10318,10 @@ vue-lodash@2.1.2:
   resolved "https://registry.yarnpkg.com/vue-lodash/-/vue-lodash-2.1.2.tgz#1ec2b1471ee289518e8d285250a25516adee6c51"
   integrity sha512-6QsNC7/XjrK4xKxFhh6Ppvcrfm0uAeR/lFsySsMgfEFUWkvRztcAIS3MsqAI4bBnAaLo9ou+8tUfJ8d+yrljQg==
 
-vue-luxon@0.7.3:
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/vue-luxon/-/vue-luxon-0.7.3.tgz#cdc940ef6db89a13c2b797f884f4d673620093a8"
-  integrity sha512-cCKXpFqL9BSApJoE8rFNmhMEqZY7SWEz3SVQ9Un70KeYJLTQJoWLQd+2yQ43Ev/mW8dEMedV0GyNi0c7c3WZqQ==
+vue-luxon@0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/vue-luxon/-/vue-luxon-0.7.4.tgz#794a5d262dea97c5db35619c348101c7e24e3ccf"
+  integrity sha512-2jkERnzaC27DZmyyeOTz617hl5kbf3L00il9Y0m4P21OOg7i6AM1+Fv9OGFpZaeLyb2GPrSmUuvOuPrcjrnB7w==
   dependencies:
     luxon "^1.17.2"
 
