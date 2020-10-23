@@ -43,7 +43,7 @@ jobs:
       - name: Setup go 1.14
         uses: actions/setup-go@v2
         with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: Setup node
         uses: actions/setup-node@v1
@@ -67,7 +67,7 @@ jobs:
       - name: Setup go 1.14
         uses: actions/setup-go@v2
         with: {go-version: '1.14'}
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: Setup node
         uses: actions/setup-node@v1
@@ -149,7 +149,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - run: doskey python3=python
         if: matrix.os == 'windows-latest'
@@ -205,7 +205,7 @@ jobs:
     needs: [collect, build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: download test.forensicstore
         uses: actions/download-artifact@v2
@@ -258,7 +258,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: download elementary
         uses: actions/download-artifact@v2
@@ -297,7 +297,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: download elementary
         uses: actions/download-artifact@v2
@@ -314,7 +314,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - name: download elementary
         uses: actions/download-artifact@v2
@@ -333,7 +333,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with: {python-version: '3.8'}
       - run: pip install pylint pytest pytest-cov
       - name: Checkout code
