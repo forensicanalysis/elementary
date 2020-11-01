@@ -3,7 +3,7 @@ module github.com/forensicanalysis/elementary
 go 1.14
 
 require (
-	crawshaw.io/sqlite v0.2.5
+	crawshaw.io/sqlite v0.3.2
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/Velocidex/ordereddict v0.0.0-20200723153557-9460a6764ab8
 	github.com/agext/levenshtein v1.2.3 // indirect
@@ -16,7 +16,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1
-	github.com/forensicanalysis/forensicstore v0.17.1
+	github.com/forensicanalysis/forensicstore v0.17.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/uuid v1.1.2
@@ -34,7 +34,6 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/tidwall/gjson v1.6.1
 	github.com/tidwall/sjson v1.1.2
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2
