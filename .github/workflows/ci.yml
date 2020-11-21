@@ -163,7 +163,7 @@ jobs:
       - run: chmod +x elementary
 
       - name: Set system path
-        run: echo "##[add-path]$PWD"
+        run: echo $PWD >> $GITHUB_PATH
         shell: bash
 
       - name: Setup node
