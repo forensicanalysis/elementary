@@ -22,7 +22,7 @@
     "kind-of": "6.0.3",
     "luxon": "1.25.0",
     "minimist": "1.2.5",
-    "register-service-worker": "1.7.1",
+    "register-service-worker": "1.7.2",
     "roboto-fontface": "*",
     "sass-loader": "^8.0.0",
     "vue": "2.6.12",
@@ -36,7 +36,7 @@
     "vue-simple-flowchart": "0.1.8",
     "vue-swatches": "2.1.0",
     "vuedraggable": "2.24.3",
-    "vuetify": "2.3.19",
+    "vuetify": "2.3.21",
     "vuex": "3.6.0"
   },
   "devDependencies": {
@@ -46,7 +46,7 @@
     "@vue/cli-plugin-router": "4.5.9",
     "@vue/cli-plugin-vuex": "4.5.9",
     "@vue/cli-service": "4.5.9",
-    "@vue/eslint-config-airbnb": "5.1.0",
+    "@vue/eslint-config-airbnb": "5.3.0",
     "babel-eslint": "10.1.0",
     "deepmerge": "4.2.2",
     "eslint": "7.15.0",
