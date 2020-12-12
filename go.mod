@@ -16,7 +16,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1
-	github.com/forensicanalysis/forensicstore v0.17.2
+	github.com/forensicanalysis/forensicstore v0.17.3
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
