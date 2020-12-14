@@ -28,7 +28,7 @@
     "vue": "2.6.12",
     "vue-axios": "2.1.5",
     "vue-code-highlight": "0.7.6",
-    "vue-color": "2.7.1",
+    "vue-color": "2.8.0",
     "vue-lodash": "2.1.2",
     "vue-luxon": "0.10.0",
     "vue-pdf": "4.2.0",
