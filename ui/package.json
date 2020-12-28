@@ -28,7 +28,7 @@
     "vue": "2.6.12",
     "vue-axios": "2.1.5",
     "vue-code-highlight": "0.7.6",
-    "vue-color": "2.8.0",
+    "vue-color": "2.8.1",
     "vue-lodash": "2.1.2",
     "vue-luxon": "0.10.0",
     "vue-pdf": "4.2.0",
@@ -36,7 +36,7 @@
     "vue-simple-flowchart": "0.1.8",
     "vue-swatches": "2.1.0",
     "vuedraggable": "2.24.3",
-    "vuetify": "2.3.22",
+    "vuetify": "2.4.0",
     "vuex": "3.6.0"
   },
   "devDependencies": {
