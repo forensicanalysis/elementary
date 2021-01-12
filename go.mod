@@ -10,7 +10,7 @@ require (
 	github.com/akavel/rsrc v0.9.0 // indirect
 	github.com/asticode/go-astikit v0.13.0
 	github.com/asticode/go-astilectron v0.22.0
-	github.com/asticode/go-astilectron-bootstrap v0.4.5
+	github.com/asticode/go-astilectron-bootstrap v0.4.6
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
 	github.com/docker/go-connections v0.4.0 // indirect
