@@ -19,7 +19,8 @@
             "datasources": [
                 "npm"
             ],
-            "groupName": "npm"
+            "groupName": "npm",
+            "schedule": ["after 9pm on sunday"]
         }
     ],
     "labels": [
