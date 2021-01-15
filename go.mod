@@ -18,7 +18,7 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/forensicanalysis/forensicstore v0.17.3
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/google/uuid v1.1.4
+	github.com/google/uuid v1.1.5
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/logutils v1.0.0
