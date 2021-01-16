@@ -8,7 +8,7 @@ require (
 	github.com/Velocidex/ordereddict v0.0.0-20200723153557-9460a6764ab8
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/akavel/rsrc v0.9.0 // indirect
-	github.com/asticode/go-astikit v0.14.0
+	github.com/asticode/go-astikit v0.15.0
 	github.com/asticode/go-astilectron v0.22.1
 	github.com/asticode/go-astilectron-bootstrap v0.4.8
 	github.com/docker/distribution v2.7.1+incompatible // indirect
