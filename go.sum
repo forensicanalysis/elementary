@@ -107,6 +107,8 @@ github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj
 github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/asticode/go-astikit v0.15.0 h1:mpy55njSQ9SS9gP9vmPAfo08YpRt+4pr5/1emK6DFF0=
 github.com/asticode/go-astikit v0.15.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
+github.com/asticode/go-astikit v0.16.0 h1:7yNa4UCCBSADjdS31KSYFZ7tjueuO16Fvi76BeX02d0=
+github.com/asticode/go-astikit v0.16.0/go.mod h1:h4ly7idim1tNhaVkdVBeXQZEE3L0xblP7fCWbgwipF0=
 github.com/asticode/go-astilectron v0.22.3 h1:OIeAEskmdP4uNzwiM/RUT613YRNt2qqzbcOMamjhH4U=
 github.com/asticode/go-astilectron v0.22.3/go.mod h1:Tx+aS0IvbV0cO4TlQbOO1NFA/lATj11vEStydyIjMjM=
 github.com/asticode/go-astilectron-bootstrap v0.4.10 h1:DYHogwJD1fNm26X9skp/pKhDHzUGAhKavrNr/6X+uUo=
