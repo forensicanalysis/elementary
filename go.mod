@@ -12,7 +12,7 @@ require (
 	github.com/asticode/go-astilectron v0.22.3
 	github.com/asticode/go-astilectron-bootstrap v0.4.10
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v1.13.1
+	github.com/docker/docker/v20/v20 v20.10.5
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.1
