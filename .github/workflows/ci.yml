@@ -103,17 +103,15 @@ jobs:
           mkdir cmd/elementary-server/dist
           touch cmd/elementary-server/dist/dummy
         shell: bash
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: latest
-          args: --verbose --config .github/.golangci.yml --enable gofmt --enable goimports
+      - name: Install golangci-lint & go-acc
+        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.37.0
+        shell: bash
+
+      - name: Lint
+        run: golangci-lint run --verbose --config .github/.golangci.yml
         if: matrix.os != 'windows-latest'
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: latest
-          args: --verbose --config .github/.golangci.yml
+      - name: Lint Windows
+        run: golangci-lint run --verbose --config .github/.golangci.yml --disable gofmt --disable goimports
         if: matrix.os == 'windows-latest'
 
   test:
