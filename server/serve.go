@@ -23,12 +23,13 @@ package server
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"log"
 	"net/http"
 	"regexp"
+
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 func setupResponse(w *http.ResponseWriter) {

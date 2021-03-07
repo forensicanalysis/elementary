@@ -84,4 +84,5 @@ issues:
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
     - G307 # Deferring unsafe method "Close" on type "*os.File"
+    - static is a global variable
 

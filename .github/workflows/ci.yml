@@ -102,6 +102,7 @@ jobs:
       - run: |
           mkdir cmd/elementary-server/dist
           touch cmd/elementary-server/dist/dummy
+        shell: bash
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
@@ -132,6 +133,10 @@ jobs:
         run: go get github.com/ory/go-acc
       - name: Download testdata
         run: bash test/download_testdata.sh
+        shell: bash
+      - run: |
+          mkdir cmd/elementary-server/dist
+          touch cmd/elementary-server/dist/dummy
         shell: bash
       - run: go list ./...
       - name: Test
