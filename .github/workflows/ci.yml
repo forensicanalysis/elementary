@@ -100,8 +100,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - run: |
-          mkdir cmd/elementary/elementary-server/dist
-          touch cmd/elementary/elementary-server/dist/dummy
+          mkdir cmd/elementary-server/dist
+          touch cmd/elementary-server/dist/dummy
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
@@ -133,6 +133,7 @@ jobs:
       - name: Download testdata
         run: bash test/download_testdata.sh
         shell: bash
+      - run: go list ./...
       - name: Test
         run: go-acc ./...
       - name: Upload coverage
