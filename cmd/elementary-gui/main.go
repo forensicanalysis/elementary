@@ -151,7 +151,13 @@ func options(l *log.Logger) bootstrap.Options {
 		Windows: []*bootstrap.Window{{
 			Homepage:       "main.html",
 			MessageHandler: open,
-			Options:        &astilectron.WindowOptions{Show: astikit.BoolPtr(false)},
+			Options: &astilectron.WindowOptions{
+				Show: astikit.BoolPtr(false),
+				WebPreferences: &astilectron.WebPreferences{
+					EnableRemoteModule:      astikit.BoolPtr(true),
+					NodeIntegrationInWorker: astikit.BoolPtr(true),
+				},
+			},
 		}, {
 			Homepage:       "open.html",
 			MessageHandler: open,
@@ -163,6 +169,10 @@ func options(l *log.Logger) bootstrap.Options {
 				TitleBarStyle:   astilectron.TitleBarStyleHiddenInset,
 				Resizable:       astikit.BoolPtr(false),
 				Minimizable:     astikit.BoolPtr(false),
+				WebPreferences: &astilectron.WebPreferences{
+					EnableRemoteModule:      astikit.BoolPtr(true),
+					NodeIntegrationInWorker: astikit.BoolPtr(true),
+				},
 			},
 		}},
 	}
@@ -179,7 +189,9 @@ func storeWindow(store string) error {
 		Width:         astikit.IntPtr(1024),
 		TitleBarStyle: astilectron.TitleBarStyleHiddenInset,
 		WebPreferences: &astilectron.WebPreferences{
-			Preload: astikit.StrPtr(filepath.Join(app.Paths().DataDirectory(), "resources", "app", "static", "js", "preload.js")),
+			Preload:                 astikit.StrPtr(filepath.Join(app.Paths().DataDirectory(), "resources", "app", "static", "js", "preload.js")),
+			EnableRemoteModule:      astikit.BoolPtr(true),
+			NodeIntegrationInWorker: astikit.BoolPtr(true),
 		},
 	}
 

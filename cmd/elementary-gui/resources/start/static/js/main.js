@@ -25,7 +25,7 @@ let main = {
 
         astilectron.sendMessage(message, function (message) {
           // Check error
-          if (message.name === "error") {
+          if (message === undefined || message.name === "error") {
             return
           }
         })

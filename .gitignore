@@ -37,3 +37,6 @@ yarn-error.log*
 testdata
 
 bindata.generated.go
+
+cmd/elementary-server/elementary-server
+cmd/elementary/elementary

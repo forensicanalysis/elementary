@@ -22,17 +22,24 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
+	"net/http"
 	"os"
-
-	assetfs "github.com/elazarl/go-bindata-assetfs"
 
 	"github.com/forensicanalysis/elementary/server"
 )
 
+//go:embed dist
+var static embed.FS
+
 func main() {
-	static := &assetfs.AssetFS{Asset: Asset, AssetDir: AssetDir, AssetInfo: AssetInfo, Prefix: "data"}
-	rootCmd := server.Application("fstore", static, server.Commands()...)
+	sub, err := fs.Sub(static, "dist")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rootCmd := server.Application("fstore", http.FS(sub), server.Commands()...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)
 		os.Exit(1)

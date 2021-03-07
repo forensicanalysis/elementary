@@ -4,7 +4,7 @@ on:
     branches: [ master ]
   pull_request:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron: '0 0 * * *'
 
 jobs:
 
@@ -13,11 +13,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.14
+      - name: Setup go 1.16
         uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
+        with: { go-version: '1.16' }
       - name: Checkout code
         uses: actions/checkout@v2
       - run: make build-cli
@@ -38,16 +38,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.14
+      - name: Setup go 1.16
         uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
+        with: { go-version: '1.16' }
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: Setup node
         uses: actions/setup-node@v2
-        with: {node-version: '12'}
+        with: { node-version: '12' }
       - name: Checkout code
         uses: actions/checkout@v2
       - run: make build-gui
@@ -62,16 +62,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.14
+      - name: Setup go 1.16
         uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
+        with: { go-version: '1.16' }
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: Setup node
         uses: actions/setup-node@v2
-        with: {node-version: '12'}
+        with: { node-version: '12' }
       - name: Checkout code
         uses: actions/checkout@v2
       - run: make build-server
@@ -92,24 +92,24 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.14
+      - name: Setup go 1.16
         uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
+        with: { go-version: '1.16' }
       - name: Checkout code
         uses: actions/checkout@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.31
-          args: --verbose --config test/.golangci.yml --enable gofmt --enable goimports
+          version: latest
+          args: --verbose --config .github/.golangci.yml --enable gofmt --enable goimports
         if: matrix.os != 'windows-latest'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.31
-          args: --verbose --config test/.golangci.yml
+          version: latest
+          args: --verbose --config .github/.golangci.yml
         if: matrix.os == 'windows-latest'
 
   test:
@@ -117,15 +117,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.14
+      - name: Setup go 1.16
         uses: actions/setup-go@v2
-        with: {go-version: '1.14'}
+        with: { go-version: '1.16' }
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install  go-acc
+      - name: Install go-acc
         run: go get github.com/ory/go-acc
       - name: Download testdata
         run: bash test/download_testdata.sh
@@ -145,12 +145,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - run: doskey python3=python
         if: matrix.os == 'windows-latest'
 
@@ -168,7 +168,7 @@ jobs:
 
       - name: Setup node
         uses: actions/setup-node@v2
-        with: {node-version: '12'}
+        with: { node-version: '12' }
       - name: Install bats
         run: npm install -g bats@1.1.0
 
@@ -202,11 +202,11 @@ jobs:
 
   case0:
     name: Test Case 0
-    needs: [collect, build]
+    needs: [ collect, build ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: download test.forensicstore
         uses: actions/download-artifact@v2
         with:
@@ -259,7 +259,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
@@ -298,7 +298,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
@@ -315,7 +315,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v2
         with:
@@ -331,10 +331,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ ubuntu-latest ]
     steps:
       - uses: actions/setup-python@v2
-        with: {python-version: '3.8'}
+        with: { python-version: '3.8' }
       - run: pip install pylint pytest pytest-cov
       - name: Checkout code
         uses: actions/checkout@v2
