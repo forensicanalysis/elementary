@@ -41,9 +41,20 @@ func setupResponse(w *http.ResponseWriter) {
 	)
 }
 
+func logger() mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			log.Println(req.URL.String())
+
+			next.ServeHTTP(w, req)
+		})
+	}
+}
+
 func ServeCommand(staticPath http.FileSystem, commands ...*Command) *cobra.Command {
 	serveCmd := &cobra.Command{Use: "serve", Short: "Start the api server"}
 	router := Router(commands, serveCmd.Flags().Args)
+	router.Use(logger())
 	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(staticPath)))
 
 	var port int

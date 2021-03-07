@@ -24,6 +24,7 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 import VueLodash from 'vue-lodash';
 import vuetify from './plugins/vuetify';
+import lodash from 'lodash'
 
 
 import App from './App.vue';
@@ -36,7 +37,7 @@ import 'roboto-fontface/css/roboto-slab/roboto-slab-fontface.css';
 import '@mdi/font/css/materialdesignicons.css';
 
 Vue.use(VueAxios, axios);
-Vue.use(VueLodash);
+Vue.use(VueLodash, {lodash: lodash});
 
 Vue.config.productionTip = false;
 
