@@ -25,17 +25,15 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func export() plugin.Plugin {
-	outputCommand := &command{
-		name:  "export",
-		short: "Export selected elements",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "export",
+		short:     "Export selected elements",
+		parameter: []*plugin.Parameter{ForensicStore, AddToStore, output.File, output.Format, Filter},
 		run: func(cmd plugin.Plugin) error {
 			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
 
@@ -59,17 +57,15 @@ func export() plugin.Plugin {
 				header = append(header, key.String())
 				return true
 			})
-			output := plugin.NewOutputWriterStore(cmd, store, &plugin.OutputConfig{
-				Header: header,
-			})
+
+			out := setupOut(cmd, store, header)
+			defer out.WriteFooter()
+
 			for _, element := range elements {
-				output.Write(element) // nolint: errcheck
+				out.Write(element) // nolint: errcheck
 			}
-			output.WriteFooter()
 			return nil
 		},
 		annotations: []plugin.Annotation{plugin.Exporter},
 	}
-	outputCommand.parameter = append(outputCommand.parameter, plugin.OutputParameter(outputCommand)...)
-	return outputCommand
 }

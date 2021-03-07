@@ -31,29 +31,22 @@ import (
 	"www.velocidex.com/golang/evtx"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func eventlogs() plugin.Plugin {
-	eventlogsCmd := &command{
-		name:  "eventlogs",
-		short: "Process eventlogs into single events",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "eventlogs",
+		short:     "Process eventlogs into single events",
+		parameter: []*plugin.Parameter{Filter, ForensicStore, AddToStore, output.File, output.Format},
 		run: func(cmd plugin.Plugin) error {
 			log.Printf("run eventlogs")
-			filtersets := cmd.Parameter().GetStringArrayValue("filter")
-			return eventlogsFromStore(
-				cmd.Parameter().StringValue("forensicstore"),
-				plugin.ExtractFilter(filtersets),
-				cmd,
-			)
+			path := cmd.Parameter().StringValue("forensicstore")
+			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
+			return eventlogsFromStore(path, filter, cmd)
 		},
 	}
-	eventlogsCmd.parameter = append(eventlogsCmd.parameter, plugin.OutputParameter(eventlogsCmd)...)
-	return eventlogsCmd
 }
 
 func eventlogsFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
@@ -77,17 +70,16 @@ func eventlogsFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) err
 		return err
 	}
 
-	output := plugin.NewOutputWriterStore(cmd, store, &plugin.OutputConfig{
-		Header: []string{
-			"System.Computer",
-			"System.TimeCreated.SystemTime",
-			"System.EventRecordID",
-			"System.EventID.Value",
-			"System.Level",
-			"System.Channel",
-			"System.Provider.Name",
-		},
+	out := setupOut(cmd, store, []string{
+		"System.Computer",
+		"System.TimeCreated.SystemTime",
+		"System.EventRecordID",
+		"System.EventID.Value",
+		"System.Level",
+		"System.Channel",
+		"System.Provider.Name",
 	})
+	defer out.WriteFooter()
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")
 		if exportPath.Exists() && exportPath.String() != "" {
@@ -102,11 +94,10 @@ func eventlogsFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) err
 			}
 
 			for _, event := range events {
-				output.WriteLine(event) // nolint: errcheck
+				out.WriteLine(event) // nolint: errcheck
 			}
 		}
 	}
-	output.WriteFooter()
 	return nil
 }
 

@@ -1,6 +1,7 @@
 package script
 
 import (
+	"embed"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -9,14 +10,15 @@ import (
 	"github.com/forensicanalysis/elementary/plugin"
 )
 
-var _ plugin.Provider = &CommandProvider{}
+var _ plugin.Provider = &PluginProvider{}
 
-type CommandProvider struct {
-	Prefix string
-	Dir    string
+type PluginProvider struct {
+	Scripts embed.FS
+	Prefix  string
+	Dir     string
 }
 
-func (s *CommandProvider) List() []plugin.Plugin {
+func (s *PluginProvider) List() []plugin.Plugin {
 	infos, err := ioutil.ReadDir(s.Dir)
 	if err != nil {
 		log.Printf("script plugins disabled: %s, ", err)

@@ -13,13 +13,14 @@ import (
 	"github.com/forensicanalysis/elementary/plugin"
 )
 
-var _ plugin.Provider = &CommandProvider{}
+var _ plugin.Provider = &PluginProvider{}
 
-type CommandProvider struct {
+type PluginProvider struct {
 	Prefix string
+	Images []string
 }
 
-func (d *CommandProvider) List() []plugin.Plugin {
+func (d *PluginProvider) List() []plugin.Plugin {
 	ctx := context.Background()
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second) // TODO: adjust time
 	defer cancel()
@@ -50,7 +51,7 @@ func (d *CommandProvider) List() []plugin.Plugin {
 			commandNames[name] = true
 		}
 	}
-	for _, dockerImage := range Images() {
+	for _, dockerImage := range d.Images {
 		name, err := commandName(d.Prefix, dockerImage)
 		if err != nil {
 			continue

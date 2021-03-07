@@ -31,26 +31,22 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func exportTimesketch() plugin.Plugin {
-	outputCommand := &command{
-		name:  "export-timesketch",
-		short: "Export in timesketch jsonl format",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "export-timesketch",
+		short:     "Export in timesketch jsonl format",
+		parameter: []*plugin.Parameter{ForensicStore, AddToStore, output.File, output.Format, Filter},
 		run: func(cmd plugin.Plugin) error {
 			path := cmd.Parameter().StringValue("forensicstore")
-			filter := cmd.Parameter().GetStringArrayValue("filter")
-			return exportStore(path, plugin.ExtractFilter(filter), cmd)
+			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
+			return exportStore(path, filter, cmd)
 		},
 		annotations: []plugin.Annotation{plugin.Exporter},
 	}
-	outputCommand.parameter = append(outputCommand.parameter, plugin.OutputParameter(outputCommand)...)
-	return outputCommand
 }
 
 func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
@@ -68,7 +64,8 @@ func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
 		return nil
 	}
 
-	output := plugin.NewOutputWriterStore(cmd, store, &plugin.OutputConfig{Header: []string{"message", "datetime", "timestamp_desc"}})
+	out := setupOut(cmd, store, []string{"message", "datetime", "timestamp_desc"})
+	defer out.WriteFooter()
 
 	for _, element := range elements {
 		element := element
@@ -97,13 +94,12 @@ func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
 					log.Println(err)
 					return true
 				}
-				output.WriteLine(b) // nolint: errcheck
+				out.WriteLine(b) // nolint: errcheck
 			}
 			return true
 		})
 	}
 
-	output.WriteFooter()
 	return nil
 }
 

@@ -35,7 +35,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/forensicanalysis/elementary"
-	"github.com/forensicanalysis/elementary/plugin/docker"
 )
 
 // install required assets.
@@ -103,12 +102,11 @@ func setup(auth *types.AuthConfig, pull bool) {
 		}
 	}
 	if pipPath != "" {
-		log.Println(pipPath, "install",
+		commandLine := []string{"install",
 			"--target", filepath.Join(appDir, "scripts"),
-			"-r", filepath.Join(appDir, "requirements.txt"))
-		pip := exec.Command(pipPath, "install",
-			"--target", filepath.Join(appDir, "scripts"),
-			"-r", filepath.Join(appDir, "requirements.txt")) // #nosec
+			"-r", filepath.Join(appDir, "requirements.txt")}
+		log.Println(pipPath, commandLine)
+		pip := exec.Command(pipPath, commandLine...) // #nosec
 		err := pip.Run()
 		if err != nil {
 			log.Println("error installing python requirements:", err)
@@ -137,14 +135,14 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	for _, imageSummary := range imageSummaries {
 		for _, dockerImage := range imageSummary.RepoTags {
 			isElementary := strings.HasPrefix(dockerImage, "forensicanalysis/elementary-")
-			if isElementary && !contains(docker.Images(), dockerImage) {
+			if isElementary && !contains(elementary.Images(), dockerImage) {
 				_, _ = cli.ImageRemove(ctx, dockerImage, types.ImageRemoveOptions{Force: true})
 			}
 		}
 	}
 
 	// pull docker images
-	for _, image := range docker.Images() {
+	for _, image := range elementary.Images() {
 		log.Println("pull docker image", image)
 		err = pullImage(ctx, cli, image, auth)
 		if err != nil {

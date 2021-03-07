@@ -32,11 +32,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+
+	"github.com/forensicanalysis/elementary/plugin"
+	output "github.com/forensicanalysis/elementary/plugin/output"
 )
 
 var _ plugin.Plugin = &command{}
@@ -51,28 +52,21 @@ type command struct {
 
 func newCommand(name, image string, labels map[string]string) plugin.Plugin {
 	dockerCmd := &command{
-		name:  name,
-		short: "(docker: " + image + ")",
+		name:      name,
+		short:     "(docker: " + image + ")",
+		parameter: []*plugin.Parameter{output.File, output.Format},
 		run: func(cmd plugin.Plugin) error {
 			log.Println("run", cmd.Name())
 
-			path := cmd.Parameter().StringValue("forensicstore")
-			mounts, err := parseMounts(labels, path, cmd)
-			if err != nil {
-				return err
-			}
+			mounts := parseMounts(cmd)
 
-			output, teardown := plugin.NewOutputWriterURL(cmd, path)
-			defer teardown()
+			path := cmd.Parameter().StringValue("output")
+			format := cmd.Parameter().StringValue("format")
+			out := output.New(path, format, nil)
+			defer out.WriteFooter()
 
 			args := cmd.Parameter().ToCommandlineArgs()
-			err = dockerCreate(image, args, mounts, output)
-			if err != nil {
-				return err
-			}
-
-			output.WriteFooter()
-			return nil
+			return dockerCreate(image, args, mounts, out)
 		},
 	}
 
@@ -90,7 +84,7 @@ func newCommand(name, image string, labels map[string]string) plugin.Plugin {
 
 	dockerCmd.parameter = append(dockerCmd.parameter, getLabelParameter(labels)...)
 	if addOutput {
-		dockerCmd.parameter = append(dockerCmd.parameter, plugin.OutputParameter(dockerCmd)...)
+		dockerCmd.parameter = append(dockerCmd.parameter, output.File, output.Format)
 	}
 
 	return dockerCmd
@@ -116,24 +110,14 @@ func (s *command) Annotations() []plugin.Annotation {
 	return s.annotations
 }
 
-func parseMounts(labels map[string]string, path string, cmd plugin.Plugin) (map[string]string, error) {
-	abs, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-	mounts := map[string]string{
-		abs: "input.forensicstore",
-	}
+func parseMounts(cmd plugin.Plugin) map[string]string {
+	mounts := map[string]string{}
 
 	// TODO: check if application id == "eldr"
-	_, err = os.Stat(strings.TrimSuffix(abs, ".forensicstore"))
-	if err == nil {
-		mounts[strings.TrimSuffix(abs, ".forensicstore")] = "input"
-	}
 
-	if mountsList, ok := labels["mounts"]; ok {
-		for _, mountPoint := range strings.Split(mountsList, ",") {
-			mountPointValue := cmd.Parameter().StringValue(mountPoint)
+	for _, parameter := range cmd.Parameter() {
+		if parameter.Type == plugin.Path {
+			mountPointValue := parameter.StringValue()
 			if mountPointValue == "" {
 				continue
 			}
@@ -141,10 +125,14 @@ func parseMounts(labels map[string]string, path string, cmd plugin.Plugin) (map[
 			if err != nil {
 				continue
 			}
-			mounts[abs] = mountPoint
+			mounts[abs] = parameter.Name
 		}
+		if parameter.Type == plugin.PathArray {
+			// TODO
+		}
+
 	}
-	return mounts, nil
+	return mounts
 }
 
 func getLabelParameter(labels map[string]string) []*plugin.Parameter {

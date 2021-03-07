@@ -29,27 +29,22 @@ import (
 	goprefetch "www.velocidex.com/golang/go-prefetch"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func prefetch() plugin.Plugin {
-	prefetchCommand := &command{
-		name:  "prefetch",
-		short: "Process prefetch files",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "prefetch",
+		short:     "Process prefetch files",
+		parameter: []*plugin.Parameter{ForensicStore, AddToStore, output.File, output.Format, Filter},
 		run: func(cmd plugin.Plugin) error {
 			log.Printf("run prefetch")
 			path := cmd.Parameter().StringValue("forensicstore")
-			filtersets := cmd.Parameter().GetStringArrayValue("filter")
-			return prefetchFromStore(path, plugin.ExtractFilter(filtersets), cmd)
+			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
+			return prefetchFromStore(path, filter, cmd)
 		},
 	}
-	prefetchCommand.parameter = append(prefetchCommand.parameter, plugin.OutputParameter(prefetchCommand)...)
-
-	return prefetchCommand
 }
 
 func prefetchFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
@@ -73,17 +68,9 @@ func prefetchFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) erro
 		return err
 	}
 
-	output := plugin.NewOutputWriterStore(cmd, store, &plugin.OutputConfig{
-		Header: []string{
-			"Executable",
-			"FileSize",
-			"Hash",
-			"Version",
-			"LastRunTimes",
-			"FilesAccessed",
-			"RunCount",
-		},
-	})
+	header := []string{"Executable", "FileSize", "Hash", "Version", "LastRunTimes", "FilesAccessed", "RunCount"}
+	out := setupOut(cmd, store, header)
+	defer out.WriteFooter()
 
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")
@@ -103,11 +90,9 @@ func prefetchFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) erro
 				return err
 			}
 
-			output.WriteLine(elem) // nolint: errcheck
+			out.WriteLine(elem) // nolint: errcheck
 		}
 	}
-
-	output.WriteFooter()
 	return nil
 }
 

@@ -32,20 +32,14 @@ import (
 )
 
 func jsonImport() plugin.Plugin {
-	cmd := &command{
-		name:  "import-json",
-		short: "Import json files",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "file", Type: plugin.Path, Required: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "import-json",
+		short:     "Import json files",
+		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Type: plugin.Path, Required: true}, Filter},
 		run: func(cmd plugin.Plugin) error {
 			path := cmd.Parameter().StringValue("forensicstore")
 			file := cmd.Parameter().StringValue("file")
-			filtersets := cmd.Parameter().GetStringArrayValue("filter")
-
-			filter := plugin.ExtractFilter(filtersets)
+			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
 
 			store, teardown, err := forensicstore.Open(path)
 			if err != nil {
@@ -78,5 +72,4 @@ func jsonImport() plugin.Plugin {
 		},
 		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
 	}
-	return cmd
 }

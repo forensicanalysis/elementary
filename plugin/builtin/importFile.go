@@ -31,18 +31,14 @@ import (
 	"path/filepath"
 
 	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func importFile() plugin.Plugin {
-	cmd := &command{
-		name:  "import-file",
-		short: "Import files",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "file", Description: "file to import", Type: plugin.PathArray, Required: true},
-		},
+	return &command{
+		name:      "import-file",
+		short:     "Import files",
+		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Description: "file to import", Type: plugin.PathArray, Required: true}},
 		run: func(cmd plugin.Plugin) error {
 			path := cmd.Parameter().StringValue("forensicstore")
 			files := cmd.Parameter().GetStringArrayValue("file")
@@ -50,7 +46,6 @@ func importFile() plugin.Plugin {
 		},
 		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
 	}
-	return cmd
 }
 
 func singleFileImport(url string, files []string) error {

@@ -50,7 +50,7 @@ func main() {
 	l = log.New(log.Writer(), log.Prefix(), log.Flags())
 	l.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	cp = &meta.CommandProvider{Name: elementary.Name(), Dir: elementary.AppDir()}
+	cp = &meta.PluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
 
 	// Run bootstrap
 	l.Printf("Running app built at %s\n", BuiltAt)

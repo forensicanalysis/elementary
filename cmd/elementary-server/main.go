@@ -46,7 +46,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mcp := &meta.CommandProvider{Name: appName, Dir: appDir()}
+	mcp := &meta.PluginProvider{Name: appName, Dir: appDir()} // TODO
 	rootCmd := server.Application("fstore", http.FS(sub), server.Commands(mcp)...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)

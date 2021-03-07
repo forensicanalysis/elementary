@@ -74,7 +74,7 @@ func main() {
 	rootCmd.AddCommand(
 		run(),
 		install(),
-		workflow(),
+		// workflow(),
 		forensicstoreCmd.Element(),
 		forensicstoreCmd.Create(),
 		forensicstoreCmd.Validate(),

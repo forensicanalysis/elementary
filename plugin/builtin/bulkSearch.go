@@ -30,16 +30,17 @@ import (
 	"crawshaw.io/sqlite"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func bulkSearch() plugin.Plugin {
-	bulkSearchCommand := &command{
+	return &command{
 		name:  "bulk-search",
 		short: "Bulk search indicators",
 		parameter: plugin.ParameterList{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
 			{Name: "file", Type: plugin.Path, Description: "file with IOCs", Required: true},
+			ForensicStore, AddToStore, output.File, output.Format,
 		},
 		run: func(cmd plugin.Plugin) error {
 			log.Printf("run bulk-search")
@@ -59,7 +60,8 @@ func bulkSearch() plugin.Plugin {
 			}
 			defer file.Close()
 
-			output := plugin.NewOutputWriterStore(cmd, store, &plugin.OutputConfig{Header: []string{"ioc", "count"}})
+			out := setupOut(cmd, store, []string{"ioc", "count"})
+			defer out.WriteFooter()
 
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
@@ -73,18 +75,15 @@ func bulkSearch() plugin.Plugin {
 				if err != nil {
 					return err
 				}
-				output.WriteLine(element) // nolint: errcheck
+				out.WriteLine(element) // nolint: errcheck
 			}
 			if err := scanner.Err(); err != nil {
 				return err
 			}
-			output.WriteFooter()
+
 			return nil
 		},
 	}
-	bulkSearchCommand.parameter = append(bulkSearchCommand.parameter, plugin.OutputParameter(bulkSearchCommand)...)
-
-	return bulkSearchCommand
 }
 
 func getSearchCount(conn *sqlite.Conn, term string) ([]byte, error) {

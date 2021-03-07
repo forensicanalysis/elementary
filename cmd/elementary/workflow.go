@@ -59,7 +59,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal(err, workflowFile)
 			}
 
-			mcp := meta.CommandProvider{}
+			mcp := meta.PluginProvider{}
 			engine := daggy.New(mcp.List())
 			workflow, err := daggy.Parse(workflowFile)
 			if err != nil {

@@ -26,32 +26,26 @@ import (
 	"io"
 	"strings"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
+	"github.com/forensicanalysis/elementary/plugin"
 	"github.com/forensicanalysis/forensicstore"
 )
 
 func forensicStoreImport() plugin.Plugin {
-	cmd := &command{
-		name:  "import-forensicstore",
-		short: "Import forensicstore files",
-		parameter: []*plugin.Parameter{
-			{Name: "forensicstore", Type: plugin.Path, Required: true, Argument: true},
-			{Name: "file", Type: plugin.Path, Required: true},
-			{Name: "filter", Description: "filter processed events", Type: plugin.StringArray, Required: false},
-		},
+	return &command{
+		name:      "import-forensicstore",
+		short:     "Import forensicstore files",
+		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Type: plugin.Path, Required: true}, Filter},
 		run: func(cmd plugin.Plugin) error {
 			path := cmd.Parameter().StringValue("forensicstore")
 			file := cmd.Parameter().StringValue("file")
-			filter := cmd.Parameter().GetStringArrayValue("filter")
-			return singleImport(path, file, plugin.ExtractFilter(filter))
+			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
+			return singleImport(path, file, filter)
 		},
 		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
 	}
-	return cmd
 }
 
 func singleImport(url string, file string, filter plugin.Filter) error {

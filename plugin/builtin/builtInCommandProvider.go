@@ -4,11 +4,11 @@ import (
 	"github.com/forensicanalysis/elementary/plugin"
 )
 
-var _ plugin.Provider = &CommandProvider{}
+var _ plugin.Provider = &PluginProvider{}
 
-type CommandProvider struct{}
+type PluginProvider struct{}
 
-func (d *CommandProvider) List() []plugin.Plugin {
+func (d *PluginProvider) List() []plugin.Plugin {
 	return []plugin.Plugin{
 		eventlogs(),
 		export(),

@@ -32,6 +32,7 @@ import (
 	"strings"
 
 	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/plugin/output"
 )
 
 var _ plugin.Plugin = &command{}
@@ -83,22 +84,21 @@ func newCommand(path string) plugin.Plugin {
 		log.Println("sh", "-c", shellCommand)
 		script := exec.Command("sh", "-c", shellCommand) // #nosec
 
-		path := cmd.Parameter().StringValue("forensicstore")
-		output, teardown := plugin.NewOutputWriterURL(scriptCommand, path)
-		defer teardown()
+		opath := cmd.Parameter().StringValue("output")
+		format := cmd.Parameter().StringValue("format")
+		out := output.New(opath, format, nil)
+		defer out.WriteFooter()
 
-		script.Stdout = output
+		script.Stdout = out
 		script.Stderr = log.Writer()
 		err := script.Run()
 		if err != nil {
 			return fmt.Errorf("%s script failed with %w", scriptCommand.ScriptName, err)
 		}
 
-		output.WriteFooter()
 		return nil
 	}
 	scriptCommand.parameter = append(scriptCommand.parameter, plugin.JsonschemaToParameter(scriptCommand.Arguments)...)
-	scriptCommand.parameter = append(scriptCommand.parameter, plugin.OutputParameter(scriptCommand)...)
 
 	return scriptCommand
 }
