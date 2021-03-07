@@ -99,6 +99,9 @@ jobs:
         with: { go-version: '1.16' }
       - name: Checkout code
         uses: actions/checkout@v2
+      - run: |
+          mkdir cmd/elementary/elementary-server/dist
+          touch cmd/elementary/elementary-server/dist/dummy
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
