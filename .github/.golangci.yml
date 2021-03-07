@@ -84,7 +84,7 @@ linters:
     # - forcetypeassert # finds forced type assertions
     # - gci # Gci control golang package import order and make it always deterministic.
     # - goerr113 # Golang linter to check the errors handling expressions
-    - gofumpt # Gofumpt checks whether code was gofumpt-ed.
+    # - gofumpt # Gofumpt checks whether code was gofumpt-ed.
     - goheader # Checks is file header matches to pattern
     # - ifshort # Checks that your code uses short syntax for if-statements whenever possible
     - importas # Enforces consistent import aliases
