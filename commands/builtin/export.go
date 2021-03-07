@@ -19,61 +19,58 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
-	"errors"
-	"io/ioutil"
-
-	"github.com/spf13/cobra"
+	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/tidwall/gjson"
 
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func jsonImport() *cobra.Command {
-	var file string
-	var filtersets []string
-	cmd := &cobra.Command{
-		Use:   "import-json <forensicstore>",
-		Short: "Import json files",
-		Args:  RequireStore,
-		RunE: func(_ *cobra.Command, args []string) error {
-			filter := extractFilter(filtersets)
+func export() daggy.Command {
+	outputCommand := &BuiltInCommand{
+		name:   "export",
+		short: "Export selected elements",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "filter", Description: "filter processed events", Type: daggy.StringArray, Required: false},
+		},
+		run: func(cmd daggy.Command) error {
+			filter := commands.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
 
-			store, teardown, err := forensicstore.Open(args[0])
+			path := cmd.Parameter().StringValue("forensicstore")
+			store, teardown, err := forensicstore.Open(path)
 			if err != nil {
 				return err
 			}
 			defer teardown()
 
-			b, err := ioutil.ReadFile(file) // #nosec
+			elements, err := store.Select(filter)
 			if err != nil {
 				return err
 			}
-
-			topLevel := gjson.GetBytes(b, "@this")
-			if !topLevel.IsArray() {
-				return errors.New("imported json must have a top level array containing objects")
+			if len(elements) == 0 {
+				return nil
 			}
 
-			topLevel.ForEach(func(_, element gjson.Result) bool {
-				elementType := element.Get("type")
-				if elementType.Exists() && filter.Match(forensicstore.JSONElement(element.Raw)) {
-					_, err = store.Insert(forensicstore.JSONElement(element.Raw))
-					if err != nil {
-						return false
-					}
-				}
+			var header []string
+			gjson.GetBytes(elements[0], "@this").ForEach(func(key, _ gjson.Result) bool {
+				header = append(header, key.String())
 				return true
 			})
-
+			output := commands.NewOutputWriterStore(cmd, store, &commands.OutputConfig{
+				Header: header,
+			})
+			for _, element := range elements {
+				output.Write(element) // nolint: errcheck
+			}
+			output.WriteFooter()
 			return nil
 		},
-		Annotations: map[string]string{"plugin_property_flags": "di|im"},
+		annotations: []daggy.Annotation{daggy.Exporter},
 	}
-	cmd.Flags().StringVar(&file, "file", "", "json file")
-	cmd.Flags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
-	_ = cmd.MarkFlagRequired("file")
-	return cmd
+	outputCommand.parameter = append(outputCommand.parameter, commands.OutputParameter(outputCommand)...)
+	return outputCommand
 }

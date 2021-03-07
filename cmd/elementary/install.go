@@ -23,6 +23,8 @@ package main
 
 import (
 	"context"
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/commands/docker"
 	"io"
 	"log"
 	"os"
@@ -33,8 +35,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
-
-	"github.com/forensicanalysis/elementary/commands"
 )
 
 // install required assets.
@@ -69,7 +69,7 @@ func ensureSetup() {
 	if err != nil {
 		log.Printf("config dir not found: %s, using current directory", err)
 	}
-	appDir := commands.AppDir()
+	appDir := elementary.AppDir()
 	info, err := os.Stat(appDir)
 	if os.IsNotExist(err) {
 		setup(nil, false)
@@ -84,7 +84,7 @@ func ensureSetup() {
 }
 
 func setup(auth *types.AuthConfig, pull bool) {
-	appDir := commands.AppDir()
+	appDir := elementary.AppDir()
 
 	// unpack scripts
 	err := unpack(appDir)
@@ -136,14 +136,14 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	for _, imageSummary := range imageSummaries {
 		for _, dockerImage := range imageSummary.RepoTags {
 			isElementary := strings.HasPrefix(dockerImage, "forensicanalysis/elementary-")
-			if isElementary && !contains(commands.DockerImages(), dockerImage) {
+			if isElementary && !contains(docker.Images(), dockerImage) {
 				_, _ = cli.ImageRemove(ctx, dockerImage, types.ImageRemoveOptions{Force: true})
 			}
 		}
 	}
 
 	// pull docker images
-	for _, image := range commands.DockerImages() {
+	for _, image := range docker.Images() {
 		log.Println("pull docker image", image)
 		err = pullImage(ctx, cli, image, auth)
 		if err != nil {
@@ -152,7 +152,7 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	}
 }
 
-func contains(l []string, s string) bool { // nolint: unused
+func contains(l []string, s string) bool {
 	for _, e := range l {
 		if e == s {
 			return true
@@ -184,3 +184,4 @@ func pullImage(ctx context.Context, cli *client.Client, image string, auth *type
 	}
 	return nil
 }
+

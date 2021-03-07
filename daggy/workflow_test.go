@@ -29,10 +29,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/otiai10/copy"
-	"github.com/spf13/cobra"
-
 	"github.com/forensicanalysis/forensicstore"
+	"github.com/otiai10/copy"
 )
 
 func setup() (storeDir string, err error) {
@@ -64,6 +62,33 @@ func cleanup(folders ...string) (err error) {
 	return nil
 }
 
+var _ Command = &testCommand{}
+
+type testCommand struct {
+	name string
+	run  func(command Command) error
+}
+
+func (t *testCommand) Name() string {
+	return t.name
+}
+
+func (t *testCommand) Short() string {
+	return t.name
+}
+
+func (t *testCommand) Parameter() ParameterList {
+	return nil
+}
+
+func (t *testCommand) Run(command Command) error {
+	return t.run(command)
+}
+
+func (t *testCommand) Annotations() []Annotation {
+	return nil
+}
+
 func Test_processTask(t *testing.T) {
 	log.Println("Start setup")
 	storeDir, err := setup()
@@ -91,9 +116,9 @@ func Test_processTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			workflow := &Workflow{Tasks: []Task{tt.args.task}}
 
-			plugins := []*cobra.Command{{
-				Use: "example",
-				RunE: func(cmd *cobra.Command, args []string) error {
+			plugins := []Command{&testCommand{
+				name: "example",
+				run: func(cmd Command) error {
 					return nil
 				},
 			}}

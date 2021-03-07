@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"bufio"
@@ -28,33 +28,39 @@ import (
 	"os"
 
 	"crawshaw.io/sqlite"
-	"github.com/spf13/cobra"
 
+	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func bulkSearch() *cobra.Command {
-	var file string
-	bulkSearchCommand := &cobra.Command{
-		Use:   "bulk-search <forensicstore>",
-		Short: "Bulk search indicators",
-		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			log.Printf("run bulk-search %s", args)
+func bulkSearch() *BuiltInCommand {
+	bulkSearchCommand := &BuiltInCommand{
+		name:  "bulk-search",
+		short: "Bulk search indicators",
+		parameter: daggy.ParameterList{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "file", Type: daggy.Path, Description: "file with IOCs", Required: true},
+		},
+		run: func(cmd daggy.Command) error {
+			log.Printf("run bulk-search")
 
-			store, teardown, err := forensicstore.Open(args[0])
+			path := cmd.Parameter().StringValue("forensicstore")
+			iocListPath := cmd.Parameter().StringValue("file")
+
+			store, teardown, err := forensicstore.Open(path)
 			if err != nil {
 				return err
 			}
 			defer teardown()
 
-			file, err := os.Open(file) // #nosec
+			file, err := os.Open(iocListPath) // #nosec
 			if err != nil {
 				log.Fatal(err)
 			}
 			defer file.Close()
 
-			output := newOutputWriterStore(cmd, store, &outputConfig{Header: []string{"ioc", "count"}})
+			output := commands.NewOutputWriterStore(cmd, store, &commands.OutputConfig{Header: []string{"ioc", "count"}})
 
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
@@ -68,7 +74,7 @@ func bulkSearch() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				output.writeLine(element) // nolint: errcheck
+				output.WriteLine(element) // nolint: errcheck
 			}
 			if err := scanner.Err(); err != nil {
 				return err
@@ -77,9 +83,8 @@ func bulkSearch() *cobra.Command {
 			return nil
 		},
 	}
-	addOutputFlags(bulkSearchCommand)
-	bulkSearchCommand.Flags().StringVar(&file, "file", "", "file with IOCs")
-	_ = bulkSearchCommand.MarkFlagRequired("file")
+	bulkSearchCommand.parameter = append(bulkSearchCommand.parameter, commands.OutputParameter(bulkSearchCommand)...)
+
 	return bulkSearchCommand
 }
 

@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"log"
@@ -42,8 +42,8 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 	example1 := filepath.Join(storeDir, "example1.forensicstore")
 
 	type args struct {
-		url  string
-		args []string
+		url    string
+		filter []string
 	}
 	tests := []struct {
 		name      string
@@ -52,16 +52,17 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 		wantErr   bool
 	}{
 		// {"Prefetch", args{"example1.forensicstore", nil, nil}, 261, false},
-		{"Prefetch with Filter", args{example1, []string{"--filter", "origin.path=%artifactcollector%"}}, 3, false},
+		{"Prefetch with Filter", args{example1, []string{"origin.path=%artifactcollector%"}}, 3, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			command := prefetch()
 
-			command.Flags().Set("format", "none")
-			command.Flags().Set("add-to-store", "true")
-			command.SetArgs(append(tt.args.args, tt.args.url))
-			err = command.Execute()
+			command.Parameter().Set("format", "none")
+			command.Parameter().Set("add-to-store", true)
+			command.Parameter().Set("filter", tt.args.filter)
+			command.Parameter().Set("forensicstore", tt.args.url)
+			err = command.Run(command)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)

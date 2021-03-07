@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/commands/meta"
+	"github.com/forensicanalysis/elementary/daggy"
 	"log"
 	"path/filepath"
 
@@ -34,6 +37,7 @@ var (
 	app           *astilectron.Astilectron
 	menu          *astilectron.Menu
 	l             *log.Logger
+	cp            daggy.CommandProvider
 )
 
 func main() {
@@ -43,6 +47,8 @@ func main() {
 	// Create logger
 	l = log.New(log.Writer(), log.Prefix(), log.Flags())
 	l.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	cp = &meta.CommandProvider{Name: elementary.Name(), Dir: elementary.AppDir()}
 
 	// Run bootstrap
 	l.Printf("Running app built at %s\n", BuiltAt)

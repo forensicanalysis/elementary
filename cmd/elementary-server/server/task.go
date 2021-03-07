@@ -27,13 +27,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
 	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary/daggy"
 )
 
 type Task struct {
@@ -42,7 +40,7 @@ type Task struct {
 	Schema      *commands.JSONSchema
 }
 
-func ListTasks() *Command {
+func ListTasks(mcp daggy.CommandProvider) *Command {
 	return &Command{
 		Name:   "listTasks",
 		Route:  "/tasks",
@@ -53,19 +51,15 @@ func ListTasks() *Command {
 		},
 		Handler: func(w io.Writer, _ io.Reader, flags *pflag.FlagSet) error {
 			var children []Task
-			for _, command := range commands.All() {
-				if command.Annotations != nil {
-					if properties, ok := command.Annotations["plugin_property_flags"]; ok {
-						if strings.Contains(properties, "ex") {
-							continue
-						}
-					}
+			for _, command := range mcp.List() {
+				if daggy.HasAnnotation(command, daggy.Exporter) {
+					continue
 				}
 
-				schema := flagsToSchema(command.Flags())
+				schema := parameterToSchema(command.Parameter())
 				children = append(children, Task{
 					Name:        command.Name(),
-					Description: command.Short,
+					Description: command.Short(),
 					Schema:      &schema,
 				})
 			}
@@ -75,7 +69,7 @@ func ListTasks() *Command {
 	}
 }
 
-func RunTask() *Command {
+func RunTask(cp daggy.CommandProvider) *Command {
 	return &Command{
 		Name:   "run",
 		Route:  "/run",
@@ -89,14 +83,14 @@ func RunTask() *Command {
 				return err
 			}
 
-			var plugin *cobra.Command
-			for _, command := range commands.All() {
+			var plugin daggy.Command
+			for _, command := range cp.List() {
 				if command.Name() == name {
 					plugin = command
 				}
 			}
 
-			if plugin == nil || plugin.RunE == nil {
+			if plugin == nil {
 				return fmt.Errorf("plugin %s cannot be run", name)
 			}
 
@@ -110,68 +104,39 @@ func RunTask() *Command {
 				return err
 			}
 
-			plugin.SetOut(w)
-			plugin.Flags().AddFlagSet(flags)
+			// plugin.SetOut(w) TODO
+			// plugin.Flags().AddFlagSet(flags) TODO
 			for name, arg := range arguments {
 				fmt.Println(name, arg)
-				err = plugin.Flags().Set(name, fmt.Sprint(arg))
-				if err != nil {
-					return err
-				}
+				plugin.Parameter().Set(name, fmt.Sprint(arg))
 			}
-			err = plugin.Flags().Set("format", "json")
-			if err != nil {
-				return err
-			}
-			err = plugin.Flags().Set("add-to-store", "true")
-			if err != nil {
-				return err
-			}
-			return plugin.RunE(plugin, flags.Args())
+			plugin.Parameter().Set("format", "json")
+			plugin.Parameter().Set("add-to-store", true)
+			return plugin.Run(plugin)
 		},
 	}
 }
 
-func flagsToSchema(flags *pflag.FlagSet) commands.JSONSchema {
+func parameterToSchema(parameters daggy.ParameterList) commands.JSONSchema {
 	schema := commands.JSONSchema{
 		Properties: map[string]commands.Property{},
 		Required:   []string{},
 	}
 
-	flags.VisitAll(func(f *pflag.Flag) {
-		typeMapping := map[string]string{
-			"string": "string",
-			"int":    "integer",
-			"bool":   "boolean",
-			"float":  "number",
+	for _, parameter := range parameters {
+		typeMapping := map[daggy.ParameterType]string{
+			daggy.String: "string",
+			daggy.Bool:   "boolean",
 		}
 
-		property := commands.Property{
-			Type:        typeMapping[f.Value.Type()],
-			Description: f.Usage,
+		schema.Properties[parameter.Name] = commands.Property{
+			Type:        typeMapping[parameter.Type],
+			Description: parameter.Description,
+			Default:     parameter.Value,
 		}
-
-		if f.DefValue != "" {
-			var defaultValue interface{}
-			var err error
-			switch f.Value.Type() {
-			case "string":
-				property.Default = f.DefValue
-			case "int":
-				defaultValue, err = strconv.ParseInt(f.DefValue, 10, 64)
-			case "bool":
-				defaultValue, err = strconv.ParseBool(f.DefValue)
-			case "float":
-				defaultValue, err = strconv.ParseFloat(f.DefValue, 64)
-			}
-			if err == nil {
-				property.Default = defaultValue
-			}
+		if parameter.Required {
+			schema.Required = append(schema.Required, parameter.Name)
 		}
-		schema.Properties[f.Name] = property
-		if _, ok := f.Annotations[cobra.BashCompOneRequiredFlag]; ok {
-			schema.Required = append(schema.Required, f.Name)
-		}
-	})
+	}
 	return schema
 }

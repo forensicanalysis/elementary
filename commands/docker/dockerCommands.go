@@ -19,88 +19,73 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package docker
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
-	"github.com/spf13/cobra"
+	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary/daggy"
 )
 
-func dockerCommands() []*cobra.Command {
-	ctx := context.Background()
-	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second) // TODO: adjust time
-	defer cancel()
+var _ daggy.Command = &Command{}
 
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		return nil
-	}
-
-	options := types.ImageListOptions{All: true}
-	imageSummaries, err := cli.ImageList(timeoutCtx, options)
-	if err != nil {
-		log.Printf("docker plugins disabled: %s", err)
-		return nil
-	}
-
-	var commands []*cobra.Command
-	commandNames := map[string]bool{}
-	for _, imageSummary := range imageSummaries {
-		for _, dockerImage := range imageSummary.RepoTags {
-			name, err := commandName(dockerImage)
-			if err != nil {
-				continue
-			}
-
-			cmd := dockerCommand(name, dockerImage, imageSummary.Labels)
-			commands = append(commands, cmd)
-			commandNames[name] = true
-		}
-	}
-	for _, dockerImage := range DockerImages() {
-		name, err := commandName(dockerImage)
-		if err != nil {
-			continue
-		}
-		if _, ok := commandNames[name]; !ok {
-			labels := map[string]string{"short": fmt.Sprintf("Use '%s install -f' to download", os.Args[0])}
-			commands = append(commands, dockerCommand(name, dockerImage, labels))
-		}
-	}
-
-	return commands
+type Command struct {
+	name        string
+	short       string
+	parameter   daggy.ParameterList
+	run         func(daggy.Command) error
+	annotations []daggy.Annotation
 }
 
-func dockerCommand(name, image string, labels map[string]string) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   name + " <forensicstore>",
-		Short: "(docker: " + image + ")",
-		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			log.Println("run", cmd.Name(), args[0])
+func (s *Command) Name() string {
+	return s.name
+}
 
-			mounts, err := parseMounts(labels, args, cmd)
+func (s *Command) Short() string {
+	return s.short
+}
+
+func (s *Command) Parameter() daggy.ParameterList {
+	return s.parameter
+}
+
+func (s *Command) Run(c daggy.Command) error {
+	return s.run(c)
+}
+
+func (s *Command) Annotations() []daggy.Annotation {
+	return s.annotations
+}
+
+func NewDockerCommand(name, image string, labels map[string]string) daggy.Command {
+	dockerCmd := &Command{
+		name:  name,
+		short: "(docker: " + image + ")",
+		run: func(cmd daggy.Command) error {
+			log.Println("run", cmd.Name())
+
+			path := cmd.Parameter().StringValue("forensicstore")
+			mounts, err := parseMounts(labels, path, cmd)
 			if err != nil {
 				return err
 			}
 
-			output, teardown := newOutputWriterURL(cmd, args[0])
+			output, teardown := commands.NewOutputWriterURL(cmd, path)
 			defer teardown()
 
-			args = toCommandlineArgs(cmd.Flags(), args)
+			args := commands.ToCommandlineArgs(cmd.Parameter())
 			err = dockerCreate(image, args, mounts, output)
 			if err != nil {
 				return err
@@ -112,26 +97,27 @@ func dockerCommand(name, image string, labels map[string]string) *cobra.Command 
 	}
 
 	if short, ok := labels["short"]; ok {
-		cmd.Short = short + " (docker: " + image + ")"
+		dockerCmd.short = short + " (docker: " + image + ")"
 	}
 
 	addOutput := true
 	if properties, ok := labels["properties"]; ok {
-		if cmd.Annotations == nil {
-			cmd.Annotations = map[string]string{}
-		}
-		if strings.Contains(properties, "di") { // TODO: use constant
+		if strings.Contains(properties, daggy.Di) { // TODO: use constant
 			addOutput = false
 		}
-		cmd.Annotations["plugin_property_flags"] = properties
+		// dockerCmd.annotations = append(dockerCmd.annotations, properties) TODO
 	}
-	setFlags(labels, cmd, addOutput)
 
-	return cmd
+	dockerCmd.parameter = append(dockerCmd.parameter, getLabelParameter(labels)...)
+	if addOutput {
+		dockerCmd.parameter = append(dockerCmd.parameter, commands.OutputParameter(dockerCmd)...)
+	}
+
+	return dockerCmd
 }
 
-func parseMounts(labels map[string]string, args []string, cmd *cobra.Command) (map[string]string, error) {
-	abs, err := filepath.Abs(args[0])
+func parseMounts(labels map[string]string, path string, cmd daggy.Command) (map[string]string, error) {
+	abs, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +133,8 @@ func parseMounts(labels map[string]string, args []string, cmd *cobra.Command) (m
 
 	if mountsList, ok := labels["mounts"]; ok {
 		for _, mountPoint := range strings.Split(mountsList, ",") {
-			mountPointValue, err := cmd.Flags().GetString(mountPoint)
-			if err != nil || mountPointValue == "" {
+			mountPointValue := cmd.Parameter().StringValue(mountPoint)
+			if mountPointValue == "" {
 				continue
 			}
 			abs, err := filepath.Abs(mountPointValue)
@@ -161,28 +147,24 @@ func parseMounts(labels map[string]string, args []string, cmd *cobra.Command) (m
 	return mounts, nil
 }
 
-func setFlags(labels map[string]string, cmd *cobra.Command, addOutput bool) {
+func getLabelParameter(labels map[string]string) []*daggy.Parameter {
+	var parameters []*daggy.Parameter
 	if use, ok := labels["arguments"]; ok {
-		var schema JSONSchema
+		var schema commands.JSONSchema
 		err := json.Unmarshal([]byte(use), &schema)
 		if err != nil {
 			log.Println(err)
 		} else {
-			err := jsonschemaToFlags(schema, cmd)
-			if err != nil {
-				log.Println(err)
-			}
+			parameters = append(parameters, commands.JsonschemaToParameter(schema)...)
 		}
 	}
-	if addOutput {
-		addOutputFlags(cmd)
-	}
+	return parameters
 }
 
-func commandName(image string) (string, error) {
+func commandName(prefix, image string) (string, error) {
 	idx := strings.LastIndex(image, "/")
-	if strings.HasPrefix(image[idx+1:], appName+"-") {
-		name := image[idx+len(appName)+2:]
+	if strings.HasPrefix(image[idx+1:], prefix+"-") {
+		name := image[idx+len(prefix)+2:]
 		parts := strings.Split(name, ":")
 		name = parts[0]
 		return name, nil

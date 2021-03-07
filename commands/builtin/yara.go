@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 /*
 import (
@@ -37,13 +37,13 @@ import (
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func Yara() *cobra.Command {
+func Yara() daggy.Command {
 	var rulesPath string
-	prefetchCommand := &cobra.Command{
+	prefetchCommand := &BuiltInCommand{
 		Use:   "yara <forensicstore>",
 		Short: "Process prefetch files",
 		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		run: func(cmd daggy.Command, args []string) error {
 			log.Printf("run yara %s", args)
 
 			c, err := yara.NewCompiler()
@@ -83,7 +83,7 @@ func Yara() *cobra.Command {
 	return prefetchCommand
 }
 
-func yaraStore(url string, rules *yara.Rules, cmd *cobra.Command) error {
+func yaraStore(url string, rules *yara.Rules, cmd daggy.Command) error {
 	store, teardown, err := forensicstore.Open(url)
 	if err != nil {
 		return err

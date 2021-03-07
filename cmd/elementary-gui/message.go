@@ -14,7 +14,7 @@ import (
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
 	"github.com/gorilla/mux"
 
-	"github.com/forensicanalysis/elementary/server"
+	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -108,7 +108,7 @@ func handleStoreMessages(storeURL string) func(_ *astilectron.Window, m MessageI
 			return nil, nil
 		}
 
-		router := server.Router(server.Commands(), func() []string { return []string{storeURL} })
+		router := server.Router(server.Commands(cp), func() []string { return []string{storeURL} })
 
 		u, err := url.Parse("/api" + m.Name)
 		if err != nil {

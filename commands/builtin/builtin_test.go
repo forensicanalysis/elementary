@@ -19,14 +19,42 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
-func DockerImages() []string {
-	return []string{
-		"docker.io/forensicanalysis/elementary-shimcache:v0.3.6",
-		"docker.io/forensicanalysis/elementary-plaso:v0.3.6",
-		"docker.io/forensicanalysis/elementary-import-image:v0.3.6",
-		"docker.io/forensicanalysis/elementary-yara:v0.3.6",
-		"docker.io/forensicanalysis/elementary-sigma:v0.3.6",
+import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/otiai10/copy"
+)
+
+func setup(subdirs ...string) (string, error) {
+	tempDir, err := ioutil.TempDir("", "forensicstoreprocesstest")
+	if err != nil {
+		return "", err
 	}
+
+	if len(subdirs) == 0 {
+		err = copy.Copy(filepath.Join("..", "..", "test", "data"), tempDir)
+	} else {
+		for _, subdir := range subdirs {
+			err = copy.Copy(filepath.Join("..", "..", "test", "data", subdir), filepath.Join(tempDir, subdir))
+		}
+	}
+	if err != nil {
+		return "", err
+	}
+
+	return tempDir, nil
+}
+
+func cleanup(folders ...string) (err error) {
+	for _, folder := range folders {
+		err := os.RemoveAll(folder)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -19,14 +19,14 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"fmt"
+	"github.com/forensicanalysis/elementary/commands"
 	"io"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
@@ -34,21 +34,23 @@ import (
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func forensicStoreImport() *cobra.Command {
-	var file string
-	var filtersets []string
-	cmd := &cobra.Command{
-		Use:   "import-forensicstore <forensicstore>",
-		Short: "Import forensicstore files",
-		Args:  RequireStore,
-		RunE: func(_ *cobra.Command, args []string) error {
-			return singleImport(args[0], file, extractFilter(filtersets))
+func forensicStoreImport() daggy.Command {
+	cmd := &BuiltInCommand{
+		name:  "import-forensicstore",
+		short: "Import forensicstore files",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "file", Type: daggy.Path, Required: true},
+			{Name: "filter", Description: "filter processed events", Type: daggy.StringArray, Required: false},
 		},
-		Annotations: map[string]string{"plugin_property_flags": "di|im"},
+		run: func(cmd daggy.Command) error {
+			path := cmd.Parameter().StringValue("forensicstore")
+			file := cmd.Parameter().StringValue("file")
+			filter := cmd.Parameter().GetStringArrayValue("filter")
+			return singleImport(path, file, commands.ExtractFilter(filter))
+		},
+		annotations: []daggy.Annotation{daggy.Di, daggy.Importer},
 	}
-	cmd.Flags().StringVar(&file, "file", "", "forensicstore")
-	_ = cmd.MarkFlagRequired("file")
-	cmd.Flags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
 	return cmd
 }
 

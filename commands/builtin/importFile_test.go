@@ -19,55 +19,56 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
-	"io/ioutil"
 	"log"
 	"path/filepath"
 	"testing"
 
-	"github.com/tidwall/gjson"
-
-	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func TestBulkSearch(t *testing.T) {
+func TestImportFile(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, err := setup("example1.forensicstore")
+	storeDir, err := setup()
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
-	example1 := filepath.Join(storeDir, "example1.forensicstore")
+	newStorePath := filepath.Join(storeDir, "example.forensicstore")
+	jsonPath := filepath.Join(storeDir, "import.json")
 
-	iocFile := filepath.Join(storeDir, "ioc.txt")
-	ioutil.WriteFile(iocFile, []byte("exe"), 0755)
+	_, teardown, err := forensicstore.New(newStorePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = teardown()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	type args struct {
 		url  string
-		args []string
+		files []string
 	}
 	tests := []struct {
-		name        string
-		args        args
-		wantResults int
-		wantCount   int64
-		wantErr     bool
+		name      string
+		args      args
+		wantCount int
+		wantErr   bool
 	}{
-		{"ioc search", args{example1, []string{"--file", iocFile}}, 1, 529, false},
+		{"import file", args{newStorePath, []string{jsonPath}}, 1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := bulkSearch()
+			command := importFile()
 
-			command.Flags().Set("format", "none")
-			command.Flags().Set("add-to-store", "true")
-			command.SetArgs(append(tt.args.args, tt.args.url))
-			err = command.Execute()
+			command.Parameter().Set("file", tt.args.files)
+			command.Parameter().Set("forensicstore", tt.args.url)
+			err = command.Run(command)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
@@ -78,18 +79,13 @@ func TestBulkSearch(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer teardown()
-			elements, err := store.Select(daggy.Filter{{"type": "bulksearch"}})
+			elements, err := store.All()
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if len(elements) != tt.wantResults {
-				t.Errorf("Run() error, wrong number of resuls = %d, want %d", len(elements), tt.wantResults)
-			}
-
-			count := gjson.GetBytes(elements[0], "count").Int()
-			if count != tt.wantCount {
-				t.Errorf("Run() error, wrong count of resuls = %d, want %d", count, tt.wantCount)
+			if len(elements) != tt.wantCount {
+				t.Errorf("Run() error, wrong number of resuls = %d, want %d", len(elements), tt.wantCount)
 			}
 		})
 	}

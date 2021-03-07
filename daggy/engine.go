@@ -3,27 +3,27 @@ package daggy
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform/dag"
+	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/spf13/pflag"
 	"log"
 	"reflect"
 	"sort"
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/logutils"
-	"github.com/hashicorp/terraform/dag"
-	"github.com/hashicorp/terraform/tfdiags"
-	"github.com/spf13/cobra"
 )
 
 type Engine struct {
-	commands map[string]*cobra.Command
+	commands map[string]Command
 	mux      sync.Mutex
 }
 
-func New(commands []*cobra.Command) *Engine {
+func New(commands []Command) *Engine {
 	setupLogging()
-	engine := Engine{commands: map[string]*cobra.Command{}}
+	engine := Engine{commands: map[string]Command{}}
 	for _, command := range commands {
 		engine.commands[command.Name()] = command
 	}
@@ -33,9 +33,10 @@ func New(commands []*cobra.Command) *Engine {
 // Sort creates a direct acyclic graph of tasks.
 func (e *Engine) Run(workflow *Workflow, storeDir string) error {
 	// Create the dag
+
 	graph := dag.AcyclicGraph{}
 	tasks := map[uuid.UUID]Task{}
-	outputToTaskIDs := map[string][]uuid.UUID{}
+	// outputToTaskIDs := map[string][]uuid.UUID{}
 	var unavailableCommands []string
 
 	for _, task := range workflow.Tasks {
@@ -43,34 +44,38 @@ func (e *Engine) Run(workflow *Workflow, storeDir string) error {
 		graph.Add(task.ID)
 		tasks[task.ID] = task
 
-		cmd, ok := e.commands[task.Command]
-		if !ok {
-			unavailableCommands = append(unavailableCommands, task.Command)
-			continue
-		}
-
-		if outputs, ok := cmd.Annotations["output"]; ok {
-			for _, output := range strings.Split(outputs, ",") {
-				outputToTaskIDs[output] = append(outputToTaskIDs[output], task.ID)
+		/*
+			cmd, ok := e.commands[task.Command]
+			if !ok {
+				unavailableCommands = append(unavailableCommands, task.Command)
+				continue
 			}
-		}
+
+			if outputs, ok := cmd.Annotations["output"]; ok {
+				for _, output := range strings.Split(outputs, ",") {
+					outputToTaskIDs[output] = append(outputToTaskIDs[output], task.ID)
+				}
+			}
+		*/
 	}
 
 	// Add edges / requirements
-	for _, task := range workflow.Tasks {
-		cmd, ok := e.commands[task.Command]
-		if !ok {
-			continue
-		}
+	/*
+		for _, task := range workflow.Tasks {
+			cmd, ok := e.commands[task.Command]
+			if !ok {
+				continue
+			}
 
-		if requires, ok := cmd.Annotations["requires"]; ok {
-			for _, requirement := range strings.Split(requires, ",") {
-				for _, output := range outputToTaskIDs[requirement] {
-					graph.Connect(dag.BasicEdge(task.ID, output))
+			if requires, ok := cmd.Annotations["requires"]; ok {
+				for _, requirement := range strings.Split(requires, ",") {
+					for _, output := range outputToTaskIDs[requirement] {
+						graph.Connect(dag.BasicEdge(task.ID, output))
+					}
 				}
 			}
 		}
-	}
+	*/
 
 	w := &dag.Walker{Callback: func(v dag.Vertex) tfdiags.Diagnostics {
 		task := tasks[v.(uuid.UUID)]
@@ -91,6 +96,7 @@ func (e *Engine) Run(workflow *Workflow, storeDir string) error {
 	case unavailableCommands != nil:
 		return fmt.Errorf("unavailable commands: %v", unavailableCommands)
 	}
+
 	return nil
 }
 
@@ -108,16 +114,31 @@ func (e *Engine) RunTask(task Task, storeDir string) error {
 	}
 	args = append(args, storeDir)
 
-	err := command.ParseFlags(args)
+	err := parseArgs(command, args)
 	if err != nil {
 		return err
 	}
 
 	// command.SetArgs(args)
-	if command.RunE == nil {
-		return fmt.Errorf("command %s cannot be run", command.Name())
+	return command.Run(command)
+}
+
+func parseArgs(command Command, args []string) error {
+	fs := pflag.NewFlagSet("", pflag.PanicOnError)
+	err := fs.Parse(args)
+	if err != nil {
+		return err
 	}
-	return command.RunE(command, command.Flags().Args())
+
+	fs.VisitAll(func(flag *pflag.Flag) {
+		switch flag.Value.Type() {
+		case "string":
+			command.Parameter().Set(flag.Name, flag.Value.String())
+		case "bool":
+			command.Parameter().Set(flag.Name, flag.Value.String() == "true")
+		}
+	})
+	return nil
 }
 
 func toCmdline(name string, i interface{}) []string {

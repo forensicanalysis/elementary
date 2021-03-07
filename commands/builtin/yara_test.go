@@ -19,27 +19,47 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
+/*
 import (
 	"log"
 	"path/filepath"
 	"testing"
 
-	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func TestJSONImportPlugin_Run(t *testing.T) {
+func TestYara(t *testing.T) {
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	log.Println("Start setup")
-	storeDir, err := setup("example1.forensicstore", "import.json")
+	storeDir, err := setup()
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
-	example := filepath.Join(storeDir, "example1.forensicstore")
+	newStorePath := filepath.Join(storeDir, "example.forensicstore")
+	yaraRuleFile := filepath.Join(storeDir, "test.yar")
+
+	store, teardown, err := forensicstore.New(newStorePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, f, err := store.StoreFile("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Write([]byte("my abc text here"))
+	f.Close()
+	err = teardown()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	type args struct {
 		url  string
@@ -51,11 +71,11 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"json", args{example, []string{"--file", filepath.Join(storeDir, "import.json")}}, 1, false},
+		{"rule file", args{newStorePath, []string{"--rules", yaraRuleFile},}, 1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := jsonImport()
+			command := Yara()
 
 			command.Flags().Set("format", "none")
 			command.Flags().Set("add-to-store", "true")
@@ -65,13 +85,13 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			store, teardown, err := forensicstore.Open(tt.args.url)
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer teardown()
-
-			elements, err := store.Select(daggy.Filter{{"type": "import"}})
+			elements, err := store.All()
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -82,3 +102,4 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 		})
 	}
 }
+*/

@@ -19,51 +19,31 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
-/*
 import (
 	"log"
 	"path/filepath"
 	"testing"
 
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func TestYara(t *testing.T) {
-
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
+func TestJSONImportPlugin_Run(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, err := setup()
+	storeDir, err := setup("example1.forensicstore", "import.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
-	newStorePath := filepath.Join(storeDir, "example.forensicstore")
-	yaraRuleFile := filepath.Join(storeDir, "test.yar")
-
-	store, teardown, err := forensicstore.New(newStorePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, f, err := store.StoreFile("test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	f.Write([]byte("my abc text here"))
-	f.Close()
-	err = teardown()
-	if err != nil {
-		t.Fatal(err)
-	}
+	example := filepath.Join(storeDir, "example1.forensicstore")
 
 	type args struct {
 		url  string
-		args []string
+		file string
 	}
 	tests := []struct {
 		name      string
@@ -71,27 +51,26 @@ func TestYara(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"rule file", args{newStorePath, []string{"--rules", yaraRuleFile},}, 1, false},
+		{"json", args{example, filepath.Join(storeDir, "import.json")}, 1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := Yara()
+			command := jsonImport()
 
-			command.Flags().Set("format", "none")
-			command.Flags().Set("add-to-store", "true")
-			command.SetArgs(append(tt.args.args, tt.args.url))
-			err = command.Execute()
+			command.Parameter().Set("file", tt.args.file)
+			command.Parameter().Set("forensicstore", tt.args.url)
+			err = command.Run(command)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
-
 			store, teardown, err := forensicstore.Open(tt.args.url)
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer teardown()
-			elements, err := store.All()
+
+			elements, err := store.Select(daggy.Filter{{"type": "import"}})
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -102,4 +81,3 @@ func TestYara(t *testing.T) {
 		})
 	}
 }
-*/

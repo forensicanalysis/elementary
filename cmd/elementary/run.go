@@ -22,9 +22,10 @@
 package main
 
 import (
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/commands/meta"
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/spf13/cobra"
-
-	"github.com/forensicanalysis/elementary/commands"
 )
 
 // run is a subcommand to run a single task.
@@ -35,6 +36,7 @@ func run() *cobra.Command {
 		Use:   "run",
 		Short: "run single task",
 	}
-	command.AddCommand(commands.All()...)
+
+	command.AddCommand(daggy.ToCobra(&meta.CommandProvider{Name: elementary.Name(), Dir: elementary.AppDir()})...)
 	return command
 }

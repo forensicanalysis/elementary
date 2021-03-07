@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package script
 
 import (
 	"encoding/json"
@@ -31,35 +31,45 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/cobra"
+	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary/daggy"
 )
 
-func scriptCommands() []*cobra.Command {
-	scriptDir := filepath.Join(AppDir(), "scripts")
 
-	infos, err := ioutil.ReadDir(scriptDir)
-	if err != nil {
-		log.Printf("script plugins disabled: %s, ", err)
-		return nil
-	}
 
-	var commands []*cobra.Command
-	for _, info := range infos {
-		validName := strings.HasPrefix(info.Name(), appName+"-") && !strings.HasSuffix(info.Name(), ".info")
-		if info.Mode().IsRegular() && validName {
-			commands = append(commands, scriptCommand(filepath.Join(scriptDir, info.Name())))
-		}
-	}
-	return commands
+var _ daggy.Command = &Command{}
+
+type Command struct {
+	ScriptName        string              `json:"name,omitempty"`
+	ScriptShort       string              `json:"short,omitempty"`
+	Arguments         commands.JSONSchema `json:"arguments,omitempty"`
+	ScriptAnnotations []daggy.Annotation  `json:"annotations,omitempty"`
+	parameter         daggy.ParameterList
+	run               func(daggy.Command) error
 }
 
-type commandTemplate struct {
-	*cobra.Command
-	Arguments JSONSchema `json:"arguments,omitempty"`
+func (s *Command) Name() string {
+	return s.ScriptName
 }
 
-func scriptCommand(path string) *cobra.Command {
-	cmd := commandTemplate{}
+func (s *Command) Short() string {
+	return s.ScriptShort
+}
+
+func (s *Command) Parameter() daggy.ParameterList {
+	return s.parameter
+}
+
+func (s *Command) Run(c daggy.Command) error {
+	return s.run(c)
+}
+
+func (s *Command) Annotations() []daggy.Annotation {
+	return s.ScriptAnnotations
+}
+
+func NewScriptCommand(path string) daggy.Command {
+	scriptCommand := &Command{}
 
 	out, err := ioutil.ReadFile(path + ".info") // #nosec
 	if err != nil {
@@ -69,22 +79,21 @@ func scriptCommand(path string) *cobra.Command {
 			log.Println(path, err)
 		}
 	} else {
-		err = json.Unmarshal(out, &cmd)
+		err = json.Unmarshal(out, &scriptCommand)
 		if err != nil {
 			log.Println(err)
 		}
 	}
 
-	if cmd.Use == "" {
-		cmd.Use = filepath.Base(path)
+	if scriptCommand.ScriptName == "" {
+		scriptCommand.ScriptName = filepath.Base(path)
 	}
-	cmd.Short += " (script)"
-	cmd.Args = RequireStore
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		log.Printf("run %s %s", cmd.Name(), args[0])
+	scriptCommand.ScriptShort += " (script)"
+	scriptCommand.run = func(cmd daggy.Command) error {
+		log.Printf("run %s", scriptCommand.Name())
 		shellCommand := strings.Join(append(
 			[]string{`"` + filepath.ToSlash(path) + `"`},
-			toCommandlineArgs(cmd.Flags(), []string{filepath.ToSlash(args[0])})...,
+			commands.ToCommandlineArgs(scriptCommand.Parameter())...,
 		), " ")
 
 		if strings.HasSuffix(path, ".py") {
@@ -97,23 +106,22 @@ func scriptCommand(path string) *cobra.Command {
 		log.Println("sh", "-c", shellCommand)
 		script := exec.Command("sh", "-c", shellCommand) // #nosec
 
-		output, teardown := newOutputWriterURL(cmd, args[0])
+		path := cmd.Parameter().StringValue("forensicstore")
+		output, teardown := commands.NewOutputWriterURL(scriptCommand, path)
 		defer teardown()
 
 		script.Stdout = output
 		script.Stderr = log.Writer()
 		err := script.Run()
 		if err != nil {
-			return fmt.Errorf("%s script failed with %w", cmd.Use, err)
+			return fmt.Errorf("%s script failed with %w", scriptCommand.ScriptName, err)
 		}
 
 		output.WriteFooter()
 		return nil
 	}
-	err = jsonschemaToFlags(cmd.Arguments, cmd.Command)
-	if err != nil {
-		log.Println(err)
-	}
-	addOutputFlags(cmd.Command)
-	return cmd.Command
+	scriptCommand.parameter = append(scriptCommand.parameter, commands.JsonschemaToParameter(scriptCommand.Arguments)...)
+	scriptCommand.parameter = append(scriptCommand.parameter, commands.OutputParameter(scriptCommand)...)
+
+	return scriptCommand
 }

@@ -29,12 +29,11 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/olekukonko/tablewriter"
-	"github.com/spf13/cobra"
 	"github.com/tidwall/gjson"
 
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -57,17 +56,18 @@ func fromString(s string) format {
 	return tableFormat
 }
 
-type outputConfig struct {
+type OutputConfig struct {
 	Header []string `json:"header,omitempty"`
 }
 
 type outputWriter struct {
 	format       format
 	store        *forensicstore.ForensicStore
-	config       *outputConfig
+	config       *OutputConfig
 	firstLine    bool
 	moreElements bool
-	cmd          *cobra.Command
+	cmd          daggy.Command
+	dest         io.Writer
 
 	buffer *bytes.Buffer
 
@@ -75,8 +75,8 @@ type outputWriter struct {
 	csvWriter   *csv.Writer
 }
 
-func newOutputWriter(store *forensicstore.ForensicStore, cmd *cobra.Command) *outputWriter {
-	format, addToStore := parseOutputFlags(cmd)
+func newOutputWriter(store *forensicstore.ForensicStore, cmd daggy.Command) *outputWriter {
+	o, format, addToStore := parseOutputFlags(cmd)
 	outStore := store
 	if !addToStore {
 		outStore = nil
@@ -89,29 +89,38 @@ func newOutputWriter(store *forensicstore.ForensicStore, cmd *cobra.Command) *ou
 		buffer: &bytes.Buffer{},
 	}
 
+	if o != "" {
+		f, err := os.Create(o)
+		if err != nil {
+			log.Println(err)
+		}
+		output.dest = f
+	} else {
+		output.dest = os.Stdout
+	}
+
 	switch format {
 	case csvFormat:
-		output.csvWriter = csv.NewWriter(cmd.OutOrStdout())
+		output.csvWriter = csv.NewWriter(output.dest)
 	case tableFormat:
-		output.tableWriter = tablewriter.NewWriter(cmd.OutOrStdout())
+		output.tableWriter = tablewriter.NewWriter(output.dest)
 	case jsonFormat:
-		cmd.OutOrStdout().Write([]byte("[")) // nolint: errcheck
+		output.dest.Write([]byte("[")) // nolint: errcheck
 	}
 
 	return output
 }
 
-func newOutputWriterStore(cmd *cobra.Command, store *forensicstore.ForensicStore, config *outputConfig) *outputWriter {
+func NewOutputWriterStore(cmd daggy.Command, store *forensicstore.ForensicStore, config *OutputConfig) *outputWriter {
 	o := newOutputWriter(store, cmd)
 	o.writeHeaderConfig(config)
 	return o
 }
 
-func newOutputWriterURL(cmd *cobra.Command, url string) (*outputWriter, func() error) {
+func NewOutputWriterURL(cmd daggy.Command, url string) (*outputWriter, func() error) {
 	var store *forensicstore.ForensicStore
 	teardown := func() error { return nil }
-	addToStore, err := cmd.Flags().GetBool("add-to-store")
-	if err == nil && addToStore {
+	if cmd.Parameter().BoolValue("add-to-store") {
 		var err error
 		store, teardown, err = forensicstore.Open(url)
 		if err != nil {
@@ -124,11 +133,11 @@ func newOutputWriterURL(cmd *cobra.Command, url string) (*outputWriter, func() e
 }
 
 func (o *outputWriter) writeHeaderLine(line []byte) {
-	config := &outputConfig{}
+	config := &OutputConfig{}
 	err := json.Unmarshal(line, config)
 	if err != nil || len(config.Header) == 0 {
 		log.Printf("could not unmarshal config: %s, '%s'", err, line)
-		_, err = fmt.Fprintln(o.cmd.OutOrStdout(), string(line))
+		_, err = fmt.Fprintln(o.dest, string(line))
 		if err != nil {
 			log.Println(err)
 		}
@@ -138,7 +147,7 @@ func (o *outputWriter) writeHeaderLine(line []byte) {
 	o.writeHeaderConfig(config)
 }
 
-func (o *outputWriter) writeHeaderConfig(outConfig *outputConfig) {
+func (o *outputWriter) writeHeaderConfig(outConfig *OutputConfig) {
 	o.config = outConfig
 	o.firstLine = false
 
@@ -165,14 +174,14 @@ func (o *outputWriter) Write(b []byte) (n int, err error) {
 			break
 		}
 
-		o.writeLine(append(o.buffer.Bytes(), b[:i]...))
+		o.WriteLine(append(o.buffer.Bytes(), b[:i]...))
 		b = b[i+1:]
 		o.buffer.Reset()
 	}
 	return n, nil
 }
 
-func (o *outputWriter) writeLine(element []byte) { // nolint: gocyclo
+func (o *outputWriter) WriteLine(element []byte) { // nolint: gocyclo
 	element = bytes.TrimSpace(element)
 
 	if o.firstLine {
@@ -186,7 +195,7 @@ func (o *outputWriter) writeLine(element []byte) { // nolint: gocyclo
 		o.format == jsonlFormat ||
 		(o.format == tableFormat && o.config == nil) ||
 		(o.format == csvFormat && o.config == nil):
-		_, err := fmt.Fprintln(o.cmd.OutOrStdout(), string(element))
+		_, err := fmt.Fprintln(o.dest, string(element))
 		if err != nil {
 			log.Println(err)
 		}
@@ -195,16 +204,16 @@ func (o *outputWriter) writeLine(element []byte) { // nolint: gocyclo
 	case o.format == csvFormat:
 		err := o.csvWriter.Write(o.getColumns(element))
 		if err != nil {
-			fmt.Fprintln(o.cmd.OutOrStdout(), string(element)) // nolint: errcheck
+			fmt.Fprintln(o.dest, string(element)) // nolint: errcheck
 			log.Println(err)
 		}
 	case o.format == jsonFormat:
 		if o.moreElements {
-			o.cmd.OutOrStdout().Write([]byte(",")) // nolint: errcheck
+			o.dest.Write([]byte(",")) // nolint: errcheck
 		} else {
 			o.moreElements = true
 		}
-		o.cmd.OutOrStdout().Write(element) // nolint: errcheck
+		o.dest.Write(element) // nolint: errcheck
 	}
 
 	// add to forensicstore
@@ -231,7 +240,7 @@ func (o *outputWriter) getColumns(element forensicstore.JSONElement) []string {
 
 func (o *outputWriter) WriteFooter() {
 	if o.buffer.Len() > 0 {
-		o.writeLine(o.buffer.Bytes())
+		o.WriteLine(o.buffer.Bytes())
 	}
 
 	switch o.format {
@@ -242,52 +251,38 @@ func (o *outputWriter) WriteFooter() {
 			o.tableWriter.Render()
 		}
 	case jsonFormat:
-		o.cmd.OutOrStdout().Write([]byte("]")) // nolint: errcheck
+		o.dest.Write([]byte("]")) // nolint: errcheck
 	}
 
-	out := o.cmd.OutOrStdout()
+	out := o.dest
 	if closer, ok := out.(io.Closer); ok && out != os.Stdout {
 		closer.Close()
 	}
 }
 
-func addOutputFlags(cmd *cobra.Command) {
-	cmd.Flags().String("output", "", "choose an output file")
-	cmd.Flags().String("format", "table", "choose output format [csv, jsonl, table, json, none]")
+func parseOutputFlags(cmd daggy.Command) (string, format, bool) {
+	output := cmd.Parameter().StringValue("output")
 
-	if cmd.Annotations != nil {
-		if properties, ok := cmd.Annotations["plugin_property_flags"]; ok {
-			if strings.Contains(properties, "ex") {
-				return
-			}
-		}
-	}
-	cmd.Flags().Bool("add-to-store", false, "additionally save output to store")
-}
-
-func parseOutputFlags(cmd *cobra.Command) (format, bool) {
-	output, err := cmd.Flags().GetString("output")
-	if err != nil {
-		log.Println(err)
-	}
-	if output != "" {
-		f, err := os.Create(output)
-		if err != nil {
-			log.Println(err)
-		}
-		cmd.SetOut(f)
-	}
-
-	formatString, err := cmd.Flags().GetString("format")
-	if err != nil {
-		log.Println(err)
-	}
+	formatString := cmd.Parameter().StringValue("format")
 	format := fromString(formatString)
 
-	addToStore, err := cmd.Flags().GetBool("add-to-store")
-	if err != nil {
-		log.Println(err)
+	addToStore := false
+	if !daggy.HasAnnotation(cmd, daggy.Exporter) {
+		addToStore = cmd.Parameter().BoolValue("add-to-store")
 	}
 
-	return format, addToStore
+	return output, format, addToStore
+}
+
+func OutputParameter(cmd daggy.Command) []*daggy.Parameter {
+	parameter := []*daggy.Parameter{
+		{Name: "output", Description: "choose an output file", Type: daggy.Path, Value: "", Required: false},
+		{Name: "format", Description: "choose output format [csv, jsonl, table, json, none]", Type: daggy.String, Value: "table", Required: false},
+	}
+
+	if !daggy.HasAnnotation(cmd, daggy.Exporter) {
+		parameter = append(parameter, &daggy.Parameter{Name: "add-to-store", Description: "choose an output file", Type: daggy.Bool, Value: false, Required: false})
+	}
+
+	return parameter
 }

@@ -19,39 +19,42 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/forensicanalysis/elementary/commands"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/tidwall/gjson"
 
 	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func exportTimesketch() *cobra.Command {
-	var filtersets []string
-	outputCommand := &cobra.Command{
-		Use:   "export-timesketch <forensicstore>",
-		Short: "Export in timesketch jsonl format",
-		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return exportStore(args[0], extractFilter(filtersets), cmd)
+func exportTimesketch() daggy.Command {
+	outputCommand := &BuiltInCommand{
+		name:  "export-timesketch",
+		short: "Export in timesketch jsonl format",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "filter", Description: "filter processed events", Type: daggy.StringArray, Required: false},
 		},
-		Annotations: map[string]string{"plugin_property_flags": "ex"},
+		run: func(cmd daggy.Command) error {
+			path := cmd.Parameter().StringValue("forensicstore")
+			filter := cmd.Parameter().GetStringArrayValue("filter")
+			return exportStore(path, commands.ExtractFilter(filter), cmd)
+		},
+		annotations: []daggy.Annotation{daggy.Exporter},
 	}
-	addOutputFlags(outputCommand)
-	outputCommand.Flags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
+	outputCommand.parameter = append(outputCommand.parameter, commands.OutputParameter(outputCommand)...)
 	return outputCommand
 }
 
-func exportStore(url string, filter daggy.Filter, cmd *cobra.Command) error {
+func exportStore(url string, filter daggy.Filter, cmd daggy.Command) error {
 	store, teardown, err := forensicstore.Open(url)
 	if err != nil {
 		return err
@@ -66,7 +69,7 @@ func exportStore(url string, filter daggy.Filter, cmd *cobra.Command) error {
 		return nil
 	}
 
-	output := newOutputWriterStore(cmd, store, &outputConfig{Header: []string{"message", "datetime", "timestamp_desc"}})
+	output := commands.NewOutputWriterStore(cmd, store, &commands.OutputConfig{Header: []string{"message", "datetime", "timestamp_desc"}})
 
 	for _, element := range elements {
 		element := element
@@ -95,7 +98,7 @@ func exportStore(url string, filter daggy.Filter, cmd *cobra.Command) error {
 					log.Println(err)
 					return true
 				}
-				output.writeLine(b) // nolint: errcheck
+				output.WriteLine(b) // nolint: errcheck
 			}
 			return true
 		})

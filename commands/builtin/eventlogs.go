@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"encoding/json"
@@ -27,31 +27,37 @@ import (
 	"log"
 
 	"github.com/Velocidex/ordereddict"
-	"github.com/spf13/cobra"
 	"github.com/tidwall/gjson"
 	"www.velocidex.com/golang/evtx"
 
+	"github.com/forensicanalysis/elementary/commands"
 	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func eventlogs() *cobra.Command {
-	var filtersets []string
-	eventlogsCmd := &cobra.Command{
-		Use:   "eventlogs <forensicstore>",
-		Short: "Process eventlogs into single events",
-		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			log.Printf("run eventlogs %s", args)
-			return eventlogsFromStore(args[0], extractFilter(filtersets), cmd)
+func eventlogs() daggy.Command {
+	eventlogsCmd := &BuiltInCommand{
+		name:  "eventlogs",
+		short: "Process eventlogs into single events",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "filter", Description: "filter processed events", Type: daggy.StringArray, Required: false},
+		},
+		run: func(cmd daggy.Command) error {
+			log.Printf("run eventlogs")
+			filtersets := cmd.Parameter().GetStringArrayValue("filter")
+			return eventlogsFromStore(
+				cmd.Parameter().StringValue("forensicstore"),
+				commands.ExtractFilter(filtersets),
+				cmd,
+			)
 		},
 	}
-	addOutputFlags(eventlogsCmd)
-	eventlogsCmd.Flags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
+	eventlogsCmd.parameter = append(eventlogsCmd.parameter, commands.OutputParameter(eventlogsCmd)...)
 	return eventlogsCmd
 }
 
-func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) error {
+func eventlogsFromStore(url string, filter daggy.Filter, cmd daggy.Command) error {
 	store, teardown, err := forensicstore.Open(url)
 	if err != nil {
 		return err
@@ -72,7 +78,7 @@ func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) err
 		return err
 	}
 
-	output := newOutputWriterStore(cmd, store, &outputConfig{
+	output := commands.NewOutputWriterStore(cmd, store, &commands.OutputConfig{
 		Header: []string{
 			"System.Computer",
 			"System.TimeCreated.SystemTime",
@@ -86,7 +92,7 @@ func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) err
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")
 		if exportPath.Exists() && exportPath.String() != "" {
-			r, err := fileToReader(store, exportPath)
+			r, err := commands.FileToReader(store, exportPath)
 			if err != nil {
 				return err
 			}
@@ -97,7 +103,7 @@ func eventlogsFromStore(url string, filter daggy.Filter, cmd *cobra.Command) err
 			}
 
 			for _, event := range events {
-				output.writeLine(event) // nolint: errcheck
+				output.WriteLine(event) // nolint: errcheck
 			}
 		}
 	}

@@ -19,40 +19,30 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"log"
 	"path/filepath"
 	"testing"
 
+	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func TestImportFile(t *testing.T) {
+func TestEventlogsPlugin_Run(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, err := setup()
+	storeDir, err := setup("example2.forensicstore")
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
-	newStorePath := filepath.Join(storeDir, "example.forensicstore")
-	jsonPath := filepath.Join(storeDir, "import.json")
-
-	_, teardown, err := forensicstore.New(newStorePath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = teardown()
-	if err != nil {
-		t.Fatal(err)
-	}
+	example2 := filepath.Join(storeDir, "example2.forensicstore")
 
 	type args struct {
-		url  string
-		args []string
+		url string
 	}
 	tests := []struct {
 		name      string
@@ -60,33 +50,33 @@ func TestImportFile(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"import file", args{newStorePath, []string{"--file", jsonPath}}, 1, false},
+		{"eventlogs Test", args{example2}, 806, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := importFile()
+			command := eventlogs()
 
-			command.Flags().Set("format", "none")
-			command.Flags().Set("add-to-store", "true")
-			command.SetArgs(append(tt.args.args, tt.args.url))
-			err = command.Execute()
+			command.Parameter().Set("format", "none")
+			command.Parameter().Set("add-to-store", true)
+			command.Parameter().Set("forensicstore", tt.args.url)
+			err = command.Run(command)
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
+				t.Fatalf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			store, teardown, err := forensicstore.Open(tt.args.url)
 			if err != nil {
-				t.Fatal(err)
+				t.Fatalf("forensicstore.Open() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			defer teardown()
-			elements, err := store.All()
-			if err != nil {
-				t.Fatal(err)
-			}
 
+			elements, err := store.Select(daggy.Filter{{"type": "eventlog"}})
+			if err != nil {
+				t.Fatalf("store.Select() error = %v, wantErr %v", err, tt.wantErr)
+			}
 			if len(elements) != tt.wantCount {
-				t.Errorf("Run() error, wrong number of resuls = %d, want %d", len(elements), tt.wantCount)
+				t.Fatalf("len(elements) = %v, wantCount %v", len(elements), tt.wantCount)
 			}
 		})
 	}

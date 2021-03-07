@@ -19,39 +19,36 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"crypto/md5"  // #nosec
 	"crypto/sha1" // #nosec
 	"crypto/sha256"
 	"fmt"
+	"github.com/forensicanalysis/elementary/daggy"
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func importFile() *cobra.Command {
-	var files []string
-	cmd := &cobra.Command{
-		Use:   "import-file <forensicstore>",
-		Short: "Import files",
-		Args: func(cmd *cobra.Command, args []string) error {
-			if err := RequireStore(cmd, args); err != nil {
-				return err
-			}
-			return cmd.MarkFlagRequired("file")
+func importFile() daggy.Command {
+	cmd := &BuiltInCommand{
+		name:  "import-file",
+		short: "Import files",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "file", Description: "file to import", Type: daggy.PathArray, Required: true},
 		},
-		RunE: func(_ *cobra.Command, args []string) error {
-			return singleFileImport(args[0], files)
+		run: func(cmd daggy.Command) error {
+			path := cmd.Parameter().StringValue("forensicstore")
+			files := cmd.Parameter().GetStringArrayValue("file")
+			return singleFileImport(path, files)
 		},
-		Annotations: map[string]string{"plugin_property_flags": "di|im"},
+		annotations: []daggy.Annotation{daggy.Di, daggy.Importer},
 	}
-	cmd.Flags().StringArrayVar(&files, "file", []string{}, "forensicstore")
 	return cmd
 }
 

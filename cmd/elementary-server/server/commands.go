@@ -1,18 +1,22 @@
 package server
 
-func Commands() []*Command {
+import (
+	"github.com/forensicanalysis/elementary/daggy"
+)
+
+func Commands(cp daggy.CommandProvider) []*Command {
 	return []*Command{
 		ListTables(),
 		SelectItems(),
 		LoadFile(),
 		ListTree(),
-		ListTasks(),
+		ListTasks(cp),
 		Files(),
 		Logs(),
 		ErrorsCommand(),
 		Label(),
 		Labels(),
 		Query(),
-		RunTask(),
+		RunTask(cp),
 	}
 }

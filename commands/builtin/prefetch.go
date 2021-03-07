@@ -19,13 +19,13 @@
 //
 // Author(s): Jonas Plum
 
-package commands
+package builtin
 
 import (
 	"encoding/json"
+	"github.com/forensicanalysis/elementary/commands"
 	"log"
 
-	"github.com/spf13/cobra"
 	"github.com/tidwall/gjson"
 	goprefetch "www.velocidex.com/golang/go-prefetch"
 
@@ -33,23 +33,27 @@ import (
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func prefetch() *cobra.Command {
-	var filtersets []string
-	prefetchCommand := &cobra.Command{
-		Use:   "prefetch <forensicstore>",
-		Short: "Process prefetch files",
-		Args:  RequireStore,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			log.Printf("run prefetch %s", args)
-			return prefetchFromStore(args[0], extractFilter(filtersets), cmd)
+func prefetch() daggy.Command {
+	prefetchCommand := &BuiltInCommand{
+		name:  "prefetch",
+		short: "Process prefetch files",
+		parameter: []*daggy.Parameter{
+			{Name: "forensicstore", Type: daggy.Path, Required: true, Argument: true},
+			{Name: "filter", Description: "filter processed events", Type: daggy.StringArray, Required: false},
+		},
+		run: func(cmd daggy.Command) error {
+			log.Printf("run prefetch")
+			path := cmd.Parameter().StringValue("forensicstore")
+			filtersets := cmd.Parameter().GetStringArrayValue("filter")
+			return prefetchFromStore(path, commands.ExtractFilter(filtersets), cmd)
 		},
 	}
-	addOutputFlags(prefetchCommand)
-	prefetchCommand.Flags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
+	prefetchCommand.parameter = append(prefetchCommand.parameter, commands.OutputParameter(prefetchCommand)...)
+
 	return prefetchCommand
 }
 
-func prefetchFromStore(url string, filter daggy.Filter, cmd *cobra.Command) error {
+func prefetchFromStore(url string, filter daggy.Filter, cmd daggy.Command) error {
 	store, teardown, err := forensicstore.Open(url)
 	if err != nil {
 		return err
@@ -70,7 +74,7 @@ func prefetchFromStore(url string, filter daggy.Filter, cmd *cobra.Command) erro
 		return err
 	}
 
-	output := newOutputWriterStore(cmd, store, &outputConfig{
+	output := commands.NewOutputWriterStore(cmd, store, &commands.OutputConfig{
 		Header: []string{
 			"Executable",
 			"FileSize",
@@ -85,7 +89,7 @@ func prefetchFromStore(url string, filter daggy.Filter, cmd *cobra.Command) erro
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")
 		if exportPath.Exists() && exportPath.String() != "" {
-			buff, err := fileToReader(store, exportPath)
+			buff, err := commands.FileToReader(store, exportPath)
 			if err != nil {
 				return err
 			}
@@ -100,7 +104,7 @@ func prefetchFromStore(url string, filter daggy.Filter, cmd *cobra.Command) erro
 				return err
 			}
 
-			output.writeLine(elem) // nolint: errcheck
+			output.WriteLine(elem) // nolint: errcheck
 		}
 	}
 

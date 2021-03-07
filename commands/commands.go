@@ -24,60 +24,17 @@ package commands
 import (
 	"bytes"
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/tidwall/gjson"
 
 	"github.com/forensicanalysis/elementary/daggy"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-const appName = "elementary"
-
-func AppDir() string {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		configDir = ""
-	}
-	return filepath.Join(configDir, appName, strconv.Itoa(forensicstore.Version))
-}
-
-func All() []*cobra.Command {
-	cmds := []*cobra.Command{
-		eventlogs(),
-		export(),
-		forensicStoreImport(),
-		jsonImport(),
-		prefetch(),
-		importFile(),
-		// Yara(),
-		exportTimesketch(),
-		bulkSearch(),
-	}
-	cmds = append(cmds, dockerCommands()...)
-	cmds = append(cmds, scriptCommands()...)
-	return cmds
-}
-
-func RequireStore(_ *cobra.Command, args []string) error {
-	if len(args) != 1 {
-		return errors.New("the following arguments are required: forensicstore")
-	}
-	if _, err := os.Stat(args[0]); os.IsNotExist(err) {
-		return fmt.Errorf("%s: %w", args[0], os.ErrNotExist)
-	}
-	return nil
-}
-
-func extractFilter(filtersets []string) daggy.Filter {
+func ExtractFilter(filtersets []string) daggy.Filter {
 	filter := daggy.Filter{}
 	for _, filterset := range filtersets {
 		filterelement := map[string]string{}
@@ -93,7 +50,7 @@ func extractFilter(filtersets []string) daggy.Filter {
 	return filter
 }
 
-func fileToReader(store *forensicstore.ForensicStore, exportPath gjson.Result) (*bytes.Reader, error) {
+func FileToReader(store *forensicstore.ForensicStore, exportPath gjson.Result) (*bytes.Reader, error) {
 	file, teardown, err := store.LoadFile(exportPath.String())
 	if err != nil {
 		return nil, err
@@ -108,44 +65,6 @@ func fileToReader(store *forensicstore.ForensicStore, exportPath gjson.Result) (
 	return bytes.NewReader(b), nil
 }
 
-func jsonschemaToFlags(schema JSONSchema, command *cobra.Command) error {
-	for name, property := range schema.Properties {
-		switch property.Type {
-		case "string":
-			if defaultValue, ok := property.Default.(string); ok {
-				command.Flags().String(name, defaultValue, property.Description)
-			} else {
-				command.Flags().String(name, "", property.Description)
-			}
-		case "number":
-			if defaultValue, ok := property.Default.(float64); ok {
-				command.Flags().Float64(name, defaultValue, property.Description)
-			} else {
-				command.Flags().Float64(name, 0, property.Description)
-			}
-		case "integer":
-			if defaultValue, ok := property.Default.(int64); ok {
-				command.Flags().Int64(name, defaultValue, property.Description)
-			} else {
-				command.Flags().Int64(name, 0, property.Description)
-			}
-		case "boolean":
-			if defaultValue, ok := property.Default.(bool); ok {
-				command.Flags().Bool(name, defaultValue, property.Description)
-			} else {
-				command.Flags().Bool(name, false, property.Description)
-			}
-		}
-	}
-	for _, required := range schema.Required {
-		err := command.MarkFlagRequired(required)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func readAsCSV(val string) ([]string, error) {
 	if val == "" {
 		return []string{}, nil
@@ -155,31 +74,32 @@ func readAsCSV(val string) ([]string, error) {
 	return csvReader.Read()
 }
 
-func toCommandlineArgs(flagset *pflag.FlagSet, args []string) []string {
+func ToCommandlineArgs(list daggy.ParameterList) []string {
 	var cmdArgs []string
-	flagset.VisitAll(func(flag *pflag.Flag) {
-		value := flag.Value.String()
+	for _, p := range list {
 
-		endsWithSlice := strings.HasSuffix(flag.Value.Type(), "Slice")
-		if endsWithSlice && strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
+		if p.Argument {
+			cmdArgs = append(cmdArgs, p.Name)
+		}
+
+		value := fmt.Sprint(p.Value)
+		if p.Type.IsList() && strings.HasPrefix(value, "[") && strings.HasSuffix(value, "]") {
 			slice, err := readAsCSV(strings.TrimSuffix(strings.TrimPrefix(value, "["), "]"))
 			if err == nil {
 				for _, value := range slice {
-					cmdArgs = append(cmdArgs, fmt.Sprintf("--%s=%s", flag.Name, value))
+					cmdArgs = append(cmdArgs, fmt.Sprintf("--%s=%s", p.Name, value))
 				}
-				return
+				continue
 			}
 		}
-		if flag.Value.Type() == "bool" {
-			b, _ := flagset.GetBool(flag.Name)
-			if b {
-				cmdArgs = append(cmdArgs, fmt.Sprintf("--%s", flag.Name))
+		if p.Type == daggy.Bool {
+			if p.BoolValue() {
+				cmdArgs = append(cmdArgs, fmt.Sprintf("--%s", p.Name))
 			}
-			return
+			continue
 		}
-		cmdArgs = append(cmdArgs, fmt.Sprintf("--%s=%s", flag.Name, value))
-	})
-	cmdArgs = append(cmdArgs, args...)
+		cmdArgs = append(cmdArgs, fmt.Sprintf("--%s=%s", p.Name, value))
+	}
 	return cmdArgs
 }
 
@@ -192,4 +112,43 @@ type Property struct {
 type JSONSchema struct {
 	Properties map[string]Property `json:"properties,omitempty"`
 	Required   []string            `json:"required,omitempty"`
+}
+
+func JsonschemaToParameter(schema JSONSchema) []*daggy.Parameter {
+	var parameters []*daggy.Parameter
+	for name, property := range schema.Properties {
+		p := &daggy.Parameter{Name: name, Description: property.Description}
+		switch property.Type {
+		case "string":
+			p.Type = daggy.String
+			if defaultValue, ok := property.Default.(string); ok {
+				p.Value = defaultValue
+			} else {
+				p.Value = ""
+			}
+		case "boolean":
+			p.Type = daggy.Bool
+			if defaultValue, ok := property.Default.(bool); ok {
+				p.Value = defaultValue
+			} else {
+				p.Value = ""
+			}
+		default:
+			panic(fmt.Sprintf("unknown jsonschema type %s", property.Type))
+		}
+		if contains(schema.Required, name) {
+			p.Required = true
+		}
+		parameters = append(parameters, p)
+	}
+	return nil
+}
+
+func contains(list []string, elem string) bool {
+	for _, i := range list {
+		if i == elem {
+			return true
+		}
+	}
+	return false
 }
