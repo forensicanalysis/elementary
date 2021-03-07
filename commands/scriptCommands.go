@@ -104,7 +104,7 @@ func scriptCommand(path string) *cobra.Command {
 		script.Stderr = log.Writer()
 		err := script.Run()
 		if err != nil {
-			return fmt.Errorf("%s script failed with %s", cmd.Use, err)
+			return fmt.Errorf("%s script failed with %w", cmd.Use, err)
 		}
 
 		output.WriteFooter()

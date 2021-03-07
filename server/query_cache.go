@@ -30,8 +30,10 @@ import (
 	"github.com/forensicanalysis/forensicstore"
 )
 
-const cacheExpiration = 5 * time.Minute
-const cacheCleanupInterval = 10 * time.Minute
+const (
+	cacheExpiration      = 5 * time.Minute
+	cacheCleanupInterval = 10 * time.Minute
+)
 
 var queryCache *cache.Cache // nolint: gochecknoglobals
 

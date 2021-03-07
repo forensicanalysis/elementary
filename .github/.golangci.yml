@@ -1,6 +1,6 @@
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  timeout: 5m
+  timeout: 7m
 
   # include test files or not, default is true
   tests: false
@@ -55,9 +55,7 @@ linters:
     - gosimple # Linter for Go source code that specializes in simplifying a code
     - govet # Vet examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
     - ineffassign # Detects when assignments to existing variables are not used
-    - interfacer # Linter that suggests narrower interface types
     - lll # Reports long lines
-    - maligned # Tool to detect Go structs that would take less memory if their fields were sorted
     - misspell # Finds commonly misspelled English words in comments
     - nakedret # Finds naked returns in functions greater than a specified function length
     # - nestif # Reports deeply nested if statements
@@ -76,11 +74,40 @@ linters:
     - whitespace # Tool for detection of leading and trailing whitespace
     # - wsl # Whitespace Linter - Forces you to use empty lines!
 
+    - asciicheck # Simple linter to check that your code does not contain non-ASCII identifiers
+    # - cyclop # checks function and package cyclomatic complexity
+    - durationcheck # check for two durations multiplied together
+    - errorlint # go-errorlint is a source code linter for Go software that can be used to find code that will cause problemswith the error wrapping scheme introduced in Go 1.13.
+    # - exhaustive # check exhaustiveness of enum switch statements
+    - exportloopref # checks for pointers to enclosing loop variables
+    # - forbidigo # Forbids identifiers
+    # - forcetypeassert # finds forced type assertions
+    # - gci # Gci control golang package import order and make it always deterministic.
+    # - goerr113 # Golang linter to check the errors handling expressions
+    - gofumpt # Gofumpt checks whether code was gofumpt-ed.
+    - goheader # Checks is file header matches to pattern
+    # - ifshort # Checks that your code uses short syntax for if-statements whenever possible
+    - importas # Enforces consistent import aliases
+    - makezero # Finds slice declarations with non-zero initial length
+    # - nilerr # Finds the code that returns nil even if it checks that the error is not nil.
+    # - nlreturn # nlreturn checks for a new line before return and branch statements to increase code clarity
+    - noctx # noctx finds sending http request without context.Context
+    # - nolintlint # Reports ill-formed or insufficient nolint directives
+    - paralleltest # paralleltest detects missing usage of t.Parallel() method in your Go test
+    - predeclared # find code that shadows one of Go's predeclared identifiers
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
+    - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed.
+    - thelper # thelper detects golang test helpers without t.Helper() call and checks the consistency of test helpers
+    - tparallel # tparallel detects inappropriate usage of t.Parallel() method in your Go test codes
+    - wastedassign # wastedassign finds wasted assignment statements.
+    # - wrapcheck # Checks that errors returned from external packages are wrapped
+
 issues:
   exclude-use-default: false
 
   exclude:
-    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv|teardown.*). is not checked
+    - Error return value of .(.*Close). is not checked
+    - Error return value is not checked
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
     - G307 # Deferring unsafe method "Close" on type "*os.File"
