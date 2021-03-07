@@ -1,10 +1,8 @@
 package server
 
-import (
-	"github.com/forensicanalysis/elementary/daggy"
-)
+import "github.com/forensicanalysis/elementary/plugin"
 
-func Commands(cp daggy.CommandProvider) []*Command {
+func Commands(cp plugin.Provider) []*Command {
 	return []*Command{
 		ListTables(),
 		SelectItems(),

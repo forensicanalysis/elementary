@@ -28,19 +28,18 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/spf13/pflag"
+	"github.com/forensicanalysis/elementary/plugin"
 
-	"github.com/forensicanalysis/elementary/commands"
-	"github.com/forensicanalysis/elementary/daggy"
+	"github.com/spf13/pflag"
 )
 
 type Task struct {
 	Name        string
 	Description string
-	Schema      *commands.JSONSchema
+	Schema      *plugin.JSONSchema
 }
 
-func ListTasks(mcp daggy.CommandProvider) *Command {
+func ListTasks(mcp plugin.Provider) *Command {
 	return &Command{
 		Name:   "listTasks",
 		Route:  "/tasks",
@@ -52,7 +51,7 @@ func ListTasks(mcp daggy.CommandProvider) *Command {
 		Handler: func(w io.Writer, _ io.Reader, flags *pflag.FlagSet) error {
 			var children []Task
 			for _, command := range mcp.List() {
-				if daggy.HasAnnotation(command, daggy.Exporter) {
+				if plugin.HasAnnotation(command, plugin.Exporter) {
 					continue
 				}
 
@@ -69,7 +68,7 @@ func ListTasks(mcp daggy.CommandProvider) *Command {
 	}
 }
 
-func RunTask(cp daggy.CommandProvider) *Command {
+func RunTask(cp plugin.Provider) *Command {
 	return &Command{
 		Name:   "run",
 		Route:  "/run",
@@ -83,15 +82,15 @@ func RunTask(cp daggy.CommandProvider) *Command {
 				return err
 			}
 
-			var plugin daggy.Command
+			var p plugin.Plugin
 			for _, command := range cp.List() {
 				if command.Name() == name {
-					plugin = command
+					p = command
 				}
 			}
 
-			if plugin == nil {
-				return fmt.Errorf("plugin %s cannot be run", name)
+			if p == nil {
+				return fmt.Errorf("p %s cannot be run", name)
 			}
 
 			var arguments map[string]interface{}
@@ -104,32 +103,32 @@ func RunTask(cp daggy.CommandProvider) *Command {
 				return err
 			}
 
-			// plugin.SetOut(w) TODO
-			// plugin.Flags().AddFlagSet(flags) TODO
+			// p.SetOut(w) TODO
+			// p.Flags().AddFlagSet(flags) TODO
 			for name, arg := range arguments {
 				fmt.Println(name, arg)
-				plugin.Parameter().Set(name, fmt.Sprint(arg))
+				p.Parameter().Set(name, fmt.Sprint(arg))
 			}
-			plugin.Parameter().Set("format", "json")
-			plugin.Parameter().Set("add-to-store", true)
-			return plugin.Run(plugin)
+			p.Parameter().Set("format", "json")
+			p.Parameter().Set("add-to-store", true)
+			return p.Run(p)
 		},
 	}
 }
 
-func parameterToSchema(parameters daggy.ParameterList) commands.JSONSchema {
-	schema := commands.JSONSchema{
-		Properties: map[string]commands.Property{},
+func parameterToSchema(parameters plugin.ParameterList) plugin.JSONSchema {
+	schema := plugin.JSONSchema{
+		Properties: map[string]plugin.Property{},
 		Required:   []string{},
 	}
 
 	for _, parameter := range parameters {
-		typeMapping := map[daggy.ParameterType]string{
-			daggy.String: "string",
-			daggy.Bool:   "boolean",
+		typeMapping := map[plugin.ParameterType]string{
+			plugin.String: "string",
+			plugin.Bool:   "boolean",
 		}
 
-		schema.Properties[parameter.Name] = commands.Property{
+		schema.Properties[parameter.Name] = plugin.Property{
 			Type:        typeMapping[parameter.Type],
 			Description: parameter.Description,
 			Default:     parameter.Value,

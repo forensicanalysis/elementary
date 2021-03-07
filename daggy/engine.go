@@ -3,28 +3,30 @@ package daggy
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/hashicorp/terraform/dag"
-	"github.com/hashicorp/terraform/tfdiags"
-	"github.com/spf13/pflag"
 	"log"
 	"reflect"
 	"sort"
 	"strings"
 	"sync"
 
+	"github.com/forensicanalysis/elementary/plugin"
+
+	"github.com/google/uuid"
 	"github.com/hashicorp/logutils"
+	"github.com/hashicorp/terraform/dag"
+	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/spf13/pflag"
 )
 
 type Engine struct {
-	commands map[string]Command
+	commands map[string]plugin.Plugin
 	mux      sync.Mutex
 }
 
-func New(commands []Command) *Engine {
+func New(cmds []plugin.Plugin) *Engine {
 	setupLogging()
-	engine := Engine{commands: map[string]Command{}}
-	for _, command := range commands {
+	engine := Engine{commands: map[string]plugin.Plugin{}}
+	for _, command := range cmds {
 		engine.commands[command.Name()] = command
 	}
 	return &engine
@@ -37,27 +39,8 @@ func (e *Engine) Run(workflow *Workflow, storeDir string) error {
 	graph := dag.AcyclicGraph{}
 	tasks := map[uuid.UUID]Task{}
 	// outputToTaskIDs := map[string][]uuid.UUID{}
-	var unavailableCommands []string
 
-	for _, task := range workflow.Tasks {
-		task.ID = uuid.New()
-		graph.Add(task.ID)
-		tasks[task.ID] = task
-
-		/*
-			cmd, ok := e.commands[task.Command]
-			if !ok {
-				unavailableCommands = append(unavailableCommands, task.Command)
-				continue
-			}
-
-			if outputs, ok := cmd.Annotations["output"]; ok {
-				for _, output := range strings.Split(outputs, ",") {
-					outputToTaskIDs[output] = append(outputToTaskIDs[output], task.ID)
-				}
-			}
-		*/
-	}
+	unavailableCommands := e.addNodes(workflow, graph, tasks)
 
 	// Add edges / requirements
 	/*
@@ -100,6 +83,32 @@ func (e *Engine) Run(workflow *Workflow, storeDir string) error {
 	return nil
 }
 
+func (e *Engine) addNodes(workflow *Workflow, graph dag.AcyclicGraph, tasks map[uuid.UUID]Task) []string {
+	var unavailableCommands []string
+
+	for _, task := range workflow.Tasks {
+		task.ID = uuid.New()
+		graph.Add(task.ID)
+		tasks[task.ID] = task
+
+		_, ok := e.commands[task.Command]
+		// cmd, ok := e.commands[task.Command]
+		if !ok {
+			unavailableCommands = append(unavailableCommands, task.Command)
+			continue
+		}
+
+		/*
+			if outputs, ok := cmd.Annotations["output"]; ok {
+				for _, output := range strings.Split(outputs, ",") {
+					outputToTaskIDs[output] = append(outputToTaskIDs[output], task.ID)
+				}
+			}
+		*/
+	}
+	return unavailableCommands
+}
+
 func (e *Engine) RunTask(task Task, storeDir string) error {
 	e.mux.Lock() // serialize tasks
 	defer e.mux.Unlock()
@@ -123,7 +132,7 @@ func (e *Engine) RunTask(task Task, storeDir string) error {
 	return command.Run(command)
 }
 
-func parseArgs(command Command, args []string) error {
+func parseArgs(command plugin.Plugin, args []string) error {
 	fs := pflag.NewFlagSet("", pflag.PanicOnError)
 	err := fs.Parse(args)
 	if err != nil {

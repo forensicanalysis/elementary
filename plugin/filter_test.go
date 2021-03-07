@@ -19,45 +19,37 @@
 //
 // Author(s): Jonas Plum
 
-package main
+package plugin
 
 import (
-	"embed"
-	"io/fs"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
+	"testing"
 
-	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
-	"github.com/forensicanalysis/elementary/plugin/meta"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-//go:embed dist
-var static embed.FS
-
-const appName = "elementary"
-
-func main() {
-	sub, err := fs.Sub(static, "dist")
-	if err != nil {
-		log.Fatal(err)
+func TestFilter_Match(t *testing.T) {
+	type args struct {
+		element string
 	}
-
-	mcp := &meta.CommandProvider{Name: appName, Dir: appDir()}
-	rootCmd := server.Application("fstore", http.FS(sub), server.Commands(mcp)...)
-	if err := rootCmd.Execute(); err != nil {
-		log.Println(err)
-		os.Exit(1)
+	tests := []struct {
+		name string
+		f    Filter
+		args args
+		want bool
+	}{
+		{"simple match", Filter{{"name": "foo"}}, args{`{"name": "foo"}`}, true},
+		{"no match", Filter{{"name": "foo"}}, args{`{"name": "bar"}`}, false},
+		{"nil filter", nil, args{`{"name": "foo"}`}, true},
+		{"contains match", Filter{{"name": "foo"}}, args{`{"name": "xfool"}`}, true},
+		{"simple match", Filter{{"name": "foo"}}, args{`{"name": "foo", "bar": "baz"}`}, true},
+		{"multi match", Filter{{"name": "foo", "bar": "baz"}}, args{`{"name": "foo", "bar": "baz"}`}, true},
+		{"any match", Filter{{"x": "y"}, {"name": "foo", "bar": "baz"}}, args{`{"name": "foo", "bar": "baz"}`}, true},
 	}
-}
-
-func appDir() string {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		configDir = ""
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.Match(forensicstore.JSONElement(tt.args.element)); got != tt.want {
+				t.Errorf("Match() = %v, want %v", got, tt.want)
+			}
+		})
 	}
-	return filepath.Join(configDir, appName, strconv.Itoa(forensicstore.Version))
 }

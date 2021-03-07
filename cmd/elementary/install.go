@@ -23,8 +23,6 @@ package main
 
 import (
 	"context"
-	"github.com/forensicanalysis/elementary"
-	"github.com/forensicanalysis/elementary/commands/docker"
 	"io"
 	"log"
 	"os"
@@ -35,6 +33,9 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/plugin/docker"
 )
 
 // install required assets.
@@ -152,7 +153,7 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	}
 }
 
-func contains(l []string, s string) bool {
+func contains(l []string, s string) bool { // nolint: unused
 	for _, e := range l {
 		if e == s {
 			return true
@@ -184,4 +185,3 @@ func pullImage(ctx context.Context, cli *client.Client, image string, auth *type
 	}
 	return nil
 }
-

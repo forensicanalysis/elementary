@@ -19,45 +19,53 @@
 //
 // Author(s): Jonas Plum
 
-package main
+package plugin
 
 import (
-	"embed"
-	"io/fs"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
+	"strings"
 
-	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
-	"github.com/forensicanalysis/elementary/plugin/meta"
+	"github.com/tidwall/gjson"
+
 	"github.com/forensicanalysis/forensicstore"
 )
 
-//go:embed dist
-var static embed.FS
+// A Filter is a list of mappings that should be used for a Task.
+type Filter []map[string]string
 
-const appName = "elementary"
-
-func main() {
-	sub, err := fs.Sub(static, "dist")
-	if err != nil {
-		log.Fatal(err)
+// Match tests if an element matches the filter.
+func (f Filter) Match(element forensicstore.JSONElement) bool {
+	if len(f) == 0 {
+		return true
 	}
-
-	mcp := &meta.CommandProvider{Name: appName, Dir: appDir()}
-	rootCmd := server.Application("fstore", http.FS(sub), server.Commands(mcp)...)
-	if err := rootCmd.Execute(); err != nil {
-		log.Println(err)
-		os.Exit(1)
+	for _, condition := range f {
+		if f.matchCondition(condition, element) {
+			return true
+		}
 	}
+	return false
 }
 
-func appDir() string {
-	configDir, err := os.UserConfigDir()
-	if err != nil {
-		configDir = ""
+func (f Filter) matchCondition(condition map[string]string, element forensicstore.JSONElement) bool {
+	for attribute, value := range condition {
+		if !strings.Contains(gjson.GetBytes(element, attribute).String(), value) {
+			return false
+		}
 	}
-	return filepath.Join(configDir, appName, strconv.Itoa(forensicstore.Version))
+	return true
+}
+
+func ExtractFilter(filtersets []string) Filter {
+	filter := Filter{}
+	for _, filterset := range filtersets {
+		filterelement := map[string]string{}
+		for _, kv := range strings.Split(filterset, ",") {
+			kvl := strings.SplitN(kv, "=", 2)
+			if len(kvl) == 2 { //nolint: gomnd
+				filterelement[kvl[0]] = kvl[1]
+			}
+		}
+
+		filter = append(filter, filterelement)
+	}
+	return filter
 }

@@ -29,8 +29,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/forensicanalysis/forensicstore"
+	"github.com/forensicanalysis/elementary/plugin"
+
 	"github.com/otiai10/copy"
+
+	"github.com/forensicanalysis/forensicstore"
 )
 
 func setup() (storeDir string, err error) {
@@ -62,11 +65,11 @@ func cleanup(folders ...string) (err error) {
 	return nil
 }
 
-var _ Command = &testCommand{}
+var _ plugin.Plugin = &testCommand{}
 
 type testCommand struct {
 	name string
-	run  func(command Command) error
+	run  func(command plugin.Plugin) error
 }
 
 func (t *testCommand) Name() string {
@@ -77,15 +80,15 @@ func (t *testCommand) Short() string {
 	return t.name
 }
 
-func (t *testCommand) Parameter() ParameterList {
+func (t *testCommand) Parameter() plugin.ParameterList {
 	return nil
 }
 
-func (t *testCommand) Run(command Command) error {
+func (t *testCommand) Run(command plugin.Plugin) error {
 	return t.run(command)
 }
 
-func (t *testCommand) Annotations() []Annotation {
+func (t *testCommand) Annotations() []plugin.Annotation {
 	return nil
 }
 
@@ -116,9 +119,9 @@ func Test_processTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			workflow := &Workflow{Tasks: []Task{tt.args.task}}
 
-			plugins := []Command{&testCommand{
+			plugins := []plugin.Plugin{&testCommand{
 				name: "example",
-				run: func(cmd Command) error {
+				run: func(cmd plugin.Plugin) error {
 					return nil
 				},
 			}}
@@ -138,7 +141,7 @@ func Test_processTask(t *testing.T) {
 
 				log.Println("Start select")
 				if tt.wantCount > 0 {
-					elements, err := store.Select(Filter{{"type": tt.wantType}})
+					elements, err := store.Select(plugin.Filter{{"type": tt.wantType}})
 					if err != nil {
 						t.Fatal(err)
 					}

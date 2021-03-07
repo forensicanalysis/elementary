@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/forensicanalysis/elementary"
-	"github.com/forensicanalysis/elementary/commands/meta"
-	"github.com/forensicanalysis/elementary/daggy"
 	"log"
 	"path/filepath"
+
+	"github.com/forensicanalysis/elementary/plugin"
 
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
+
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/plugin/meta"
 )
 
 // Constants
@@ -37,7 +39,7 @@ var (
 	app           *astilectron.Astilectron
 	menu          *astilectron.Menu
 	l             *log.Logger
-	cp            daggy.CommandProvider
+	cp            plugin.Provider
 )
 
 func main() {

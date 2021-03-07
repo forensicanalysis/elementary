@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/forensicanalysis/elementary/commands/meta"
 	"log"
 	"os"
 
@@ -33,6 +32,7 @@ import (
 	"github.com/tidwall/sjson"
 
 	"github.com/forensicanalysis/elementary/daggy"
+	"github.com/forensicanalysis/elementary/plugin/meta"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -43,7 +43,15 @@ func workflow() *cobra.Command {
 		Short: "run a workflow",
 		Long: `process can run parallel workflows locally. Those workflows are a directed acyclic graph of tasks.
 Those tasks can be defined to be run on the system itself or in a containerized way.`,
-		Args: RequireStore,
+		Args: func(_ *cobra.Command, args []string) error {
+			if len(args) != 1 {
+				return errors.New("the following arguments are required: forensicstore")
+			}
+			if _, err := os.Stat(args[0]); os.IsNotExist(err) {
+				return fmt.Errorf("%s: %w", args[0], os.ErrNotExist)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// parse workflow yaml
 			workflowFile, _ := cmd.Flags().GetString("file")
@@ -89,16 +97,6 @@ func insertTasks(storeURL string, workflow *daggy.Workflow) error {
 		if err != nil {
 			return err
 		}
-	}
-	return nil
-}
-
-func RequireStore(_ *cobra.Command, args []string) error {
-	if len(args) != 1 {
-		return errors.New("the following arguments are required: forensicstore")
-	}
-	if _, err := os.Stat(args[0]); os.IsNotExist(err) {
-		return fmt.Errorf("%s: %w", args[0], os.ErrNotExist)
 	}
 	return nil
 }
