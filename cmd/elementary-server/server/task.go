@@ -28,7 +28,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/pluginlib"
+	"github.com/forensicanalysis/elementary/pluginlib/output"
 
 	"github.com/spf13/pflag"
 )
@@ -36,10 +37,10 @@ import (
 type Task struct {
 	Name        string
 	Description string
-	Schema      *plugin.JSONSchema
+	Schema      *pluginlib.JSONSchema
 }
 
-func ListTasks(mcp plugin.Provider) *Command {
+func ListTasks(mcp pluginlib.Provider) *Command {
 	return &Command{
 		Name:   "listTasks",
 		Route:  "/tasks",
@@ -51,10 +52,6 @@ func ListTasks(mcp plugin.Provider) *Command {
 		Handler: func(w io.Writer, _ io.Reader, flags *pflag.FlagSet) error {
 			var children []Task
 			for _, command := range mcp.List() {
-				if plugin.HasAnnotation(command, plugin.Exporter) {
-					continue
-				}
-
 				schema := parameterToSchema(command.Parameter())
 				children = append(children, Task{
 					Name:        command.Name(),
@@ -68,7 +65,7 @@ func ListTasks(mcp plugin.Provider) *Command {
 	}
 }
 
-func RunTask(cp plugin.Provider) *Command {
+func RunTask(cp pluginlib.Provider) *Command {
 	return &Command{
 		Name:   "run",
 		Route:  "/run",
@@ -82,7 +79,7 @@ func RunTask(cp plugin.Provider) *Command {
 				return err
 			}
 
-			var p plugin.Plugin
+			var p pluginlib.Plugin
 			for _, command := range cp.List() {
 				if command.Name() == name {
 					p = command
@@ -109,26 +106,25 @@ func RunTask(cp plugin.Provider) *Command {
 				fmt.Println(name, arg)
 				p.Parameter().Set(name, fmt.Sprint(arg))
 			}
-			p.Parameter().Set("format", "json")
-			p.Parameter().Set("add-to-store", true)
-			return p.Run(p)
+
+			return p.Run(p, output.NewJsonOutput(w)) // TODO also to store?
 		},
 	}
 }
 
-func parameterToSchema(parameters plugin.ParameterList) plugin.JSONSchema {
-	schema := plugin.JSONSchema{
-		Properties: map[string]plugin.Property{},
+func parameterToSchema(parameters pluginlib.ParameterList) pluginlib.JSONSchema {
+	schema := pluginlib.JSONSchema{
+		Properties: map[string]pluginlib.Property{},
 		Required:   []string{},
 	}
 
 	for _, parameter := range parameters {
-		typeMapping := map[plugin.ParameterType]string{
-			plugin.String: "string",
-			plugin.Bool:   "boolean",
+		typeMapping := map[pluginlib.ParameterType]string{
+			pluginlib.String: "string",
+			pluginlib.Bool:   "boolean",
 		}
 
-		schema.Properties[parameter.Name] = plugin.Property{
+		schema.Properties[parameter.Name] = pluginlib.Property{
 			Type:        typeMapping[parameter.Type],
 			Description: parameter.Description,
 			Default:     parameter.Value,

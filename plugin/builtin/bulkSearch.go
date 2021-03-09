@@ -29,61 +29,71 @@ import (
 
 	"crawshaw.io/sqlite"
 
-	"github.com/forensicanalysis/elementary/plugin"
-	"github.com/forensicanalysis/elementary/plugin/output"
-	"github.com/forensicanalysis/forensicstore"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
-func bulkSearch() plugin.Plugin {
-	return &command{
-		name:  "bulk-search",
-		short: "Bulk search indicators",
-		parameter: plugin.ParameterList{
-			{Name: "file", Type: plugin.Path, Description: "file with IOCs", Required: true},
-			ForensicStore, AddToStore, output.File, output.Format,
-		},
-		run: func(cmd plugin.Plugin) error {
-			log.Printf("run bulk-search")
+var _ pluginlib.Plugin = &BulkSearch{}
 
-			path := cmd.Parameter().StringValue("forensicstore")
-			iocListPath := cmd.Parameter().StringValue("file")
+type BulkSearch struct {
+	parameter pluginlib.ParameterList
+}
 
-			store, teardown, err := forensicstore.Open(path)
-			if err != nil {
-				return err
-			}
-			defer teardown()
+func (b *BulkSearch) Name() string {
+	return "bulk-search"
+}
 
-			file, err := os.Open(iocListPath) // #nosec
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer file.Close()
+func (b *BulkSearch) Short() string {
+	return "Bulk search indicators"
+}
 
-			out := setupOut(cmd, store, []string{"ioc", "count"})
-			defer out.WriteFooter()
-
-			scanner := bufio.NewScanner(file)
-			for scanner.Scan() {
-				ioc := scanner.Text()
-				if ioc == "" {
-					continue
-				}
-				log.Println("search", ioc)
-
-				element, err := getSearchCount(store.Connection(), ioc)
-				if err != nil {
-					return err
-				}
-				out.WriteLine(element) // nolint: errcheck
-			}
-			if err := scanner.Err(); err != nil {
-				return err
-			}
-
-			return nil
-		},
+func (b *BulkSearch) Parameter() pluginlib.ParameterList {
+	if b.parameter == nil {
+		b.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			{Name: "file", Type: pluginlib.Path, Description: "file with IOCs", Required: true},
+		}
 	}
+	return b.parameter
+}
+
+func (b *BulkSearch) Output() *pluginlib.Config {
+	return &pluginlib.Config{Header: []string{"type", "ioc", "count"}}
+}
+
+func (b *BulkSearch) Run(p pluginlib.Plugin, out pluginlib.LineWriter) error {
+	store, teardown, err := getForensicStore(p)
+	if err != nil {
+		return err
+	}
+	defer teardown()
+
+	iocListPath := p.Parameter().StringValue("file")
+
+	file, err := os.Open(iocListPath) // #nosec
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		ioc := scanner.Text()
+		if ioc == "" {
+			continue
+		}
+		log.Println("search", ioc)
+
+		element, err := getSearchCount(store.Connection(), ioc)
+		if err != nil {
+			return err
+		}
+		out.WriteLine(element) // nolint: errcheck
+	}
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getSearchCount(conn *sqlite.Conn, term string) ([]byte, error) {

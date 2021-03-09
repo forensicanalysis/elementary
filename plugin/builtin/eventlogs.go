@@ -24,53 +24,41 @@ package builtin
 import (
 	"encoding/json"
 	"io"
-	"log"
 
 	"github.com/Velocidex/ordereddict"
 	"github.com/tidwall/gjson"
 	"www.velocidex.com/golang/evtx"
 
-	"github.com/forensicanalysis/elementary/plugin"
-	"github.com/forensicanalysis/elementary/plugin/output"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func eventlogs() plugin.Plugin {
-	return &command{
-		name:      "eventlogs",
-		short:     "Process eventlogs into single events",
-		parameter: []*plugin.Parameter{Filter, ForensicStore, AddToStore, output.File, output.Format},
-		run: func(cmd plugin.Plugin) error {
-			log.Printf("run eventlogs")
-			path := cmd.Parameter().StringValue("forensicstore")
-			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
-			return eventlogsFromStore(path, filter, cmd)
-		},
-	}
+var _ pluginlib.Plugin = &Eventlogs{}
+
+type Eventlogs struct {
+	parameter pluginlib.ParameterList
 }
 
-func eventlogsFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
-	store, teardown, err := forensicstore.Open(url)
-	if err != nil {
-		return err
-	}
-	defer teardown()
+func (e *Eventlogs) Name() string {
+	return "eventlogs"
+}
 
-	for idx := range filter {
-		filter[idx]["type"] = "file"
-		filter[idx]["name"] = "%.evtx"
-	}
+func (e *Eventlogs) Short() string {
+	return "Process eventlogs into single events"
+}
 
-	if len(filter) == 0 {
-		filter = plugin.Filter{{"type": "file", "name": "%.evtx"}}
+func (e *Eventlogs) Parameter() pluginlib.ParameterList {
+	if e.parameter == nil {
+		e.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			Filter,
+		}
 	}
+	return e.parameter
+}
 
-	fileElements, err := store.Select(filter)
-	if err != nil {
-		return err
-	}
-
-	out := setupOut(cmd, store, []string{
+func (e *Eventlogs) Output() *pluginlib.Config {
+	return &pluginlib.Config{Header: []string{
 		"System.Computer",
 		"System.TimeCreated.SystemTime",
 		"System.EventRecordID",
@@ -78,8 +66,35 @@ func eventlogsFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) err
 		"System.Level",
 		"System.Channel",
 		"System.Provider.Name",
-	})
-	defer out.WriteFooter()
+	}}
+}
+
+func (e *Eventlogs) Run(p pluginlib.Plugin, out pluginlib.LineWriter) error {
+	store, teardown, err := getForensicStore(p)
+	if err != nil {
+		return err
+	}
+	defer teardown()
+
+	filter := pluginlib.ExtractFilter(p.Parameter().GetStringArrayValue("filter"))
+	return eventlogsFromStore(out, store, filter)
+}
+
+func eventlogsFromStore(out pluginlib.LineWriter, store *forensicstore.ForensicStore, filter pluginlib.Filter) error {
+	for idx := range filter {
+		filter[idx]["type"] = "file"
+		filter[idx]["name"] = "%.evtx"
+	}
+
+	if len(filter) == 0 {
+		filter = pluginlib.Filter{{"type": "file", "name": "%.evtx"}}
+	}
+
+	fileElements, err := store.Select(filter)
+	if err != nil {
+		return err
+	}
+
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")
 		if exportPath.Exists() && exportPath.String() != "" {

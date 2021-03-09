@@ -1,8 +1,8 @@
 package server
 
-import "github.com/forensicanalysis/elementary/plugin"
+import "github.com/forensicanalysis/elementary/pluginlib"
 
-func Commands(cp plugin.Provider) []*Command {
+func Commands(cp pluginlib.Provider) []*Command {
 	return []*Command{
 		ListTables(),
 		SelectItems(),

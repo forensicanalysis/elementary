@@ -32,41 +32,29 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/forensicanalysis/elementary/pluginlib"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-
-	"github.com/forensicanalysis/elementary/plugin"
-	output "github.com/forensicanalysis/elementary/plugin/output"
 )
 
-var _ plugin.Plugin = &command{}
-
 type command struct {
-	name        string
-	short       string
-	parameter   plugin.ParameterList
-	run         func(plugin.Plugin) error
-	annotations []plugin.Annotation
+	name      string
+	short     string
+	parameter pluginlib.ParameterList
+	run       func(pluginlib.Plugin, io.Writer) error
+	output    *pluginlib.Config
 }
 
-func newCommand(name, image string, labels map[string]string) plugin.Plugin {
+func newCommand(name, image string, labels map[string]string) pluginlib.Plugin {
 	dockerCmd := &command{
-		name:      name,
-		short:     "(docker: " + image + ")",
-		parameter: []*plugin.Parameter{output.File, output.Format},
-		run: func(cmd plugin.Plugin) error {
-			log.Println("run", cmd.Name())
-
+		name:  name,
+		short: "(docker: " + image + ")",
+		run: func(cmd pluginlib.Plugin, writer io.Writer) error {
 			mounts := parseMounts(cmd)
-
-			path := cmd.Parameter().StringValue("output")
-			format := cmd.Parameter().StringValue("format")
-			out := output.New(path, format, nil)
-			defer out.WriteFooter()
-
 			args := cmd.Parameter().ToCommandlineArgs()
-			return dockerCreate(image, args, mounts, out)
+			return dockerCreate(image, args, mounts, writer)
 		},
 	}
 
@@ -74,18 +62,11 @@ func newCommand(name, image string, labels map[string]string) plugin.Plugin {
 		dockerCmd.short = short + " (docker: " + image + ")"
 	}
 
-	addOutput := true
-	if properties, ok := labels["properties"]; ok {
-		if strings.Contains(properties, string(plugin.Di)) { // TODO: use constant
-			addOutput = false
-		}
-		// dockerCmd.annotations = append(dockerCmd.annotations, properties) TODO
+	if headers, ok := labels["headers"]; ok {
+		dockerCmd.output = &pluginlib.Config{Header: strings.Split(headers, ",")}
 	}
 
 	dockerCmd.parameter = append(dockerCmd.parameter, getLabelParameter(labels)...)
-	if addOutput {
-		dockerCmd.parameter = append(dockerCmd.parameter, output.File, output.Format)
-	}
 
 	return dockerCmd
 }
@@ -98,25 +79,27 @@ func (s *command) Short() string {
 	return s.short
 }
 
-func (s *command) Parameter() plugin.ParameterList {
+func (s *command) Parameter() pluginlib.ParameterList {
 	return s.parameter
 }
 
-func (s *command) Run(c plugin.Plugin) error {
-	return s.run(c)
+func (s *command) Output() *pluginlib.Config {
+	return s.output
 }
 
-func (s *command) Annotations() []plugin.Annotation {
-	return s.annotations
+func (s *command) Run(c pluginlib.Plugin, writer pluginlib.LineWriter) error {
+	lbw := &pluginlib.LineWriterBuffer{Writer: writer}
+	defer lbw.WriteFooter()
+	return s.run(c, lbw)
 }
 
-func parseMounts(cmd plugin.Plugin) map[string]string {
+func parseMounts(cmd pluginlib.Plugin) map[string]string {
 	mounts := map[string]string{}
 
 	// TODO: check if application id == "eldr"
 
 	for _, parameter := range cmd.Parameter() {
-		if parameter.Type == plugin.Path {
+		if parameter.Type == pluginlib.Path {
 			mountPointValue := parameter.StringValue()
 			if mountPointValue == "" {
 				continue
@@ -127,7 +110,7 @@ func parseMounts(cmd plugin.Plugin) map[string]string {
 			}
 			mounts[abs] = parameter.Name
 		}
-		if parameter.Type == plugin.PathArray {
+		if parameter.Type == pluginlib.PathArray {
 			// TODO
 		}
 
@@ -135,15 +118,15 @@ func parseMounts(cmd plugin.Plugin) map[string]string {
 	return mounts
 }
 
-func getLabelParameter(labels map[string]string) []*plugin.Parameter {
-	var parameters []*plugin.Parameter
+func getLabelParameter(labels map[string]string) []*pluginlib.Parameter {
+	var parameters []*pluginlib.Parameter
 	if use, ok := labels["arguments"]; ok {
-		var schema plugin.JSONSchema
+		var schema pluginlib.JSONSchema
 		err := json.Unmarshal([]byte(use), &schema)
 		if err != nil {
 			log.Println(err)
 		} else {
-			parameters = append(parameters, plugin.JsonschemaToParameter(schema)...)
+			parameters = append(parameters, pluginlib.JsonschemaToParameter(schema)...)
 		}
 	}
 	return parameters

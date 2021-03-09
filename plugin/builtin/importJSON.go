@@ -27,49 +27,68 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func jsonImport() plugin.Plugin {
-	return &command{
-		name:      "import-json",
-		short:     "Import json files",
-		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Type: plugin.Path, Required: true}, Filter},
-		run: func(cmd plugin.Plugin) error {
-			path := cmd.Parameter().StringValue("forensicstore")
-			file := cmd.Parameter().StringValue("file")
-			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
+var _ pluginlib.Plugin = &JSONImport{}
 
-			store, teardown, err := forensicstore.Open(path)
-			if err != nil {
-				return err
-			}
-			defer teardown()
+type JSONImport struct {
+	parameter pluginlib.ParameterList
+}
 
-			b, err := os.ReadFile(file) // #nosec
-			if err != nil {
-				return err
-			}
+func (j *JSONImport) Name() string {
+	return "import-json"
+}
 
-			topLevel := gjson.GetBytes(b, "@this")
-			if !topLevel.IsArray() {
-				return errors.New("imported json must have a top level array containing objects")
-			}
+func (j *JSONImport) Short() string {
+	return "Import json files"
+}
 
-			topLevel.ForEach(func(_, element gjson.Result) bool {
-				elementType := element.Get("type")
-				if elementType.Exists() && filter.Match(forensicstore.JSONElement(element.Raw)) {
-					_, err = store.Insert(forensicstore.JSONElement(element.Raw))
-					if err != nil {
-						return false
-					}
-				}
-				return true
-			})
-
-			return nil
-		},
-		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
+func (j *JSONImport) Parameter() pluginlib.ParameterList {
+	if j.parameter == nil {
+		j.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			{Name: "file", Description: "file to import", Type: pluginlib.Path, Required: true},
+			Filter,
+		}
 	}
+	return j.parameter
+}
+
+func (j *JSONImport) Output() *pluginlib.Config {
+	return nil
+}
+
+func (j *JSONImport) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) error {
+	file := p.Parameter().StringValue("file")
+	filter := pluginlib.ExtractFilter(p.Parameter().GetStringArrayValue("filter"))
+	store, teardown, err := getForensicStore(p)
+	if err != nil {
+		return err
+	}
+	defer teardown()
+
+	b, err := os.ReadFile(file) // #nosec
+	if err != nil {
+		return err
+	}
+
+	topLevel := gjson.GetBytes(b, "@this")
+	if !topLevel.IsArray() {
+		return errors.New("imported json must have a top level array containing objects")
+	}
+
+	topLevel.ForEach(func(_, element gjson.Result) bool {
+		elementType := element.Get("type")
+		if elementType.Exists() && filter.Match(forensicstore.JSONElement(element.Raw)) {
+			_, err = store.Insert(forensicstore.JSONElement(element.Raw))
+			if err != nil {
+				return false
+			}
+		}
+		return true
+	})
+
+	return nil
 }

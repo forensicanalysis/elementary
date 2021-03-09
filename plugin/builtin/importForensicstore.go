@@ -29,41 +29,52 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 
-	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func forensicStoreImport() plugin.Plugin {
-	return &command{
-		name:      "import-forensicstore",
-		short:     "Import forensicstore files",
-		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Type: plugin.Path, Required: true}, Filter},
-		run: func(cmd plugin.Plugin) error {
-			path := cmd.Parameter().StringValue("forensicstore")
-			file := cmd.Parameter().StringValue("file")
-			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
-			return singleImport(path, file, filter)
-		},
-		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
-	}
+var _ pluginlib.Plugin = &ImportForensicstore{}
+
+type ImportForensicstore struct {
+	parameter pluginlib.ParameterList
 }
 
-func singleImport(url string, file string, filter plugin.Filter) error {
-	store, teardown, err := forensicstore.Open(url)
+func (i *ImportForensicstore) Name() string {
+	return "import-forensicstore"
+}
+
+func (i *ImportForensicstore) Short() string {
+	return "Import forensicstore files"
+}
+
+func (i *ImportForensicstore) Parameter() pluginlib.ParameterList {
+	if i.parameter == nil {
+		i.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			{Name: "file", Description: "file to import", Type: pluginlib.Path, Required: true},
+			Filter,
+		}
+	}
+	return i.parameter
+}
+
+func (i *ImportForensicstore) Output() *pluginlib.Config {
+	return nil
+}
+
+func (i *ImportForensicstore) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) error {
+	file := p.Parameter().StringValue("file")
+	filter := pluginlib.ExtractFilter(p.Parameter().GetStringArrayValue("filter"))
+	store, teardown, err := getForensicStore(p)
 	if err != nil {
 		return err
 	}
 	defer teardown()
-
-	err = merge(store, file, filter)
-	if err != nil {
-		return err
-	}
-	return nil
+	return merge(store, file, filter)
 }
 
 // Merge merges another JSONLite into this one.
-func merge(db *forensicstore.ForensicStore, url string, filter plugin.Filter) (err error) {
+func merge(db *forensicstore.ForensicStore, url string, filter pluginlib.Filter) (err error) {
 	// TODO: import elements with "_path" on sublevel"…
 	// TODO: import does not need to unflatten and flatten
 

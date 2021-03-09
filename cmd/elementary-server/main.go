@@ -30,8 +30,9 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/forensicanalysis/elementary"
+
 	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
-	"github.com/forensicanalysis/elementary/plugin/meta"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -46,7 +47,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mcp := &meta.PluginProvider{Name: appName, Dir: appDir()} // TODO
+	mcp := &elementary.ElementaryPluginProvider{Name: appName, Dir: appDir()} // TODO
 	rootCmd := server.Application("fstore", http.FS(sub), server.Commands(mcp)...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)

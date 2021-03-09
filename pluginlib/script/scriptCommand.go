@@ -24,6 +24,7 @@ package script
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -31,22 +32,22 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forensicanalysis/elementary/plugin"
-	"github.com/forensicanalysis/elementary/plugin/output"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
-var _ plugin.Plugin = &command{}
+var _ pluginlib.Plugin = &command{}
 
 type command struct {
-	ScriptName        string              `json:"name,omitempty"`
-	ScriptShort       string              `json:"short,omitempty"`
-	Arguments         plugin.JSONSchema   `json:"arguments,omitempty"`
-	ScriptAnnotations []plugin.Annotation `json:"annotations,omitempty"`
-	parameter         plugin.ParameterList
-	run               func(plugin.Plugin) error
+	ScriptName      string               `json:"name,omitempty"`
+	ScriptShort     string               `json:"short,omitempty"`
+	ScriptArguments pluginlib.JSONSchema `json:"arguments,omitempty"`
+	ScriptOutput    *pluginlib.Config    `json:"output,omitempty"`
+
+	parameter pluginlib.ParameterList
+	run       func(pluginlib.Plugin, io.Writer) error
 }
 
-func newCommand(path string) plugin.Plugin {
+func newCommand(path string) pluginlib.Plugin {
 	scriptCommand := &command{}
 
 	out, err := ioutil.ReadFile(path + ".info") // #nosec
@@ -67,8 +68,7 @@ func newCommand(path string) plugin.Plugin {
 		scriptCommand.ScriptName = filepath.Base(path)
 	}
 	scriptCommand.ScriptShort += " (script)"
-	scriptCommand.run = func(cmd plugin.Plugin) error {
-		log.Printf("run %s", scriptCommand.Name())
+	scriptCommand.run = func(cmd pluginlib.Plugin, out io.Writer) error {
 		shellCommand := strings.Join(append(
 			[]string{`"` + filepath.ToSlash(path) + `"`},
 			scriptCommand.Parameter().ToCommandlineArgs()...,
@@ -84,11 +84,6 @@ func newCommand(path string) plugin.Plugin {
 		log.Println("sh", "-c", shellCommand)
 		script := exec.Command("sh", "-c", shellCommand) // #nosec
 
-		opath := cmd.Parameter().StringValue("output")
-		format := cmd.Parameter().StringValue("format")
-		out := output.New(opath, format, nil)
-		defer out.WriteFooter()
-
 		script.Stdout = out
 		script.Stderr = log.Writer()
 		err := script.Run()
@@ -98,7 +93,7 @@ func newCommand(path string) plugin.Plugin {
 
 		return nil
 	}
-	scriptCommand.parameter = append(scriptCommand.parameter, plugin.JsonschemaToParameter(scriptCommand.Arguments)...)
+	scriptCommand.parameter = append(scriptCommand.parameter, pluginlib.JsonschemaToParameter(scriptCommand.ScriptArguments)...)
 
 	return scriptCommand
 }
@@ -111,14 +106,16 @@ func (s *command) Short() string {
 	return s.ScriptShort
 }
 
-func (s *command) Parameter() plugin.ParameterList {
+func (s *command) Parameter() pluginlib.ParameterList {
 	return s.parameter
 }
 
-func (s *command) Run(c plugin.Plugin) error {
-	return s.run(c)
+func (s *command) Output() *pluginlib.Config {
+	return s.ScriptOutput
 }
 
-func (s *command) Annotations() []plugin.Annotation {
-	return s.ScriptAnnotations
+func (s *command) Run(c pluginlib.Plugin, writer pluginlib.LineWriter) error {
+	lbw := &pluginlib.LineWriterBuffer{Writer: writer}
+	defer lbw.WriteFooter()
+	return s.run(c, lbw)
 }

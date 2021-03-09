@@ -6,27 +6,17 @@ import (
 	"log"
 )
 
-var _ Writer = &JSONLOutput{}
-
 type JSONLOutput struct {
 	dest io.Writer
 }
 
 func NewJsonlOutput(dest io.Writer) *JSONLOutput {
-	o := &JSONLOutput{dest: dest}
-	o.dest.Write([]byte("[")) // nolint: errcheck
-	return o
+	return &JSONLOutput{dest: dest}
 }
-
-func (o *JSONLOutput) WriteHeader([]string) {}
 
 func (o *JSONLOutput) WriteLine(element []byte) {
 	_, err := fmt.Fprintln(o.dest, string(element))
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func (o *JSONLOutput) WriteFooter() {
-	o.dest.Write([]byte("]")) // nolint: errcheck
 }

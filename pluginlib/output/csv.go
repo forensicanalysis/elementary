@@ -7,25 +7,19 @@ import (
 	"log"
 )
 
-var _ Writer = &CSVOutput{}
-
 type CSVOutput struct {
 	dest      io.Writer
 	csvWriter *csv.Writer
 	headers   []string
 }
 
-func NewCSVOutput(dest io.Writer) *CSVOutput {
-	o := &CSVOutput{dest: dest, csvWriter: csv.NewWriter(dest)}
-	return o
-}
-
-func (o *CSVOutput) WriteHeader(headers []string) {
-	o.headers = headers
+func NewCSVOutput(dest io.Writer, headers []string) *CSVOutput {
+	o := &CSVOutput{dest: dest, csvWriter: csv.NewWriter(dest), headers: headers}
 	err := o.csvWriter.Write(o.headers)
 	if err != nil {
 		log.Println(err)
 	}
+	return o
 }
 
 func (o *CSVOutput) WriteLine(element []byte) {

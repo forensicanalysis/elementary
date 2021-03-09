@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
-var _ plugin.Provider = &PluginProvider{}
+var _ pluginlib.Provider = &PluginProvider{}
 
 type PluginProvider struct {
 	Scripts embed.FS
@@ -18,14 +18,14 @@ type PluginProvider struct {
 	Dir     string
 }
 
-func (s *PluginProvider) List() []plugin.Plugin {
+func (s *PluginProvider) List() []pluginlib.Plugin {
 	infos, err := ioutil.ReadDir(s.Dir)
 	if err != nil {
 		log.Printf("script plugins disabled: %s, ", err)
 		return nil
 	}
 
-	var cmds []plugin.Plugin
+	var cmds []pluginlib.Plugin
 	for _, info := range infos {
 		validName := strings.HasPrefix(info.Name(), s.Prefix+"-") && !strings.HasSuffix(info.Name(), ".info")
 		if info.Mode().IsRegular() && validName {

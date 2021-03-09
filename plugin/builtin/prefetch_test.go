@@ -25,10 +25,6 @@ import (
 	"log"
 	"path/filepath"
 	"testing"
-
-	"github.com/forensicanalysis/elementary/plugin"
-
-	"github.com/forensicanalysis/forensicstore"
 )
 
 func TestPrefetchPlugin_Run(t *testing.T) {
@@ -57,29 +53,19 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := prefetch()
+			tlw := &testLineWriter{}
+			command := &Prefetch{}
 
-			command.Parameter().Set("format", "none")
-			command.Parameter().Set("add-to-store", true)
 			command.Parameter().Set("filter", tt.args.filter)
 			command.Parameter().Set("forensicstore", tt.args.url)
-			err = command.Run(command)
+			err = command.Run(command, tlw)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			store, teardown, err := forensicstore.Open(tt.args.url)
-			if err != nil {
-				t.Errorf("forensicstore.Open() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			defer teardown()
-			elements, err := store.Select(plugin.Filter{{"type": "prefetch"}})
-			if err != nil {
-				t.Errorf("store.All() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if len(elements) != tt.wantCount {
-				t.Errorf("len(elements) = %v, wantCount %v", len(elements), tt.wantCount)
+			if len(tlw.lines) != tt.wantCount {
+				t.Errorf("len(elements) = %v, wantCount %v", len(tlw.lines), tt.wantCount)
 			}
 		})
 	}

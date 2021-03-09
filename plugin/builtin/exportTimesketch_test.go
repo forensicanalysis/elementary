@@ -34,7 +34,7 @@ import (
 
 func TestExportTimesketch(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, err := setup()
+	storeDir, err := setup("example1.forensicstore")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,12 +56,12 @@ func TestExportTimesketch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := exportTimesketch()
+			tlw := &testLineWriter{}
+			command := &ExportTimesketch{}
 
-			command.Parameter().Set("format", "jsonl")
-			command.Parameter().Set("output", filepath.Join(storeDir, "out.jsonl"))
+			command.Parameter().Set("timesketch", filepath.Join(storeDir, "out.jsonl"))
 			command.Parameter().Set("forensicstore", tt.args.url)
-			err = command.Run(command)
+			err = command.Run(command, tlw)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)

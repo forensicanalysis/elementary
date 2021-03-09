@@ -7,21 +7,16 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-var _ Writer = &TableOutput{}
-
 type TableOutput struct {
 	dest        io.Writer
 	tableWriter *tablewriter.Table
 	headers     []string
 }
 
-func NewTableOutput(dest io.Writer) *TableOutput {
-	return &TableOutput{dest: dest, tableWriter: tablewriter.NewWriter(dest)}
-}
-
-func (o *TableOutput) WriteHeader(headers []string) {
-	o.headers = headers
+func NewTableOutput(dest io.Writer, headers []string) *TableOutput {
+	o := &TableOutput{dest: dest, tableWriter: tablewriter.NewWriter(dest), headers: headers}
 	o.tableWriter.SetHeader(o.headers)
+	return o
 }
 
 func (o *TableOutput) WriteLine(element []byte) {

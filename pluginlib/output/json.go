@@ -4,8 +4,6 @@ import (
 	"io"
 )
 
-var _ Writer = &JSONOutput{}
-
 type JSONOutput struct {
 	moreElements bool
 	dest         io.Writer
@@ -16,8 +14,6 @@ func NewJsonOutput(dest io.Writer) *JSONOutput {
 	o.dest.Write([]byte("[")) // nolint: errcheck
 	return o
 }
-
-func (o *JSONOutput) WriteHeader([]string) {}
 
 func (j *JSONOutput) WriteLine(element []byte) {
 	if j.moreElements {

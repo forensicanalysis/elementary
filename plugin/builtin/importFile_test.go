@@ -64,11 +64,12 @@ func TestImportFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := importFile()
+			tlw := &testLineWriter{}
+			c := &ImportFile{}
 
 			c.Parameter().Set("file", tt.args.files)
 			c.Parameter().Set("forensicstore", tt.args.url)
-			err = c.Run(c)
+			err = c.Run(c, tlw)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)

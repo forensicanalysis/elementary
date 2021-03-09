@@ -26,8 +26,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -56,11 +55,11 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := jsonImport()
+			command := &JSONImport{}
 
 			command.Parameter().Set("file", tt.args.file)
 			command.Parameter().Set("forensicstore", tt.args.url)
-			err = command.Run(command)
+			err = command.Run(command, nil)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
@@ -71,7 +70,7 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 			}
 			defer teardown()
 
-			elements, err := store.Select(plugin.Filter{{"type": "import"}})
+			elements, err := store.Select(pluginlib.Filter{{"type": "import"}})
 			if err != nil {
 				t.Fatal(err)
 			}

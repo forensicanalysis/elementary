@@ -9,23 +9,23 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/google/uuid"
 	"github.com/hashicorp/logutils"
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
 	"github.com/spf13/pflag"
+
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
 type Engine struct {
-	commands map[string]plugin.Plugin
+	commands map[string]pluginlib.Plugin
 	mux      sync.Mutex
 }
 
-func New(cmds []plugin.Plugin) *Engine {
+func New(cmds []pluginlib.Plugin) *Engine {
 	setupLogging()
-	engine := Engine{commands: map[string]plugin.Plugin{}}
+	engine := Engine{commands: map[string]pluginlib.Plugin{}}
 	for _, command := range cmds {
 		engine.commands[command.Name()] = command
 	}
@@ -129,10 +129,10 @@ func (e *Engine) RunTask(task Task, storeDir string) error {
 	}
 
 	// command.SetArgs(args)
-	return command.Run(command)
+	return command.Run(command, nil)
 }
 
-func parseArgs(command plugin.Plugin, args []string) error {
+func parseArgs(command pluginlib.Plugin, args []string) error {
 	fs := pflag.NewFlagSet("", pflag.PanicOnError)
 	err := fs.Parse(args)
 	if err != nil {

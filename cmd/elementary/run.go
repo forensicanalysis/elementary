@@ -24,9 +24,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
 // run is a subcommand to run a single task.
@@ -39,6 +38,22 @@ func run() *cobra.Command {
 	}
 
 	provider := elementary.PluginProvider()
-	command.AddCommand(plugin.ToCobra(provider)...)
+	plugins := provider.List()
+	layerd := storeOutputLayer(plugins)
+	command.AddCommand(pluginlib.ToCobra(layerd)...)
 	return command
+}
+
+func storeOutputLayer(plugins []pluginlib.Plugin) []pluginlib.Plugin {
+	var layerd []pluginlib.Plugin
+	for _, p := range plugins {
+		layerd = append(layerd,
+			&LoggerOutputPlugin{
+				&StoreOutputPlugin{
+					&FormatOutputPlugin{p},
+				},
+			},
+		)
+	}
+	return layerd
 }

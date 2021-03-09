@@ -23,54 +23,66 @@ package builtin
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/tidwall/gjson"
 	goprefetch "www.velocidex.com/golang/go-prefetch"
 
-	"github.com/forensicanalysis/elementary/plugin"
-	"github.com/forensicanalysis/elementary/plugin/output"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func prefetch() plugin.Plugin {
-	return &command{
-		name:      "prefetch",
-		short:     "Process prefetch files",
-		parameter: []*plugin.Parameter{ForensicStore, AddToStore, output.File, output.Format, Filter},
-		run: func(cmd plugin.Plugin) error {
-			log.Printf("run prefetch")
-			path := cmd.Parameter().StringValue("forensicstore")
-			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
-			return prefetchFromStore(path, filter, cmd)
-		},
-	}
+var _ pluginlib.Plugin = &Prefetch{}
+
+type Prefetch struct {
+	parameter pluginlib.ParameterList
 }
 
-func prefetchFromStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
-	store, teardown, err := forensicstore.Open(url)
+func (p *Prefetch) Name() string {
+	return "prefetch"
+
+}
+func (p *Prefetch) Short() string {
+	return "Process prefetch files"
+}
+
+func (p *Prefetch) Parameter() pluginlib.ParameterList {
+	if p.parameter == nil {
+		p.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			Filter,
+		}
+	}
+	return p.parameter
+}
+
+func (p *Prefetch) Output() *pluginlib.Config {
+	return &pluginlib.Config{Header: []string{"Executable", "FileSize", "Hash", "Version", "LastRunTimes", "FilesAccessed", "RunCount"}}
+}
+
+func (p *Prefetch) Run(plg pluginlib.Plugin, out pluginlib.LineWriter) error {
+	filter := pluginlib.ExtractFilter(plg.Parameter().GetStringArrayValue("filter"))
+	store, teardown, err := getForensicStore(plg)
 	if err != nil {
 		return err
 	}
 	defer teardown()
+	return prefetchFromStore(out, store, filter)
+}
 
+func prefetchFromStore(out pluginlib.LineWriter, store *forensicstore.ForensicStore, filter pluginlib.Filter) error {
 	for idx := range filter {
 		filter[idx]["type"] = "file"
 		filter[idx]["name"] = "%.pf"
 	}
 
 	if len(filter) == 0 {
-		filter = plugin.Filter{{"type": "file", "name": "%.pf"}}
+		filter = pluginlib.Filter{{"type": "file", "name": "%.pf"}}
 	}
 
 	fileElements, err := store.Select(filter)
 	if err != nil {
 		return err
 	}
-
-	header := []string{"Executable", "FileSize", "Hash", "Version", "LastRunTimes", "FilesAccessed", "RunCount"}
-	out := setupOut(cmd, store, header)
-	defer out.WriteFooter()
 
 	for _, element := range fileElements {
 		exportPath := gjson.GetBytes(element, "export_path")

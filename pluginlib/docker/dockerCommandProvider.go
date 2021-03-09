@@ -7,20 +7,18 @@ import (
 	"os"
 	"time"
 
+	"github.com/forensicanalysis/elementary/pluginlib"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-
-	"github.com/forensicanalysis/elementary/plugin"
 )
-
-var _ plugin.Provider = &PluginProvider{}
 
 type PluginProvider struct {
 	Prefix string
 	Images []string
 }
 
-func (d *PluginProvider) List() []plugin.Plugin {
+func (d *PluginProvider) List() []pluginlib.Plugin {
 	ctx := context.Background()
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Second) // TODO: adjust time
 	defer cancel()
@@ -37,7 +35,7 @@ func (d *PluginProvider) List() []plugin.Plugin {
 		return nil
 	}
 
-	var cmds []plugin.Plugin
+	var cmds []pluginlib.Plugin
 	commandNames := map[string]bool{}
 	for _, imageSummary := range imageSummaries {
 		for _, dockerImage := range imageSummary.RepoTags {

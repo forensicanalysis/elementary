@@ -19,53 +19,21 @@
 //
 // Author(s): Jonas Plum
 
-package plugin
+package output
 
 import (
-	"strings"
-
 	"github.com/tidwall/gjson"
-
-	"github.com/forensicanalysis/forensicstore"
 )
 
-// A Filter is a list of mappings that should be used for a Task.
-type Filter []map[string]string
-
-// Match tests if an element matches the filter.
-func (f Filter) Match(element forensicstore.JSONElement) bool {
-	if len(f) == 0 {
-		return true
-	}
-	for _, condition := range f {
-		if f.matchCondition(condition, element) {
-			return true
+func getColumns(headers []string, element []byte) []string {
+	var columns []string
+	for _, header := range headers {
+		value := gjson.GetBytes(element, header)
+		if value.Exists() {
+			columns = append(columns, value.String())
+		} else {
+			columns = append(columns, "")
 		}
 	}
-	return false
-}
-
-func (f Filter) matchCondition(condition map[string]string, element forensicstore.JSONElement) bool {
-	for attribute, value := range condition {
-		if !strings.Contains(gjson.GetBytes(element, attribute).String(), value) {
-			return false
-		}
-	}
-	return true
-}
-
-func ExtractFilter(filtersets []string) Filter {
-	filter := Filter{}
-	for _, filterset := range filtersets {
-		filterelement := map[string]string{}
-		for _, kv := range strings.Split(filterset, ",") {
-			kvl := strings.SplitN(kv, "=", 2)
-			if len(kvl) == 2 { //nolint: gomnd
-				filterelement[kvl[0]] = kvl[1]
-			}
-		}
-
-		filter = append(filter, filterelement)
-	}
-	return filter
+	return columns
 }

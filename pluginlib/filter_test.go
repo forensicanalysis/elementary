@@ -19,12 +19,10 @@
 //
 // Author(s): Jonas Plum
 
-package plugin
+package pluginlib
 
 import (
 	"testing"
-
-	"github.com/forensicanalysis/forensicstore"
 )
 
 func TestFilter_Match(t *testing.T) {
@@ -47,7 +45,7 @@ func TestFilter_Match(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.Match(forensicstore.JSONElement(tt.args.element)); got != tt.want {
+			if got := tt.f.Match([]byte(tt.args.element)); got != tt.want {
 				t.Errorf("Match() = %v, want %v", got, tt.want)
 			}
 		})

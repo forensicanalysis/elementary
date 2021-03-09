@@ -19,58 +19,51 @@
 //
 // Author(s): Jonas Plum
 
-package builtin
+package pluginlib
 
-import "github.com/forensicanalysis/elementary/pluginlib"
+import (
+	"strings"
 
-var _ pluginlib.Plugin = &Export{}
+	"github.com/tidwall/gjson"
+)
 
-type Export struct{}
+// A Filter is a list of mappings that should be used for a Task.
+type Filter []map[string]string
 
-func (e *Export) Name() string {
-	return "export"
-}
-
-func (e *Export) Short() string {
-	return "Export selected elements"
-}
-
-func (e *Export) Parameter() pluginlib.ParameterList {
-	return []*pluginlib.Parameter{Filter}
-}
-
-func (e *Export) Output() *pluginlib.Config {
-	return nil
-}
-
-func (e *Export) Run(p pluginlib.Plugin, out pluginlib.LineWriter) error {
-	filter := pluginlib.ExtractFilter(p.Parameter().GetStringArrayValue("filter"))
-
-	store, teardown, err := getForensicStore(p)
-	if err != nil {
-		return err
+// Match tests if an element matches the filter.
+func (f Filter) Match(element []byte) bool {
+	if len(f) == 0 {
+		return true
 	}
-	defer teardown()
-
-	elements, err := store.Select(filter)
-	if err != nil {
-		return err
-	}
-	if len(elements) == 0 {
-		return nil
-	}
-
-	/*
-		var header []string
-		gjson.GetBytes(elements[0], "@this").ForEach(func(key, _ gjson.Result) bool {
-			header = append(header, key.String())
+	for _, condition := range f {
+		if f.matchCondition(condition, element) {
 			return true
-		})
-		out.SetConfig(&output.Config{Header: header})
-	*/
-
-	for _, element := range elements {
-		out.WriteLine(element) // nolint: errcheck
+		}
 	}
-	return nil
+	return false
+}
+
+func (f Filter) matchCondition(condition map[string]string, element []byte) bool {
+	for attribute, value := range condition {
+		if !strings.Contains(gjson.GetBytes(element, attribute).String(), value) {
+			return false
+		}
+	}
+	return true
+}
+
+func ExtractFilter(filtersets []string) Filter {
+	filter := Filter{}
+	for _, filterset := range filtersets {
+		filterelement := map[string]string{}
+		for _, kv := range strings.Split(filterset, ",") {
+			kvl := strings.SplitN(kv, "=", 2)
+			if len(kvl) == 2 { //nolint: gomnd
+				filterelement[kvl[0]] = kvl[1]
+			}
+		}
+
+		filter = append(filter, filterelement)
+	}
+	return filter
 }

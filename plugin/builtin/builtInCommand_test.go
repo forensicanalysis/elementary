@@ -58,3 +58,11 @@ func cleanup(folders ...string) (err error) {
 	}
 	return nil
 }
+
+type testLineWriter struct {
+	lines [][]byte
+}
+
+func (t *testLineWriter) WriteLine(b []byte) {
+	t.lines = append(t.lines, b)
+}

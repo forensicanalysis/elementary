@@ -30,33 +30,51 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/forensicanalysis/elementary/plugin"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
-func importFile() plugin.Plugin {
-	return &command{
-		name:      "import-file",
-		short:     "Import files",
-		parameter: []*plugin.Parameter{ForensicStore, {Name: "file", Description: "file to import", Type: plugin.PathArray, Required: true}},
-		run: func(cmd plugin.Plugin) error {
-			path := cmd.Parameter().StringValue("forensicstore")
-			files := cmd.Parameter().GetStringArrayValue("file")
-			return singleFileImport(path, files)
-		},
-		annotations: []plugin.Annotation{plugin.Di, plugin.Importer},
-	}
+var _ pluginlib.Plugin = &ImportFile{}
+
+type ImportFile struct {
+	parameter pluginlib.ParameterList
 }
 
-func singleFileImport(url string, files []string) error {
-	store, teardown, err := forensicstore.Open(url)
+func (i *ImportFile) Name() string {
+	return "import-file"
+}
+
+func (i *ImportFile) Short() string {
+	return "Import files"
+}
+
+func (i *ImportFile) Parameter() pluginlib.ParameterList {
+	if i.parameter == nil {
+		i.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			{Name: "file", Description: "file to import", Type: pluginlib.PathArray, Required: true},
+		}
+	}
+	return i.parameter
+}
+
+func (i *ImportFile) Output() *pluginlib.Config {
+	return nil
+}
+
+func (i *ImportFile) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) error {
+	files := p.Parameter().GetStringArrayValue("file")
+	store, teardown, err := getForensicStore(p)
 	if err != nil {
 		return err
 	}
 	defer teardown()
+	return singleFileImport(store, files)
+}
 
+func singleFileImport(store *forensicstore.ForensicStore, files []string) error {
 	for _, filePath := range files {
-		err = filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
+		err := filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
 			if err != nil || info.IsDir() {
 				return nil
 			}

@@ -25,37 +25,57 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 	"time"
 
-	"github.com/tidwall/gjson"
-
-	"github.com/forensicanalysis/elementary/plugin"
-	"github.com/forensicanalysis/elementary/plugin/output"
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
+
+	"github.com/tidwall/gjson"
 )
 
-func exportTimesketch() plugin.Plugin {
-	return &command{
-		name:      "export-timesketch",
-		short:     "Export in timesketch jsonl format",
-		parameter: []*plugin.Parameter{ForensicStore, AddToStore, output.File, output.Format, Filter},
-		run: func(cmd plugin.Plugin) error {
-			path := cmd.Parameter().StringValue("forensicstore")
-			filter := plugin.ExtractFilter(cmd.Parameter().GetStringArrayValue("filter"))
-			return exportStore(path, filter, cmd)
-		},
-		annotations: []plugin.Annotation{plugin.Exporter},
-	}
+var _ pluginlib.Plugin = &ExportTimesketch{}
+
+type ExportTimesketch struct {
+	parameter pluginlib.ParameterList
 }
 
-func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
-	store, teardown, err := forensicstore.Open(url)
+func (e *ExportTimesketch) Name() string {
+	return "export-timesketch"
+}
+
+func (e *ExportTimesketch) Short() string {
+	return "Export in timesketch jsonl format"
+}
+
+func (e *ExportTimesketch) Parameter() pluginlib.ParameterList {
+	if e.parameter == nil {
+		e.parameter = pluginlib.ParameterList{
+			{Name: "forensicstore", Type: pluginlib.Path, Description: "forensicstore", Required: true, Argument: true},
+			{Name: "timesketch", Type: pluginlib.Path, Description: "timesketch", Required: true},
+			Filter,
+		}
+	}
+	return e.parameter
+}
+
+func (e *ExportTimesketch) Output() *pluginlib.Config {
+	return &pluginlib.Config{Header: []string{"message", "datetime", "timestamp_desc"}}
+}
+
+func (e *ExportTimesketch) Run(p pluginlib.Plugin, out pluginlib.LineWriter) error {
+	timesketch := p.Parameter().StringValue("timesketch")
+	filter := pluginlib.ExtractFilter(p.Parameter().GetStringArrayValue("filter"))
+	store, teardown, err := getForensicStore(p)
 	if err != nil {
 		return err
 	}
 	defer teardown()
+	return exportStore(out, store, filter, timesketch)
+}
 
+func exportStore(out pluginlib.LineWriter, store *forensicstore.ForensicStore, filter pluginlib.Filter, timesketch string) error {
 	elements, err := store.Select(filter)
 	if err != nil {
 		return err
@@ -64,8 +84,11 @@ func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
 		return nil
 	}
 
-	out := setupOut(cmd, store, []string{"message", "datetime", "timestamp_desc"})
-	defer out.WriteFooter()
+	f, err := os.Create(timesketch)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
 	for _, element := range elements {
 		element := element
@@ -94,7 +117,8 @@ func exportStore(url string, filter plugin.Filter, cmd plugin.Plugin) error {
 					log.Println(err)
 					return true
 				}
-				out.WriteLine(b) // nolint: errcheck
+				f.Write(b)          // nolint: errcheck
+				f.WriteString("\n") // nolint: errcheck
 			}
 			return true
 		})

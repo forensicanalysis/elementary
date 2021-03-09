@@ -1,13 +1,10 @@
-package builtin
+package elementary
 
 import (
 	"log"
 
-	"github.com/forensicanalysis/elementary/plugin/output"
 	"github.com/forensicanalysis/forensicstore"
 )
-
-var _ output.Writer = &ForensicStoreOutput{}
 
 type ForensicStoreOutput struct {
 	store *forensicstore.ForensicStore

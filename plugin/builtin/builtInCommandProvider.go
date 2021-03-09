@@ -1,22 +1,16 @@
 package builtin
 
-import (
-	"github.com/forensicanalysis/elementary/plugin"
-)
+import "github.com/forensicanalysis/elementary/pluginlib"
 
-var _ plugin.Provider = &PluginProvider{}
-
-type PluginProvider struct{}
-
-func (d *PluginProvider) List() []plugin.Plugin {
-	return []plugin.Plugin{
-		eventlogs(),
-		export(),
-		forensicStoreImport(),
-		jsonImport(),
-		prefetch(),
-		importFile(),
-		exportTimesketch(),
-		bulkSearch(),
+func List() []pluginlib.Plugin {
+	return []pluginlib.Plugin{
+		&Eventlogs{},
+		&Export{},
+		&ImportForensicstore{},
+		&JSONImport{},
+		&Prefetch{},
+		&ImportFile{},
+		&ExportTimesketch{},
+		&BulkSearch{},
 	}
 }

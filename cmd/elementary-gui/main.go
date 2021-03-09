@@ -7,14 +7,12 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
 
 	"github.com/forensicanalysis/elementary"
-	"github.com/forensicanalysis/elementary/plugin/meta"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
 // Constants
@@ -39,7 +37,7 @@ var (
 	app           *astilectron.Astilectron
 	menu          *astilectron.Menu
 	l             *log.Logger
-	cp            plugin.Provider
+	cp            pluginlib.Provider
 )
 
 func main() {
@@ -50,7 +48,7 @@ func main() {
 	l = log.New(log.Writer(), log.Prefix(), log.Flags())
 	l.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	cp = &meta.PluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
+	cp = &elementary.ElementaryPluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
 
 	// Run bootstrap
 	l.Printf("Running app built at %s\n", BuiltAt)

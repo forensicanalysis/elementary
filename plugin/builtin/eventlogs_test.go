@@ -25,10 +25,6 @@ import (
 	"log"
 	"path/filepath"
 	"testing"
-
-	"github.com/forensicanalysis/elementary/plugin"
-
-	"github.com/forensicanalysis/forensicstore"
 )
 
 func TestEventlogsPlugin_Run(t *testing.T) {
@@ -40,7 +36,7 @@ func TestEventlogsPlugin_Run(t *testing.T) {
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
-	example2 := filepath.Join(storeDir, "example2.forensicstore")
+	example := filepath.Join(storeDir, "example2.forensicstore")
 
 	type args struct {
 		url string
@@ -51,33 +47,21 @@ func TestEventlogsPlugin_Run(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"eventlogs Test", args{example2}, 806, false},
+		{name: "eventlogs Test", args: args{url: example}, wantCount: 806},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			command := eventlogs()
-
-			command.Parameter().Set("format", "none")
-			command.Parameter().Set("add-to-store", true)
+			tlw := &testLineWriter{}
+			command := &Eventlogs{}
 			command.Parameter().Set("forensicstore", tt.args.url)
-			err = command.Run(command)
+			err := command.Run(command, tlw)
 
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			store, teardown, err := forensicstore.Open(tt.args.url)
-			if err != nil {
-				t.Fatalf("forensicstore.Open() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			defer teardown()
-
-			elements, err := store.Select(plugin.Filter{{"type": "eventlog"}})
-			if err != nil {
-				t.Fatalf("store.Select() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if len(elements) != tt.wantCount {
-				t.Fatalf("len(elements) = %v, wantCount %v", len(elements), tt.wantCount)
+			if len(tlw.lines) != tt.wantCount {
+				t.Fatalf("len(elements) = %v, wantCount %v", len(tlw.lines), tt.wantCount)
 			}
 		})
 	}

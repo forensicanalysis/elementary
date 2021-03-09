@@ -4,11 +4,9 @@ import (
 	"embed"
 	"path/filepath"
 
-	"github.com/forensicanalysis/elementary/plugin"
-
-	"github.com/forensicanalysis/elementary/plugin/builtin"
-	"github.com/forensicanalysis/elementary/plugin/docker"
-	"github.com/forensicanalysis/elementary/plugin/script"
+	"github.com/forensicanalysis/elementary/pluginlib"
+	"github.com/forensicanalysis/elementary/pluginlib/docker"
+	"github.com/forensicanalysis/elementary/pluginlib/script"
 )
 
 type PluginProvider struct {
@@ -16,15 +14,15 @@ type PluginProvider struct {
 	Dir     string
 	Images  []string
 	Scripts embed.FS
+	Plugins []pluginlib.Plugin
 }
 
-func (cp *PluginProvider) List() []plugin.Plugin {
-	builtinPluginProvider := builtin.PluginProvider{}
+func (cp *PluginProvider) List() []pluginlib.Plugin {
 	scriptPluginProvider := script.PluginProvider{Prefix: cp.Name, Dir: filepath.Join(cp.Dir, "scripts"), Scripts: cp.Scripts}
 	dockerPluginProvider := docker.PluginProvider{Prefix: cp.Name, Images: cp.Images}
 
-	l := builtinPluginProvider.List()
-	l = append(l, scriptPluginProvider.List()...)
+	l := scriptPluginProvider.List()
 	l = append(l, dockerPluginProvider.List()...)
+	l = append(l, cp.Plugins...)
 	return l
 }

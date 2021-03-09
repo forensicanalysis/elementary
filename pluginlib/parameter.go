@@ -1,4 +1,4 @@
-package plugin
+package pluginlib
 
 import (
 	"encoding/csv"

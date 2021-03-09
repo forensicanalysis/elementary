@@ -28,11 +28,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/forensicanalysis/elementary"
+
 	"github.com/spf13/cobra"
 	"github.com/tidwall/sjson"
 
 	"github.com/forensicanalysis/elementary/daggy"
-	"github.com/forensicanalysis/elementary/plugin/meta"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -59,7 +60,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal(err, workflowFile)
 			}
 
-			mcp := meta.PluginProvider{}
+			mcp := elementary.ElementaryPluginProvider{}
 			engine := daggy.New(mcp.List())
 			workflow, err := daggy.Parse(workflowFile)
 			if err != nil {
