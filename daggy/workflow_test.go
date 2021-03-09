@@ -41,7 +41,7 @@ func setup() (storeDir string, err error) {
 		return "", err
 	}
 	storeDir = filepath.Join(tempDir, "test")
-	err = os.MkdirAll(storeDir, 0755)
+	err = os.MkdirAll(storeDir, 0o755)
 	if err != nil {
 		return "", err
 	}

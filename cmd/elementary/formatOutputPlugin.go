@@ -81,7 +81,7 @@ func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) err
 	case "jsonl":
 		w = output.NewJsonlOutput(dest)
 	case "json":
-		o := output.NewJsonOutput(dest)
+		o := output.NewJSONOutput(dest)
 		w = o
 		defer o.WriteFooter()
 	case "none":

@@ -21,22 +21,7 @@
 
 package main
 
-import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
-	"os"
-
-	"github.com/forensicanalysis/elementary"
-
-	"github.com/spf13/cobra"
-	"github.com/tidwall/sjson"
-
-	"github.com/forensicanalysis/elementary/daggy"
-	"github.com/forensicanalysis/forensicstore"
-)
-
+/*
 // workflow is a subcommand to run a forensic workflow.
 func workflow() *cobra.Command {
 	workflowCmd := &cobra.Command{
@@ -60,7 +45,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal(err, workflowFile)
 			}
 
-			mcp := elementary.ElementaryPluginProvider{}
+			mcp := elementary.PluginProvider{}
 			engine := daggy.New(mcp.List())
 			workflow, err := daggy.Parse(workflowFile)
 			if err != nil {
@@ -101,3 +86,4 @@ func insertTasks(storeURL string, workflow *daggy.Workflow) error {
 	}
 	return nil
 }
+*/

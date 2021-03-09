@@ -110,10 +110,11 @@ func parseMounts(cmd pluginlib.Plugin) map[string]string {
 			}
 			mounts[abs] = parameter.Name
 		}
-		if parameter.Type == pluginlib.PathArray {
-			// TODO
-		}
-
+		/*
+			if parameter.Type == pluginlib.PathArray {
+				// TODO
+			}
+		*/
 	}
 	return mounts
 }

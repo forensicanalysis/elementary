@@ -102,9 +102,11 @@ func setup(auth *types.AuthConfig, pull bool) {
 		}
 	}
 	if pipPath != "" {
-		commandLine := []string{"install",
+		commandLine := []string{
+			"install",
 			"--target", filepath.Join(appDir, "scripts"),
-			"-r", filepath.Join(appDir, "requirements.txt")}
+			"-r", filepath.Join(appDir, "requirements.txt"),
+		}
 		log.Println(pipPath, commandLine)
 		pip := exec.Command(pipPath, commandLine...) // #nosec
 		err := pip.Run()

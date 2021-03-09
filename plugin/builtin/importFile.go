@@ -80,7 +80,6 @@ func singleFileImport(store *forensicstore.ForensicStore, files []string) error 
 			}
 			return insertFile(store, path)
 		})
-
 		if err != nil {
 			return err
 		}

@@ -37,7 +37,7 @@ func run() *cobra.Command {
 		Short: "run single task",
 	}
 
-	provider := elementary.PluginProvider()
+	provider := elementary.NewPluginProvider()
 	plugins := provider.List()
 	layerd := storeOutputLayer(plugins)
 	command.AddCommand(pluginlib.ToCobra(layerd)...)

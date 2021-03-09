@@ -107,7 +107,7 @@ func RunTask(cp pluginlib.Provider) *Command {
 				p.Parameter().Set(name, fmt.Sprint(arg))
 			}
 
-			return p.Run(p, output.NewJsonOutput(w)) // TODO also to store?
+			return p.Run(p, output.NewJSONOutput(w)) // TODO also to store?
 		},
 	}
 }

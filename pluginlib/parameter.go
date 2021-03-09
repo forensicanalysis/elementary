@@ -78,6 +78,7 @@ func (pl ParameterList) BoolValue(name string) bool {
 	}
 	return p.BoolValue()
 }
+
 func (pl ParameterList) StringValue(name string) string {
 	p, err := pl.Get(name)
 	if err != nil {

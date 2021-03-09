@@ -10,9 +10,7 @@ import (
 	"github.com/forensicanalysis/forensicstore"
 )
 
-var (
-	Filter = &pluginlib.Parameter{Name: "filter", Description: "filter processed events", Type: pluginlib.StringArray, Required: false}
-)
+var Filter = &pluginlib.Parameter{Name: "filter", Description: "filter processed events", Type: pluginlib.StringArray, Required: false}
 
 func fileToReader(store *forensicstore.ForensicStore, exportPath gjson.Result) (*bytes.Reader, error) {
 	file, teardown, err := store.LoadFile(exportPath.String())

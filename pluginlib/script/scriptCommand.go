@@ -93,7 +93,10 @@ func newCommand(path string) pluginlib.Plugin {
 
 		return nil
 	}
-	scriptCommand.parameter = append(scriptCommand.parameter, pluginlib.JsonschemaToParameter(scriptCommand.ScriptArguments)...)
+	scriptCommand.parameter = append(
+		scriptCommand.parameter,
+		pluginlib.JsonschemaToParameter(scriptCommand.ScriptArguments)...,
+	)
 
 	return scriptCommand
 }

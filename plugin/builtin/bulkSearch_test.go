@@ -42,7 +42,7 @@ func TestBulkSearch(t *testing.T) {
 	example := filepath.Join(storeDir, "example1.forensicstore")
 
 	iocFile := filepath.Join(storeDir, "ioc.txt")
-	ioutil.WriteFile(iocFile, []byte("exe"), 0755)
+	ioutil.WriteFile(iocFile, []byte("exe"), 0o755)
 
 	type args struct {
 		file string

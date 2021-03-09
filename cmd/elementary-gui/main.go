@@ -48,7 +48,7 @@ func main() {
 	l = log.New(log.Writer(), log.Prefix(), log.Flags())
 	l.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	cp = &elementary.ElementaryPluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
+	cp = &elementary.PluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
 
 	// Run bootstrap
 	l.Printf("Running app built at %s\n", BuiltAt)

@@ -18,7 +18,9 @@ type PluginProvider struct {
 }
 
 func (cp *PluginProvider) List() []pluginlib.Plugin {
-	scriptPluginProvider := script.PluginProvider{Prefix: cp.Name, Dir: filepath.Join(cp.Dir, "scripts"), Scripts: cp.Scripts}
+	scriptPluginProvider := script.PluginProvider{
+		Prefix: cp.Name, Dir: filepath.Join(cp.Dir, "scripts"), Scripts: cp.Scripts,
+	}
 	dockerPluginProvider := docker.PluginProvider{Prefix: cp.Name, Images: cp.Images}
 
 	l := scriptPluginProvider.List()

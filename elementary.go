@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/forensicanalysis/elementary/plugin/builtin"
 	"github.com/forensicanalysis/elementary/pluginlib"
-
+	"github.com/forensicanalysis/elementary/pluginlib/meta"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -36,6 +37,25 @@ func Images() []string {
 //go:embed plugin/scripts
 var scripts embed.FS
 
-func PluginProvider() pluginlib.Provider {
-	return &ElementaryPluginProvider{Name: Name(), Dir: AppDir(), Images: Images(), Scripts: scripts}
+func NewPluginProvider() pluginlib.Provider {
+	return &PluginProvider{Name: Name(), Dir: AppDir(), Images: Images(), Scripts: scripts}
+}
+
+type PluginProvider struct {
+	Name    string
+	Dir     string
+	Images  []string
+	Scripts embed.FS
+}
+
+func (cp *PluginProvider) List() []pluginlib.Plugin {
+	mpp := meta.PluginProvider{
+		Name:    cp.Name,
+		Dir:     cp.Dir,
+		Images:  cp.Images,
+		Scripts: cp.Scripts,
+		Plugins: builtin.List(),
+	}
+
+	return mpp.List()
 }

@@ -9,7 +9,7 @@ type JSONOutput struct {
 	dest         io.Writer
 }
 
-func NewJsonOutput(dest io.Writer) *JSONOutput {
+func NewJSONOutput(dest io.Writer) *JSONOutput {
 	o := &JSONOutput{dest: dest}
 	o.dest.Write([]byte("[")) // nolint: errcheck
 	return o

@@ -39,8 +39,8 @@ type Prefetch struct {
 
 func (p *Prefetch) Name() string {
 	return "prefetch"
-
 }
+
 func (p *Prefetch) Short() string {
 	return "Process prefetch files"
 }

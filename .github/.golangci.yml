@@ -37,7 +37,7 @@ linters:
     - dupl # Tool for code clone detection
     - errcheck # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases
     - funlen # Tool for detection of long functions
-    - gochecknoglobals # Checks that no globals are present in Go code
+    # - gochecknoglobals # Checks that no globals are present in Go code
     - gochecknoinits # Checks that no init functions are present in Go code
     - gocognit # Computes and checks the cognitive complexity of functions
     - goconst # Finds repeated strings that could be replaced by a constant
@@ -111,5 +111,4 @@ issues:
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
     - G307 # Deferring unsafe method "Close" on type "*os.File"
-    - static is a global variable
 
