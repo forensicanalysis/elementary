@@ -48,7 +48,7 @@ func (s *StoreOutputPlugin) Output() *pluginlib.Config {
 
 func (s *StoreOutputPlugin) Run(p pluginlib.Plugin, writer pluginlib.LineWriter) error {
 	path := p.Parameter().StringValue("forensicstore")
-	store, teardown, err := forensicstore.New(path)
+	store, teardown, err := forensicstore.Open(path)
 	if err != nil {
 		return err
 	}
