@@ -1,7 +1,6 @@
-package main
+package elementary
 
 import (
-	"github.com/forensicanalysis/elementary"
 	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
@@ -23,23 +22,23 @@ var (
 )
 
 type StoreOutputPlugin struct {
-	internal pluginlib.Plugin
+	Internal pluginlib.Plugin
 }
 
 func (s *StoreOutputPlugin) Name() string {
-	return s.internal.Name()
+	return s.Internal.Name()
 }
 
 func (s *StoreOutputPlugin) Short() string {
-	return s.internal.Short()
+	return s.Internal.Short()
 }
 
 func (s *StoreOutputPlugin) Parameter() pluginlib.ParameterList {
-	return append(s.internal.Parameter(), AddToStoreParameter, ForensicStoreParameter)
+	return append(s.Internal.Parameter(), AddToStoreParameter, ForensicStoreParameter)
 }
 
 func (s *StoreOutputPlugin) Output() *pluginlib.Config {
-	return s.internal.Output()
+	return s.Internal.Output()
 }
 
 func (s *StoreOutputPlugin) Run(p pluginlib.Plugin, writer pluginlib.LineWriter) error {
@@ -51,9 +50,9 @@ func (s *StoreOutputPlugin) Run(p pluginlib.Plugin, writer pluginlib.LineWriter)
 	defer teardown()
 
 	if p.Parameter().BoolValue("add-to-store") {
-		lw := elementary.NewForensicStoreOutput(store)
+		lw := NewForensicStoreOutput(store)
 		writer = &pluginlib.MultiLineWriter{LineWriter: []pluginlib.LineWriter{writer, lw}}
 		defer lw.WriteFooter()
 	}
-	return s.internal.Run(p, writer)
+	return s.Internal.Run(p, writer)
 }

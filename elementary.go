@@ -2,6 +2,7 @@ package elementary
 
 import (
 	"embed"
+	"github.com/forensicanalysis/elementary/pluginlib/output"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -57,5 +58,21 @@ func (cp *PluginProvider) List() []pluginlib.Plugin {
 		Plugins: builtin.List(),
 	}
 
-	return mpp.List()
+	return storeOutputLayer(mpp.List())
+}
+
+func storeOutputLayer(plugins []pluginlib.Plugin) []pluginlib.Plugin {
+	var layerd []pluginlib.Plugin
+	for _, p := range plugins {
+		layerd = append(layerd,
+			&pluginlib.LoggerOutputPlugin{
+				Internal: &StoreOutputPlugin{
+					Internal: &output.FormatOutputPlugin{
+						Internal: p,
+					},
+				},
+			},
+		)
+	}
+	return layerd
 }

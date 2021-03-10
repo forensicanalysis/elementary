@@ -30,7 +30,7 @@ type Parameter struct {
 	Argument    bool
 }
 
-func (p Parameter) BoolValue() bool {
+func (p *Parameter) BoolValue() bool {
 	if p.Value == nil {
 		return false
 	}
@@ -40,7 +40,7 @@ func (p Parameter) BoolValue() bool {
 	panic(fmt.Errorf("parameter %s is not a bool", p.Name))
 }
 
-func (p Parameter) StringValue() string {
+func (p *Parameter) StringValue() string {
 	if p.Value == nil {
 		return ""
 	}
@@ -50,7 +50,7 @@ func (p Parameter) StringValue() string {
 	panic(fmt.Errorf("parameter %s is not a string", p.Name))
 }
 
-func (p Parameter) StringArrayValue() []string {
+func (p *Parameter) StringArray() []string {
 	if p.Value == nil {
 		return nil
 	}
@@ -92,7 +92,7 @@ func (pl ParameterList) GetStringArrayValue(name string) []string {
 	if err != nil {
 		panic(err)
 	}
-	return p.StringArrayValue()
+	return p.StringArray()
 }
 
 func (pl ParameterList) Set(name string, value interface{}) {

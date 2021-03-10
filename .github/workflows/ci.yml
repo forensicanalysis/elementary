@@ -345,16 +345,16 @@ jobs:
       - run: pip install pylint pytest pytest-cov
       - name: Checkout code
         uses: actions/checkout@v2
-      - run: pip install -r scripts/requirements.txt
+      - run: pip install -r plugin/scripts/requirements.txt
       - name: Python Lint
-        run: pylint *.py --rcfile ../../test/.pylintrc
+        run: pylint *.py --rcfile ../../../test/.pylintrc
         shell: bash
-        working-directory: scripts/scripts
+        working-directory: plugin/scripts/scripts
       - name: Download testdata
         run: bash test/download_testdata.sh
         shell: bash
       - name: Python Test
-        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts/scripts test/python
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=plugin/scripts/scripts test/python
         shell: bash
       - name: Upload coverage
         env:

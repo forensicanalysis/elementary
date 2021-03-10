@@ -1,4 +1,4 @@
-package main
+package output
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/forensicanalysis/elementary/pluginlib"
-	"github.com/forensicanalysis/elementary/pluginlib/output"
 )
 
 var (
@@ -28,23 +27,23 @@ var (
 )
 
 type FormatOutputPlugin struct {
-	internal pluginlib.Plugin
+	Internal pluginlib.Plugin
 }
 
 func (s *FormatOutputPlugin) Name() string {
-	return s.internal.Name()
+	return s.Internal.Name()
 }
 
 func (s *FormatOutputPlugin) Short() string {
-	return s.internal.Short()
+	return s.Internal.Short()
 }
 
 func (s *FormatOutputPlugin) Parameter() pluginlib.ParameterList {
-	return append(s.internal.Parameter(), OutputParameter, FormatParameter)
+	return append(s.Internal.Parameter(), OutputParameter, FormatParameter)
 }
 
 func (s *FormatOutputPlugin) Output() *pluginlib.Config {
-	return s.internal.Output()
+	return s.Internal.Output()
 }
 
 func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) error {
@@ -68,20 +67,20 @@ func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) err
 		if p.Output() == nil {
 			return fmt.Errorf("%s does not support table output", p.Name())
 		}
-		o := output.NewTableOutput(dest, p.Output().Header)
+		o := NewTableOutput(dest, p.Output().Header)
 		w = o
 		defer o.WriteFooter()
 	case "csv":
 		if p.Output() == nil {
 			return fmt.Errorf("%s does not support csv output", p.Name())
 		}
-		o := output.NewCSVOutput(dest, p.Output().Header)
+		o := NewCSVOutput(dest, p.Output().Header)
 		w = o
 		defer o.WriteFooter()
 	case "jsonl":
-		w = output.NewJsonlOutput(dest)
+		w = NewJsonlOutput(dest)
 	case "json":
-		o := output.NewJSONOutput(dest)
+		o := NewJSONOutput(dest)
 		w = o
 		defer o.WriteFooter()
 	case "none":
@@ -89,5 +88,5 @@ func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) err
 		return fmt.Errorf("unknown output format %s", format)
 	}
 
-	return s.internal.Run(p, w)
+	return s.Internal.Run(p, w)
 }

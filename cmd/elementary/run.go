@@ -39,21 +39,7 @@ func run() *cobra.Command {
 
 	provider := elementary.NewPluginProvider()
 	plugins := provider.List()
-	layerd := storeOutputLayer(plugins)
-	command.AddCommand(pluginlib.ToCobra(layerd)...)
+	command.AddCommand(pluginlib.ToCobra(plugins)...)
 	return command
 }
 
-func storeOutputLayer(plugins []pluginlib.Plugin) []pluginlib.Plugin {
-	var layerd []pluginlib.Plugin
-	for _, p := range plugins {
-		layerd = append(layerd,
-			&LoggerOutputPlugin{
-				&StoreOutputPlugin{
-					&FormatOutputPlugin{p},
-				},
-			},
-		)
-	}
-	return layerd
-}
