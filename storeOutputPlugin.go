@@ -37,9 +37,9 @@ func (s *StoreOutputPlugin) Parameter() pluginlib.ParameterList {
 	pl := append(s.Internal.Parameter(), AddToStoreParameter)
 	_, err := s.Internal.Parameter().Get("forensicstore")
 	if err != nil {
-		return pl
+		return append(pl, ForensicStoreParameter)
 	}
-	return append(pl, ForensicStoreParameter)
+	return pl
 }
 
 func (s *StoreOutputPlugin) Output() *pluginlib.Config {
