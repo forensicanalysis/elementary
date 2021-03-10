@@ -2,10 +2,11 @@ package elementary
 
 import (
 	"embed"
-	"github.com/forensicanalysis/elementary/pluginlib/output"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/forensicanalysis/elementary/pluginlib/output"
 
 	"github.com/forensicanalysis/elementary/plugin/builtin"
 	"github.com/forensicanalysis/elementary/pluginlib"

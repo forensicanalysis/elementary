@@ -42,4 +42,3 @@ func run() *cobra.Command {
 	command.AddCommand(pluginlib.ToCobra(plugins)...)
 	return command
 }
-

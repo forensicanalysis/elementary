@@ -22,14 +22,12 @@ import contextlib
 import importlib
 import io
 import os
+import pytest
 import shutil
 import sys
 import tempfile
 
-import forensicstore
-import pytest
-
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 software = importlib.import_module("elementary-software")
 
 

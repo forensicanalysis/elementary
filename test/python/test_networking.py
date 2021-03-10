@@ -22,13 +22,12 @@ import contextlib
 import importlib
 import io
 import os
+import pytest
 import shutil
 import sys
 import tempfile
 
-import pytest
-
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 networking = importlib.import_module("elementary-networking")
 
 

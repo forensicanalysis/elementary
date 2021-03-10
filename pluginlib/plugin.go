@@ -2,9 +2,10 @@ package pluginlib
 
 import (
 	"errors"
+	"log"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"log"
 )
 
 type Config struct {
