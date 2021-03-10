@@ -168,7 +168,7 @@ func JsonschemaToParameter(schema JSONSchema) []*Parameter {
 			if defaultValue, ok := property.Default.(bool); ok {
 				p.Value = defaultValue
 			} else {
-				p.Value = ""
+				p.Value = false
 			}
 		default:
 			panic(fmt.Sprintf("unknown jsonschema type %s", property.Type))
