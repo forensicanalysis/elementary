@@ -37,7 +37,7 @@ func (p *Parameter) BoolValue() bool {
 	if s, ok := p.Value.(bool); ok {
 		return s
 	}
-	panic(fmt.Errorf("parameter %s is not a bool: %v", p.Name, p.Value))
+	panic(fmt.Errorf("parameter %s is not a bool: %T", p.Name, p.Value))
 }
 
 func (p *Parameter) StringValue() string {
@@ -47,7 +47,7 @@ func (p *Parameter) StringValue() string {
 	if s, ok := p.Value.(string); ok {
 		return s
 	}
-	panic(fmt.Errorf("parameter %s is not a string: %v", p.Name, p.Value))
+	panic(fmt.Errorf("parameter %s is not a string: %T", p.Name, p.Value))
 }
 
 func (p *Parameter) StringArray() []string {
@@ -57,7 +57,7 @@ func (p *Parameter) StringArray() []string {
 	if s, ok := p.Value.([]string); ok {
 		return s
 	}
-	panic(fmt.Errorf("parameter %s is not a string array: %v", p.Name, p.Value))
+	panic(fmt.Errorf("parameter %s is not a string array: %T", p.Name, p.Value))
 }
 
 type ParameterList []*Parameter

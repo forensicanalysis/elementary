@@ -38,11 +38,11 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "process workflow" {
-  cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
-  cp -r test/default.yml $TESTDIR/default.yml
-  [ -f "$TESTDIR/example1.forensicstore" ]
-  run elementary workflow --file $TESTDIR/default.yml $TESTDIR/example1.forensicstore --debug
-  echo $output
-  [ "$status" -eq 0 ]
-}
+# @test "process workflow" {
+#   cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
+#   cp -r test/default.yml $TESTDIR/default.yml
+#   [ -f "$TESTDIR/example1.forensicstore" ]
+#   run elementary workflow --file $TESTDIR/default.yml $TESTDIR/example1.forensicstore --debug
+#   echo $output
+#   [ "$status" -eq 0 ]
+# }
