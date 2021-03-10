@@ -68,6 +68,10 @@ func setParameterValues(parameterList ParameterList, flags *pflag.FlagSet, args 
 		if err != nil {
 			log.Println(err)
 		}
+		_, err = parameterList.Get(flag.Name)
+		if err != nil {
+			return
+		}
 		parameterList.Set(flag.Name, value)
 	})
 
