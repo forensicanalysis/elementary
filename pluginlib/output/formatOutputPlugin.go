@@ -84,9 +84,14 @@ func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) err
 		w = o
 		defer o.WriteFooter()
 	case "none":
+		w = &DiscardLineWriter{}
 	default:
 		return fmt.Errorf("unknown output format %s", format)
 	}
 
 	return s.Internal.Run(p, w)
 }
+
+type DiscardLineWriter struct{}
+
+func (d DiscardLineWriter) WriteLine(_ []byte) {}
