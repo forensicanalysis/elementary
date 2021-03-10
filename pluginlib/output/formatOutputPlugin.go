@@ -21,7 +21,7 @@ var (
 		Name:        "format",
 		Description: "choose output format [csv, jsonl, table, json, none]",
 		Type:        pluginlib.String,
-		Value:       "table",
+		Value:       "jsonl",
 		Required:    false,
 	}
 )
