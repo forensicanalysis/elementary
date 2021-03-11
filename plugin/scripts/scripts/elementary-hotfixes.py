@@ -129,7 +129,6 @@ def filetime_to_timestamp(filetime_64):
 
 
 def main(url):
-    print(json.dumps({"header": ["Hotfix", "Installed", "Source", "Component"]}))
     LOGGER.debug("search for hotfixes")
     store = forensicstore.open(url)
 

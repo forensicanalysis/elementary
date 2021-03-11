@@ -121,11 +121,6 @@ def _servicetype_from_bitmask(mask):
 
 
 def main(url):
-    print(json.dumps({
-        "header": ['Name', 'Description', 'DisplayName', 'Group', 'Start Mode',
-                   'Service Type', 'ImagePath', 'Service DLL',
-                   'Service Key Changed', 'Parameters Key Changed', 'Source Key']}))
-
     store = forensicstore.open(url)
     conditions = [{'key': "HKEY_LOCAL_MACHINE\\SYSTEM\\%ControlSet%\\Services\\%"}]
     items = list(store.select(conditions))

@@ -160,10 +160,6 @@ class USBForensicStoreExtractor:
 
 
 def main(url):
-    print(json.dumps({
-        "header": ["vendor_name", "product_name", "usb_revision", "usb_uid", "volume_guid", "user_sid"],
-    }))
-
     LOGGER.debug("process usb")
     store = forensicstore.open(url)
 

@@ -68,10 +68,6 @@ def transform(obj):
 
 
 def main(url):
-    # print(json.dumps({
-    #     "header": ["Name", "Version", "Publisher", "InstallDate",
-    #                "Source", "Location", "Uninstall", "Key", "Key Timestamp"]}))
-
     store = forensicstore.open(url)
     conditions = [{
         'key': "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\%"

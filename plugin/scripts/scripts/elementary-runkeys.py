@@ -42,8 +42,6 @@ def transform(items):
 
 
 def main(url):
-    print(json.dumps({"header": ["Name", "Command", "SID", "Key"]}))
-
     store = forensicstore.open(url)
     hklmsw = "HKEY_LOCAL_MACHINE\\Software\\"
     hkusw = "HKEY_USERS\\%\\Software\\"

@@ -1,1 +1,12 @@
-{"name": "hotfixes <forensicstore>", "short": "Process windows hotfixes"}
+{
+  "name": "hotfixes",
+  "short": "Process windows hotfixes",
+  "output": {
+    "header": [
+      "Hotfix",
+      "Installed",
+      "Source",
+      "Component"
+    ]
+  }
+}

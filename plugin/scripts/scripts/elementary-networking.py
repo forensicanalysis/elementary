@@ -95,9 +95,6 @@ def transform(objs):
 
 
 def main(url):
-    print(json.dumps({
-        "header": ["GUID", "DHCP", "IPs", "SubNetMask", "NameServer",
-                   "IP Key Changed", "Network Key Changed", "Friendly Name"]}))
     store = forensicstore.open(url)
     conditions = [
         {'key': r"HKEY_LOCAL_MACHINE\SYSTEM\%ControlSet%\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\%"},

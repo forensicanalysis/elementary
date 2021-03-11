@@ -1,1 +1,12 @@
-{"name": "run-keys <forensicstore>", "short": "Process windows run keys"}
+{
+  "name": "run-keys",
+  "short": "Process windows run keys",
+  "output": {
+    "header": [
+      "Name",
+      "Command",
+      "SID",
+      "Key"
+    ]
+  }
+}

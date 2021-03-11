@@ -1,1 +1,16 @@
-{"name": "networking <forensicstore>", "short": "Process windows network interfaces"}
+{
+  "name": "networking",
+  "short": "Process windows network interfaces",
+  "output": {
+    "header": [
+      "GUID",
+      "DHCP",
+      "IPs",
+      "SubNetMask",
+      "NameServer",
+      "IP Key Changed",
+      "Network Key Changed",
+      "Friendly Name"
+    ]
+  }
+}
