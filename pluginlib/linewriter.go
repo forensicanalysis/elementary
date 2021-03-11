@@ -27,6 +27,10 @@ type LineWriterBuffer struct {
 	Writer LineWriter
 }
 
+func NewLineWriterBuffer(w LineWriter) *LineWriterBuffer {
+	return &LineWriterBuffer{&bytes.Buffer{}, w}
+}
+
 func (o *LineWriterBuffer) Write(b []byte) (n int, err error) {
 	n = len(b)
 	for {

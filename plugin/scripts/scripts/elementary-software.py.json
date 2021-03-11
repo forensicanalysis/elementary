@@ -1,0 +1,7 @@
+{
+    "name": "software",
+    "short": "Process uninstall entries",
+    "output": {
+        "header": ["Name", "Version", "Publisher", "InstallDate", "Source", "Location", "Uninstall", "Key", "Key Timestamp"]
+    }
+}

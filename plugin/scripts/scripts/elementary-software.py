@@ -68,9 +68,9 @@ def transform(obj):
 
 
 def main(url):
-    print(json.dumps({
-        "header": ["Name", "Version", "Publisher", "InstallDate",
-                   "Source", "Location", "Uninstall", "Key", "Key Timestamp"]}))
+    # print(json.dumps({
+    #     "header": ["Name", "Version", "Publisher", "InstallDate",
+    #                "Source", "Location", "Uninstall", "Key", "Key Timestamp"]}))
 
     store = forensicstore.open(url)
     conditions = [{

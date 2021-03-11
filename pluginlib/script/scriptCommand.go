@@ -50,10 +50,10 @@ type command struct {
 func newCommand(path string) pluginlib.Plugin {
 	scriptCommand := &command{}
 
-	out, err := ioutil.ReadFile(path + ".info") // #nosec
+	out, err := ioutil.ReadFile(path + ".json") // #nosec
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Println(path + ".info does not exist")
+			log.Println(path + ".json does not exist")
 		} else {
 			log.Println(path, err)
 		}
@@ -71,7 +71,7 @@ func newCommand(path string) pluginlib.Plugin {
 	scriptCommand.run = func(cmd pluginlib.Plugin, out io.Writer) error {
 		shellCommand := strings.Join(append(
 			[]string{`"` + filepath.ToSlash(path) + `"`},
-			scriptCommand.Parameter().ToCommandlineArgs()...,
+			cmd.Parameter().ToCommandlineArgs()...,
 		), " ")
 
 		if strings.HasSuffix(path, ".py") {
@@ -118,7 +118,7 @@ func (s *command) Output() *pluginlib.Config {
 }
 
 func (s *command) Run(c pluginlib.Plugin, writer pluginlib.LineWriter) error {
-	lbw := &pluginlib.LineWriterBuffer{Writer: writer}
+	lbw := pluginlib.NewLineWriterBuffer(writer)
 	defer lbw.WriteFooter()
 	return s.run(c, lbw)
 }

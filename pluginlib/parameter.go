@@ -107,7 +107,8 @@ func (pl ParameterList) ToCommandlineArgs() []string {
 	var cmdArgs []string
 	for _, p := range pl {
 		if p.Argument {
-			cmdArgs = append(cmdArgs, p.Name)
+			cmdArgs = append(cmdArgs, p.StringValue())
+			continue
 		}
 
 		value := fmt.Sprint(p.Value)

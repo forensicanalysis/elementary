@@ -36,6 +36,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.LUTC | log.Lshortfile)
 	var debugLog bool
 
 	version := ""

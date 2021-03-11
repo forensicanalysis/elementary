@@ -2,6 +2,7 @@ package pluginlib
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -20,6 +21,13 @@ type Plugin interface {
 	Run(Plugin, LineWriter) error
 }
 
+type SimpleLineWriter struct {
+}
+
+func (s SimpleLineWriter) WriteLine(bytes []byte) {
+	fmt.Println(string(bytes))
+}
+
 func ToCobra(plugins []Plugin) []*cobra.Command {
 	var cobraCommands []*cobra.Command
 	for _, plugin := range plugins {
@@ -32,7 +40,7 @@ func ToCobra(plugins []Plugin) []*cobra.Command {
 				if err != nil {
 					return err
 				}
-				return plgn.Run(plgn, nil) // TODO
+				return plgn.Run(plgn, &SimpleLineWriter{})
 			},
 		}
 		for _, parameter := range plgn.Parameter() {

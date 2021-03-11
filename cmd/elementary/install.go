@@ -24,6 +24,7 @@ package main
 import (
 	"context"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"os/exec"
@@ -87,7 +88,7 @@ func setup(auth *types.AuthConfig, pull bool) {
 	appDir := elementary.AppDir()
 
 	// unpack scripts
-	err := unpack(appDir)
+	err := unpack(appDir, elementary.Scripts)
 	if err != nil {
 		log.Println("error unpacking scripts:", err)
 	}
@@ -162,8 +163,22 @@ func contains(l []string, s string) bool { // nolint: unused
 	return false
 }
 
-func unpack(appDir string) (err error) {
-	return RestoreAssets(appDir, "")
+func unpack(appDir string, fsys fs.FS) (err error) {
+	fsys, err = fs.Sub(fsys, "plugin/scripts")
+	if err != nil {
+		return err
+	}
+	return fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+		b, err := fs.ReadFile(fsys, path)
+		if err != nil {
+			return err
+		}
+		log.Printf("unpack %s to %s\n", path, filepath.Join(appDir, path))
+		return os.WriteFile(filepath.Join(appDir, path), b, fs.ModePerm)
+	})
 }
 
 func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error { // nolint: unused

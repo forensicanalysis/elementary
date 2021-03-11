@@ -37,10 +37,10 @@ func Images() []string {
 }
 
 //go:embed plugin/scripts
-var scripts embed.FS
+var Scripts embed.FS
 
 func NewPluginProvider() pluginlib.Provider {
-	return &PluginProvider{Name: Name(), Dir: AppDir(), Images: Images(), Scripts: scripts}
+	return &PluginProvider{Name: Name(), Dir: AppDir(), Images: Images(), Scripts: Scripts}
 }
 
 type PluginProvider struct {

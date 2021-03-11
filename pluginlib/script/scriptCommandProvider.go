@@ -27,7 +27,7 @@ func (s *PluginProvider) List() []pluginlib.Plugin {
 
 	var cmds []pluginlib.Plugin
 	for _, info := range infos {
-		validName := strings.HasPrefix(info.Name(), s.Prefix+"-") && !strings.HasSuffix(info.Name(), ".info")
+		validName := strings.HasPrefix(info.Name(), s.Prefix+"-") && !strings.HasSuffix(info.Name(), ".json")
 		if info.Mode().IsRegular() && validName {
 			cmds = append(cmds, newCommand(filepath.Join(s.Dir, info.Name())))
 		}
