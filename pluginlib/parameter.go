@@ -143,6 +143,7 @@ func readAsCSV(val string) ([]string, error) {
 
 type Property struct {
 	Type        string      `json:"type,omitempty"`
+	IsPath      bool        `json:"ispath,omitempty"`
 	Description string      `json:"description,omitempty"`
 	Default     interface{} `json:"default,omitempty"`
 }
@@ -158,7 +159,11 @@ func JsonschemaToParameter(schema JSONSchema) []*Parameter {
 		p := &Parameter{Name: name, Description: property.Description}
 		switch property.Type {
 		case "string":
-			p.Type = String
+			if property.IsPath {
+				p.Type = Path
+			} else {
+				p.Type = String
+			}
 			if defaultValue, ok := property.Default.(string); ok {
 				p.Value = defaultValue
 			} else {

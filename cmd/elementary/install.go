@@ -169,6 +169,10 @@ func unpack(appDir string, fsys fs.FS) (err error) {
 		return err
 	}
 	return fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if d.IsDir() {
 			return nil
 		}

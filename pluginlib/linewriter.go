@@ -22,7 +22,6 @@ func (m *MultiLineWriter) WriteLine(b []byte) {
 }
 
 type LineWriterBuffer struct {
-	// firstLine bool
 	buffer *bytes.Buffer
 	Writer LineWriter
 }
@@ -50,24 +49,9 @@ func (o *LineWriterBuffer) Write(b []byte) (n int, err error) {
 func (o *LineWriterBuffer) writeLine(element []byte) { // nolint: gocyclo
 	element = bytes.TrimSpace(element)
 
-	/*
-		if o.firstLine {
-			o.firstLine = false
-			config := &Config{}
-			err := json.Unmarshal(element, config)
-			if err != nil || len(config.Header) == 0 {
-				log.Printf("could not unmarshal config: %s, '%s'", err, element)
-				return
-			}
-
-			// o.Writer.WriteHeader(config.Header)
-			return
-		}
-	*/
-
 	// print to output
 	if !gjson.ValidBytes(element) {
-		log.Println(element)
+		log.Println(string(element))
 		return
 	}
 
@@ -78,6 +62,4 @@ func (o *LineWriterBuffer) WriteFooter() {
 	if o.buffer.Len() > 0 {
 		o.writeLine(o.buffer.Bytes())
 	}
-
-	// o.Writer.WriteFooter()
 }

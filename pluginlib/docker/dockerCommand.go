@@ -32,11 +32,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forensicanalysis/elementary/pluginlib"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
 type command struct {
@@ -62,7 +62,7 @@ func newCommand(name, image string, labels map[string]string) pluginlib.Plugin {
 		dockerCmd.short = short + " (docker: " + image + ")"
 	}
 
-	if headers, ok := labels["headers"]; ok {
+	if headers, ok := labels["header"]; ok {
 		dockerCmd.output = &pluginlib.Config{Header: strings.Split(headers, ",")}
 	}
 
@@ -121,7 +121,7 @@ func parseMounts(cmd pluginlib.Plugin) map[string]string {
 
 func getLabelParameter(labels map[string]string) []*pluginlib.Parameter {
 	var parameters []*pluginlib.Parameter
-	if use, ok := labels["arguments"]; ok {
+	if use, ok := labels["parameter"]; ok {
 		var schema pluginlib.JSONSchema
 		err := json.Unmarshal([]byte(use), &schema)
 		if err != nil {
@@ -158,7 +158,7 @@ func dockerCreate(image string, args []string, mountDirs map[string]string, w io
 
 	resp, err := cli.ContainerCreate(
 		ctx,
-		&container.Config{Image: image, Cmd: args, Tty: true, WorkingDir: "/elementary"},
+		&container.Config{Image: image, Cmd: args, Tty: true, WorkingDir: "/input"},
 		&container.HostConfig{Binds: mounts},
 		nil,
 		"",
@@ -219,7 +219,7 @@ func getMounts(mountDirs map[string]string) ([]string, error) {
 	var mounts []string
 	for localDir, containerDir := range mountDirs {
 		// mounts = append(mounts, mount.Mount{Type: mount.TypeBind, Source: localDir, Target: "/" + containerDir})
-		mounts = append(mounts, localDir+":/elementary/"+containerDir)
+		mounts = append(mounts, localDir+":/input/"+containerDir)
 	}
 	return mounts, nil
 }

@@ -314,7 +314,7 @@ jobs:
       - run: ./elementary install -f
       - run: curl --fail --output usb.forensicstore --location https://download.artifacthub.org/forensics/usb.forensicstore
       - run: ./elementary run --debug usb --format csv usb.forensicstore
-      - run: ./elementary run --debug export --format csv usb.forensicstore
+      - run: ./elementary run --debug export --format json usb.forensicstore
 
   case5:
     name: Test Case 5 (software, export-timesketch)

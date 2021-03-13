@@ -55,9 +55,9 @@ func (s *StoreOutputPlugin) Run(p pluginlib.Plugin, writer pluginlib.LineWriter)
 	defer teardown()
 
 	if p.Parameter().BoolValue("add-to-store") {
-		lw := NewForensicStoreOutput(store)
-		writer = &pluginlib.MultiLineWriter{LineWriter: []pluginlib.LineWriter{writer, lw}}
-		defer lw.WriteFooter()
+		forensicStoreOutput := NewForensicStoreOutput(store)
+		writer = &pluginlib.MultiLineWriter{LineWriter: []pluginlib.LineWriter{writer, forensicStoreOutput}}
+		defer forensicStoreOutput.WriteFooter()
 	}
 	return s.Internal.Run(p, writer)
 }

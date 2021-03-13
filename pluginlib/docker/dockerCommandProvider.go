@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/forensicanalysis/elementary/pluginlib"
@@ -55,7 +56,9 @@ func (d *PluginProvider) List() []pluginlib.Plugin {
 			continue
 		}
 		if _, ok := commandNames[name]; !ok {
-			labels := map[string]string{"short": fmt.Sprintf("Use '%s install -f' to download", os.Args[0])}
+			labels := map[string]string{
+				"short": fmt.Sprintf("Use '%s install -f' to download", filepath.Base(os.Args[0])),
+			}
 			cmds = append(cmds, newCommand(name, dockerImage, labels))
 		}
 	}

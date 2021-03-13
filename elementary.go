@@ -28,11 +28,11 @@ func AppDir() string {
 
 func Images() []string {
 	return []string{
-		"docker.io/forensicanalysis/elementary-shimcache:v0.3.6",
-		"docker.io/forensicanalysis/elementary-plaso:v0.3.6",
-		"docker.io/forensicanalysis/elementary-import-image:v0.3.6",
-		"docker.io/forensicanalysis/elementary-yara:v0.3.6",
-		"docker.io/forensicanalysis/elementary-sigma:v0.3.6",
+		"docker.io/forensicanalysis/elementary-shimcache:v0.4.0",
+		"docker.io/forensicanalysis/elementary-plaso:v0.4.0",
+		// "docker.io/forensicanalysis/elementary-import-image:v0.4.0",
+		"docker.io/forensicanalysis/elementary-yara:v0.4.0",
+		"docker.io/forensicanalysis/elementary-sigma:v0.4.0",
 	}
 }
 
@@ -66,9 +66,9 @@ func storeOutputLayer(plugins []pluginlib.Plugin) []pluginlib.Plugin {
 	var layerd []pluginlib.Plugin
 	for _, p := range plugins {
 		layerd = append(layerd,
-			&pluginlib.LoggerOutputPlugin{
+			&output.FormatOutputPlugin{
 				Internal: &StoreOutputPlugin{
-					Internal: &output.FormatOutputPlugin{
+					Internal: &pluginlib.LoggerOutputPlugin{
 						Internal: p,
 					},
 				},

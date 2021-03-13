@@ -1,7 +1,6 @@
 package pluginlib
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -44,6 +43,10 @@ func ToCobra(plugins []Plugin) []*cobra.Command {
 			},
 		}
 		for _, parameter := range plgn.Parameter() {
+			if parameter.Argument {
+				cobraCommand.Use += " <" + parameter.Name + ">"
+				continue
+			}
 			switch parameter.Type {
 			case String, Path:
 				cobraCommand.Flags().String(parameter.Name, parameter.StringValue(), parameter.Description)
@@ -53,6 +56,9 @@ func ToCobra(plugins []Plugin) []*cobra.Command {
 				cobraCommand.Flags().Bool(parameter.Name, parameter.BoolValue(), parameter.Description)
 			default:
 				log.Printf("unknown parameter type %v", parameter.Type)
+			}
+			if parameter.Required {
+				cobraCommand.MarkFlagRequired(parameter.Name)
 			}
 		}
 		cobraCommands = append(cobraCommands, cobraCommand)
@@ -86,8 +92,8 @@ func setParameterValues(parameterList ParameterList, flags *pflag.FlagSet, args 
 	i := 0
 	for _, parameter := range parameterList {
 		if parameter.Argument {
-			if i > len(args) {
-				return errors.New("wrong number of arguments")
+			if i+1 > len(args) {
+				return fmt.Errorf("missing argument %s", parameter.Name)
 			}
 			parameterList.Set(parameter.Name, args[i])
 			i++
