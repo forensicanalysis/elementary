@@ -177,7 +177,13 @@ func unpack(appDir string, fsys fs.FS) (err error) {
 			return err
 		}
 		log.Printf("unpack %s to %s\n", path, filepath.Join(appDir, path))
-		return os.WriteFile(filepath.Join(appDir, path), b, fs.ModePerm)
+
+		dest := filepath.Join(appDir, path)
+		err = os.MkdirAll(filepath.Dir(dest), fs.ModePerm)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(dest, b, fs.ModePerm)
 	})
 }
 

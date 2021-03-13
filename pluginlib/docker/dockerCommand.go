@@ -88,7 +88,7 @@ func (s *command) Output() *pluginlib.Config {
 }
 
 func (s *command) Run(c pluginlib.Plugin, writer pluginlib.LineWriter) error {
-	lbw := &pluginlib.LineWriterBuffer{Writer: writer}
+	lbw := pluginlib.NewLineWriterBuffer(writer)
 	defer lbw.WriteFooter()
 	return s.run(c, lbw)
 }

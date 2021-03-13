@@ -42,6 +42,6 @@ def test_runkeys(data):
     with io.StringIO() as buf, contextlib.redirect_stdout(buf):
         runkeys.main(os.path.join(data, "example1.forensicstore"))
         lines = buf.getvalue().split("\n")
-        assert len(lines) == 10 + 2
+        assert len(lines) == 10 + 1
 
     shutil.rmtree(data)

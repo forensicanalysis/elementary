@@ -5,9 +5,6 @@ build-ui:
 	cd ui && yarn build
 
 build-cli:
-	go get -u github.com/asticode/go-bindata/...
-	rm -f cmd/elementary/bindata.dummy.go
-	go-bindata -prefix "plugin/scripts/" -o cmd/elementary/bindata.generated.go plugin/scripts/...
 	go mod tidy
 	cd cmd/elementary && go build .
 

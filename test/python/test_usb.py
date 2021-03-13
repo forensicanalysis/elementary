@@ -42,6 +42,6 @@ def test_usb(data):
     with io.StringIO() as buf, contextlib.redirect_stdout(buf):
         usb.main(os.path.join(data, "usb.forensicstore"))
         lines = buf.getvalue().split("\n")
-        assert len(lines) == 1 + 2
+        assert len(lines) == 1 + 1
 
     shutil.rmtree(data)

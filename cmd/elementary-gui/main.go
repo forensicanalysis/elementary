@@ -15,10 +15,6 @@ import (
 	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
-// Constants
-const htmlAbout = `Welcome on <b>Astilectron</b> demo!<br>
-This is using the bootstrap and the bundler.`
-
 // Vars injected via ldflags by bundler
 var (
 	AppName            = "Elementary"
