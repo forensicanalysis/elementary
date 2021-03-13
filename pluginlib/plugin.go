@@ -58,7 +58,7 @@ func ToCobra(plugins []Plugin) []*cobra.Command {
 				log.Printf("unknown parameter type %v", parameter.Type)
 			}
 			if parameter.Required {
-				cobraCommand.MarkFlagRequired(parameter.Name)
+				_ = cobraCommand.MarkFlagRequired(parameter.Name)
 			}
 		}
 		cobraCommands = append(cobraCommands, cobraCommand)
