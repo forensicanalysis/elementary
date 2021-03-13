@@ -20,8 +20,7 @@ type Plugin interface {
 	Run(Plugin, LineWriter) error
 }
 
-type SimpleLineWriter struct {
-}
+type SimpleLineWriter struct{}
 
 func (s SimpleLineWriter) WriteLine(bytes []byte) {
 	fmt.Println(string(bytes))
