@@ -89,10 +89,7 @@ jobs:
 
   lint:
     name: Lint Elementary
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - name: Setup go 1.16
         uses: actions/setup-go@v2
