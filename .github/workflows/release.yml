@@ -6,28 +6,8 @@ on:
       - '*'
 
 jobs:
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    container:
-      image: bepsays/ci-goreleaser:1.16.0-2
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        with: { fetch-depth: 0 }
-      - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        with:
-          version: latest
-          args: release --rm-dist
-
-  release-gui:
-    name: Release elementary GUI
-    needs: [ release ]
+  build-gui:
+    name: Build elementary GUI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -58,40 +38,31 @@ jobs:
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'windows-latest'
 
-      - run: echo "::set-output name=upload_url::https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)/assets{?name,label}"
-        shell: bash
-        id: release
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
+          name: elementary-gui-${{ matrix.os }}
 
-      - name: Upload Windows
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  release:
+    name: Release
+    needs: [ build-gui ]
+    runs-on: ubuntu-latest
+    container:
+      image: bepsays/ci-goreleaser:1.16.0-2
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with: { fetch-depth: 0 }
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/download-artifact@v2
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
-          asset_name: elementary-gui-Windows.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'windows-latest'
-      - name: Upload macOS
-        id: upload-macos-release-asset
-        uses: actions/upload-release-asset@v1.0.2
+          path: cmd/elementary-gui/output
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
-          asset_name: elementary-gui-macOS.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'macos-latest'
-      - name: Upload Linux
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
-          asset_name: elementary-gui-Linux.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'ubuntu-latest'
+          version: latest
+          args: release --rm-dist

@@ -100,6 +100,9 @@ archives:
   #   builds: [ elementary-server-darwin, elementary-server-linux, elementary-server-windows-i686, elementary-server-windows-x64 ]
   #   replacements: { darwin: macOS, linux: Linux, windows: Windows }
   #   format_overrides: [ { goos: windows, format: zip } ]
+release:
+  extra_files:
+    - glob: ./cmd/elementary-gui/output/*
 brews:
   - name: elementary
     ids: [ elementary-archive ]
