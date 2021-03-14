@@ -12,7 +12,7 @@ build-gui: build-ui
 	sed 's_="/_="_g' ui/dist/index.html > tmp
 	mv tmp ui/dist/index.html
 	rm -rf cmd/elementary-gui/resources/app
-	mv ui/dist cmd/elementary-gui/resources/app
+	cp -r ui/dist cmd/elementary-gui/resources/app
 	cp -r cmd/elementary-gui/resources/start/* cmd/elementary-gui/resources/app
 	rm -f cmd/elementary-gui/bind.go
 	go get -u github.com/asticode/go-astilectron-bundler/...
