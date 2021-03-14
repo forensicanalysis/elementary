@@ -1,95 +1,33 @@
 name: Release
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags:
+      - '*'
 
 jobs:
-  build:
-    name: Build elementary CLI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    container:
+      image: bepsays/ci-goreleaser:1.16.0-2
     steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v2
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v2
-        with: { python-version: '3.8' }
-      - run: make build
-
-      - name: Pack UNIX
-        run: zip -r ${{ matrix.os }}.zip elementary
-        working-directory: cmd/elementary
-        if: matrix.os != 'windows-latest'
-      - name: Pack Windows
-        run: 7z a ${{ matrix.os }}.zip elementary.exe
-        working-directory: cmd/elementary
-        if: matrix.os == 'windows-latest'
-
-      - run: echo "::set-output name=upload_url::https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)/assets{?name,label}"
-        shell: bash
-        id: release
-
-      - name: Upload Windows
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: windows.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'windows-latest'
-      - name: Upload macOS
-        id: upload-macos-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: macos.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'macos-latest'
-      - name: Upload Linux
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: linux.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'ubuntu-latest'
-
-      - name: Checkout forensicanalysis/homebrew-tap
+      - name: Checkout Code
         uses: actions/checkout@v2
+        with: { fetch-depth: 0 }
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
-          repository: forensicanalysis/homebrew-tap
-          path: homebrew-tap
-          ssh-key: ${{ secrets.TAP_DEPLOY_KEY }}
-        if: matrix.os == 'windows-latest'
-      - run: python ../.github/workflows/create_release.py $GITHUB_EVENT_PATH ${{ steps.upload-windows-release-asset.outputs.browser_download_url }}
-        working-directory: homebrew-tap
-        if: matrix.os == 'windows-latest'
-        shell: bash
-      - name: Update homebrew-tap
-        run: |
-          git config --global user.email "git@cugu.eu"
-          git config --global user.name "Update Bot"
-          git add Formula/elementary.rb elementary.json
-          git commit -m "Update formulars"
-          git push origin master
-        working-directory: homebrew-tap
-        if: matrix.os == 'windows-latest'
-        shell: bash
+          version: latest
+          args: release --rm-dist
 
-  build-gui:
-    name: Build elementary GUI
+  release-gui:
+    name: Release elementary GUI
+    needs: [ release ]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -99,7 +37,7 @@ jobs:
         uses: actions/setup-go@v2
         with: { go-version: '1.16' }
       - uses: actions/setup-python@v2
-        with: { python-version: '3.8' }
+        with: { python-version: '3.9' }
       - name: Setup node
         uses: actions/setup-node@v2
         with: { node-version: '12' }
@@ -149,69 +87,5 @@ jobs:
           upload_url: ${{ steps.release.outputs.upload_url }}
           asset_path: ./${{ matrix.os }}.zip
           asset_name: linux-gui.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'ubuntu-latest'
-
-  build-server:
-    name: Build elementary GUI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v2
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v2
-        with: { python-version: '3.8' }
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with: { node-version: '12' }
-      - run: make build-server
-
-      - name: Pack UNIX
-        run: zip -r ${{ matrix.os }}.zip elementary-server
-        working-directory: cmd/elementary-server
-        if: matrix.os != 'windows-latest'
-      - name: Pack Windows
-        run: 7z a ${{ matrix.os }}.zip elementary-server.exe
-        working-directory: cmd/elementary-server
-        if: matrix.os == 'windows-latest'
-
-      - run: echo "::set-output name=upload_url::https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)/assets{?name,label}"
-        shell: bash
-        id: release
-
-      - name: Upload Windows
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: windows-server.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'windows-latest'
-      - name: Upload macOS
-        id: upload-macos-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: macos-server.zip
-          asset_content_type: application/zip
-        if: matrix.os == 'macos-latest'
-      - name: Upload Linux
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: linux-server.zip
           asset_content_type: application/zip
         if: matrix.os == 'ubuntu-latest'
