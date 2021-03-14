@@ -20,7 +20,7 @@
     "epic-spinners": "1.1.0",
     "hexyjs": "2.1.4",
     "kind-of": "6.0.3",
-    "lodash": "^4.17.21",
+    "lodash": "4.17.21",
     "luxon": "1.26.0",
     "minimist": "1.2.5",
     "register-service-worker": "1.7.2",
