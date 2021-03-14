@@ -26,23 +26,23 @@ jobs:
       - run: make build-gui
 
       - name: Pack macOS
-        run: zip -r ${{ matrix.os }}.zip darwin-amd64
+        run: zip -r elementary-gui_${{ github.event.ref }}_macOS_amd64.zip darwin-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'macos-latest'
       - name: Pack Linux
-        run: zip -r ${{ matrix.os }}.zip linux-amd64
+        run: zip -r elementary-gui_${{ github.event.ref }}_Linux_amd64.zip linux-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'ubuntu-latest'
       - name: Pack Windows
-        run: 7z a ${{ matrix.os }}.zip windows-amd64
+        run: 7z a elementary-gui_${{ github.event.ref }}_Windows_amd64.zip windows-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'windows-latest'
 
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
-          name: elementary-gui-${{ matrix.os }}
+          path: ./cmd/elementary-gui/output/*.zip
+          name: elementary-gui_${{ github.event.ref }}_${{ matrix.os }}
 
   release:
     name: Release
