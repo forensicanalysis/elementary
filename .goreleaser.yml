@@ -1,0 +1,135 @@
+project_name: elementary
+# before:
+#   hooks:
+#     - go install github.com/asticode/go-astilectron-bundler/astilectron-bundler
+#     - rm -f cmd/elementary-gui/bindata.dummy.go
+builds:
+  - id: elementary-darwin
+    binary: elementary
+    main: ./cmd/elementary/.
+    goos: [ darwin ]
+    goarch: [ amd64 ]
+    env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
+  - id: elementary-linux
+    binary: elementary
+    main: ./cmd/elementary/.
+    env: [ CGO_ENABLED=1 ]
+    goos: [ linux ]
+    goarch: [ amd64, 386 ]
+  - id: elementary-windows-i686
+    binary: elementary
+    main: ./cmd/elementary/.
+    ldflags: [ "-extldflags '-static'" ]
+    env: [ CGO_ENABLED=1, CC=i686-w64-mingw32-gcc, CXX=i686-w64-mingw32-g++ ]
+    goos: [ windows ]
+    goarch: [ 386 ]
+  - id: elementary-windows-x64
+    binary: elementary
+    main: ./cmd/elementary/.
+    ldflags: [ "-extldflags '-static'" ]
+    env: [ CGO_ENABLED=1, CC=x86_64-w64-mingw32-gcc, CXX=x86_64-w64-mingw32-g++ ]
+    goos: [ windows ]
+    goarch: [ amd64 ]
+
+  # - id: elementary_gui_darwin
+  #   binary: elementary-gui
+  #   main: ./cmd/elementary-gui/.
+  #   goos: [ darwin ]
+  #   goarch: [ amd64 ]
+  #   env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
+  #   hooks: { pre: [ { cmd: astilectron-bundler bd, dir: cmd/elementary-gui } ] }
+  # - id: elementary_gui_linux
+  #   binary: elementary-gui
+  #   main: ./cmd/elementary-gui/.
+  #   env: [ CGO_ENABLED=1 ]
+  #   goos: [ linux ]
+  #   goarch: [ amd64, 386 ]
+  #   hooks: { pre: [ { cmd: astilectron-bundler bd, dir: cmd/elementary-gui } ] }
+  # - id: elementary_gui_windows_i686
+  #   binary: elementary-gui
+  #   main: ./cmd/elementary-gui/.
+  #   ldflags: [ "-extldflags '-static'" ]
+  #   env: [ CGO_ENABLED=1, CC=i686-w64-mingw32-gcc, CXX=i686-w64-mingw32-g++ ]
+  #   goos: [ windows ]
+  #   goarch: [ 386 ]
+  #   hooks: { pre: [ { cmd: astilectron-bundler bd, dir: cmd/elementary-gui } ] }
+  # - id: elementary_gui_windows_x64
+  #   binary: elementary-gui
+  #   main: ./cmd/elementary-gui/.
+  #   ldflags: [ "-extldflags '-static'" ]
+  #   env: [ CGO_ENABLED=1, CC=x86_64-w64-mingw32-gcc, CXX=x86_64-w64-mingw32-g++ ]
+  #   goos: [ windows ]
+  #   goarch: [ amd64 ]
+  #   hooks: { pre: [ { cmd: astilectron-bundler bd, dir: cmd/elementary-gui } ] }
+
+  # - id: elementary-server-darwin
+  #   binary: elementary-server
+  #   main: ./cmd/elementary-server/.
+  #   goos: [ darwin ]
+  #   goarch: [ amd64 ]
+  #   env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
+  # - id: elementary-server-linux
+  #   binary: elementary-server
+  #   main: ./cmd/elementary-server/.
+  #   env: [ CGO_ENABLED=1 ]
+  #   goos: [ linux ]
+  #   goarch: [ amd64, 386 ]
+  # - id: elementary-server-windows-i686
+  #   binary: elementary-server
+  #   main: ./cmd/elementary-server/.
+  #   ldflags: [ "-extldflags '-static'" ]
+  #   env: [ CGO_ENABLED=1, CC=i686-w64-mingw32-gcc, CXX=i686-w64-mingw32-g++ ]
+  #   goos: [ windows ]
+  #   goarch: [ 386 ]
+  # - id: elementary-server-windows-x64
+  #   binary: elementary-server
+  #   main: ./cmd/elementary-server/.
+  #   ldflags: [ "-extldflags '-static'" ]
+  #   env: [ CGO_ENABLED=1, CC=x86_64-w64-mingw32-gcc, CXX=x86_64-w64-mingw32-g++ ]
+  #   goos: [ windows ]
+  #   goarch: [ amd64 ]
+
+archives:
+  - id: elementary-archive
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+    builds: [ elementary-darwin, elementary-linux, elementary-windows-i686, elementary-windows-x64 ]
+    replacements: { darwin: macOS, linux: Linux, windows: Windows }
+    format_overrides: [ { goos: windows, format: zip } ]
+  # - id: elementary-server-archive
+  #   name_template: "{{ .ProjectName }}-server_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+  #   builds: [ elementary-server-darwin, elementary-server-linux, elementary-server-windows-i686, elementary-server-windows-x64 ]
+  #   replacements: { darwin: macOS, linux: Linux, windows: Windows }
+  #   format_overrides: [ { goos: windows, format: zip } ]
+brews:
+  - name: elementary
+    ids: [ elementary-archive ]
+    tap: { owner: forensicanalysis, name: homebrew-tap }
+    commit_author: { name: Jonas Plum, email: git@jonasplum.de }
+    folder: Formula
+    homepage: "https://github.com/forensicanalysis/elementary"
+    description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
+    license: "MIT"
+    skip_upload: "auto"
+  # - name: elementary-server
+  #   ids: [ elementary-server-archive ]
+  #   tap: { owner: forensicanalysis, name: homebrew-tap }
+  #   commit_author: { name: Jonas Plum, email: git@jonasplum.de }
+  #   folder: Formula
+  #   homepage: "https://github.com/forensicanalysis/elementary"
+  #   description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
+  #   license: "MIT"
+  #   install: bin.install "elementary-server"
+  #   skip_upload: "auto"
+scoop:
+  bucket: { owner: forensicanalysis, name: homebrew-tap }
+  commit_author: { name: Jonas Plum, email: git@jonasplum.de }
+  homepage: "https://github.com/forensicanalysis/elementary"
+  description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
+  license: MIT
+nfpms:
+  - replacements: { darwin: macOS, linux: Linux }
+    homepage: "https://github.com/forensicanalysis/elementary"
+    maintainer: Jonas Plum <git@jonasplum.de>
+    description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
+    license: MIT
+    formats: [ apk, deb, rpm ]
