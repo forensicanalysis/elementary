@@ -1,0 +1,14 @@
+{
+  "name": "usb",
+  "short": "Process windows usb artifacts",
+  "output": {
+    "header": [
+      "vendor_name",
+      "product_name",
+      "usb_revision",
+      "usb_uid",
+      "volume_guid",
+      "user_sid"
+    ]
+  }
+}

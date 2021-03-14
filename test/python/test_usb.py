@@ -22,13 +22,12 @@ import contextlib
 import importlib
 import io
 import os
+import pytest
 import shutil
 import sys
 import tempfile
 
-import pytest
-
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 usb = importlib.import_module("elementary-usb")
 
 
@@ -43,6 +42,6 @@ def test_usb(data):
     with io.StringIO() as buf, contextlib.redirect_stdout(buf):
         usb.main(os.path.join(data, "usb.forensicstore"))
         lines = buf.getvalue().split("\n")
-        assert len(lines) == 1 + 2
+        assert len(lines) == 1 + 1
 
     shutil.rmtree(data)

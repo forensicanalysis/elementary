@@ -27,21 +27,38 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
 
-	"github.com/forensicanalysis/elementary/server"
+	"github.com/forensicanalysis/elementary"
+
+	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
+	"github.com/forensicanalysis/forensicstore"
 )
 
 //go:embed dist
 var static embed.FS
+
+const appName = "elementary"
 
 func main() {
 	sub, err := fs.Sub(static, "dist")
 	if err != nil {
 		log.Fatal(err)
 	}
-	rootCmd := server.Application("fstore", http.FS(sub), server.Commands()...)
+
+	mcp := &elementary.PluginProvider{Name: appName, Dir: appDir()} // TODO
+	rootCmd := server.Application("fstore", http.FS(sub), server.Commands(mcp)...)
 	if err := rootCmd.Execute(); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
+}
+
+func appDir() string {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		configDir = ""
+	}
+	return filepath.Join(configDir, appName, strconv.Itoa(forensicstore.Version))
 }

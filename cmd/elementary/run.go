@@ -24,7 +24,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/pluginlib"
 )
 
 // run is a subcommand to run a single task.
@@ -35,6 +36,9 @@ func run() *cobra.Command {
 		Use:   "run",
 		Short: "run single task",
 	}
-	command.AddCommand(commands.All()...)
+
+	provider := elementary.NewPluginProvider()
+	plugins := provider.List()
+	command.AddCommand(pluginlib.ToCobra(plugins)...)
 	return command
 }

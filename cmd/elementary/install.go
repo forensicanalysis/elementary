@@ -24,6 +24,7 @@ package main
 import (
 	"context"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"os/exec"
@@ -34,7 +35,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 
-	"github.com/forensicanalysis/elementary/commands"
+	"github.com/forensicanalysis/elementary"
 )
 
 // install required assets.
@@ -69,7 +70,7 @@ func ensureSetup() {
 	if err != nil {
 		log.Printf("config dir not found: %s, using current directory", err)
 	}
-	appDir := commands.AppDir()
+	appDir := elementary.AppDir()
 	info, err := os.Stat(appDir)
 	if os.IsNotExist(err) {
 		setup(nil, false)
@@ -84,10 +85,10 @@ func ensureSetup() {
 }
 
 func setup(auth *types.AuthConfig, pull bool) {
-	appDir := commands.AppDir()
+	appDir := elementary.AppDir()
 
 	// unpack scripts
-	err := unpack(appDir)
+	err := unpack(appDir, elementary.Scripts)
 	if err != nil {
 		log.Println("error unpacking scripts:", err)
 	}
@@ -102,12 +103,13 @@ func setup(auth *types.AuthConfig, pull bool) {
 		}
 	}
 	if pipPath != "" {
-		log.Println(pipPath, "install",
+		commandLine := []string{
+			"install",
 			"--target", filepath.Join(appDir, "scripts"),
-			"-r", filepath.Join(appDir, "requirements.txt"))
-		pip := exec.Command(pipPath, "install",
-			"--target", filepath.Join(appDir, "scripts"),
-			"-r", filepath.Join(appDir, "requirements.txt")) // #nosec
+			"-r", filepath.Join(appDir, "requirements.txt"),
+		}
+		log.Println(pipPath, commandLine)
+		pip := exec.Command(pipPath, commandLine...) // #nosec
 		err := pip.Run()
 		if err != nil {
 			log.Println("error installing python requirements:", err)
@@ -136,14 +138,14 @@ func pullImages(ctx context.Context, cli *client.Client, auth *types.AuthConfig)
 	for _, imageSummary := range imageSummaries {
 		for _, dockerImage := range imageSummary.RepoTags {
 			isElementary := strings.HasPrefix(dockerImage, "forensicanalysis/elementary-")
-			if isElementary && !contains(commands.DockerImages(), dockerImage) {
+			if isElementary && !contains(elementary.Images(), dockerImage) {
 				_, _ = cli.ImageRemove(ctx, dockerImage, types.ImageRemoveOptions{Force: true})
 			}
 		}
 	}
 
 	// pull docker images
-	for _, image := range commands.DockerImages() {
+	for _, image := range elementary.Images() {
 		log.Println("pull docker image", image)
 		err = pullImage(ctx, cli, image, auth)
 		if err != nil {
@@ -161,8 +163,32 @@ func contains(l []string, s string) bool { // nolint: unused
 	return false
 }
 
-func unpack(appDir string) (err error) {
-	return RestoreAssets(appDir, "")
+func unpack(appDir string, fsys fs.FS) (err error) {
+	fsys, err = fs.Sub(fsys, "plugin/scripts")
+	if err != nil {
+		return err
+	}
+	return fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+		b, err := fs.ReadFile(fsys, path)
+		if err != nil {
+			return err
+		}
+		log.Printf("unpack %s to %s\n", path, filepath.Join(appDir, path))
+
+		dest := filepath.Join(appDir, path)
+		err = os.MkdirAll(filepath.Dir(dest), fs.ModePerm)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(dest, b, fs.ModePerm)
+	})
 }
 
 func pullImage(ctx context.Context, cli *client.Client, image string, auth *types.AuthConfig) error { // nolint: unused

@@ -36,6 +36,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.LUTC | log.Lshortfile)
 	var debugLog bool
 
 	version := ""
@@ -74,7 +75,7 @@ func main() {
 	rootCmd.AddCommand(
 		run(),
 		install(),
-		workflow(),
+		// workflow(),
 		forensicstoreCmd.Element(),
 		forensicstoreCmd.Create(),
 		forensicstoreCmd.Validate(),

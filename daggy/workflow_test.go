@@ -30,8 +30,8 @@ import (
 	"testing"
 
 	"github.com/otiai10/copy"
-	"github.com/spf13/cobra"
 
+	"github.com/forensicanalysis/elementary/pluginlib"
 	"github.com/forensicanalysis/forensicstore"
 )
 
@@ -41,7 +41,7 @@ func setup() (storeDir string, err error) {
 		return "", err
 	}
 	storeDir = filepath.Join(tempDir, "test")
-	err = os.MkdirAll(storeDir, 0755)
+	err = os.MkdirAll(storeDir, 0o755)
 	if err != nil {
 		return "", err
 	}
@@ -61,6 +61,33 @@ func cleanup(folders ...string) (err error) {
 			return err
 		}
 	}
+	return nil
+}
+
+var _ pluginlib.Plugin = &testCommand{}
+
+type testCommand struct {
+	name string
+	run  func(command pluginlib.Plugin) error
+}
+
+func (t *testCommand) Name() string {
+	return t.name
+}
+
+func (t *testCommand) Short() string {
+	return t.name
+}
+
+func (t *testCommand) Parameter() pluginlib.ParameterList {
+	return nil
+}
+
+func (t *testCommand) Output() *pluginlib.Config {
+	return nil
+}
+
+func (t *testCommand) Run(_ pluginlib.Plugin, _ pluginlib.LineWriter) error {
 	return nil
 }
 
@@ -91,9 +118,9 @@ func Test_processTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			workflow := &Workflow{Tasks: []Task{tt.args.task}}
 
-			plugins := []*cobra.Command{{
-				Use: "example",
-				RunE: func(cmd *cobra.Command, args []string) error {
+			plugins := []pluginlib.Plugin{&testCommand{
+				name: "example",
+				run: func(cmd pluginlib.Plugin) error {
 					return nil
 				},
 			}}
@@ -113,7 +140,7 @@ func Test_processTask(t *testing.T) {
 
 				log.Println("Start select")
 				if tt.wantCount > 0 {
-					elements, err := store.Select(Filter{{"type": tt.wantType}})
+					elements, err := store.Select(pluginlib.Filter{{"type": tt.wantType}})
 					if err != nil {
 						t.Fatal(err)
 					}

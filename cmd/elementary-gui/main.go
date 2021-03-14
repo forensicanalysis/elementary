@@ -10,11 +10,10 @@ import (
 	"github.com/asticode/go-astikit"
 	"github.com/asticode/go-astilectron"
 	bootstrap "github.com/asticode/go-astilectron-bootstrap"
-)
 
-// Constants
-const htmlAbout = `Welcome on <b>Astilectron</b> demo!<br>
-This is using the bootstrap and the bundler.`
+	"github.com/forensicanalysis/elementary"
+	"github.com/forensicanalysis/elementary/pluginlib"
+)
 
 // Vars injected via ldflags by bundler
 var (
@@ -34,6 +33,7 @@ var (
 	app           *astilectron.Astilectron
 	menu          *astilectron.Menu
 	l             *log.Logger
+	cp            pluginlib.Provider
 )
 
 func main() {
@@ -43,6 +43,8 @@ func main() {
 	// Create logger
 	l = log.New(log.Writer(), log.Prefix(), log.Flags())
 	l.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	cp = &elementary.PluginProvider{Name: elementary.Name(), Dir: elementary.AppDir()} //  TODO
 
 	// Run bootstrap
 	l.Printf("Running app built at %s\n", BuiltAt)

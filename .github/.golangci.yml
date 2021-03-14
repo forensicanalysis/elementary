@@ -37,7 +37,7 @@ linters:
     - dupl # Tool for code clone detection
     - errcheck # Errcheck is a program for checking for unchecked errors in go programs. These unchecked errors can be critical bugs in some cases
     - funlen # Tool for detection of long functions
-    - gochecknoglobals # Checks that no globals are present in Go code
+    # - gochecknoglobals # Checks that no globals are present in Go code
     - gochecknoinits # Checks that no init functions are present in Go code
     - gocognit # Computes and checks the cognitive complexity of functions
     - goconst # Finds repeated strings that could be replaced by a constant
@@ -47,7 +47,7 @@ linters:
     # - godox # Tool for detection of FIXME, TODO and other comment keywords
     # - gofmt # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification
     # - goimports # Goimports does everything that gofmt does. Additionally it checks unused imports
-    - golint # Golint differs from gofmt. Gofmt reformats Go source code, whereas golint prints out style mistakes
+    # - golint # Golint differs from gofmt. Gofmt reformats Go source code, whereas golint prints out style mistakes
     - gomnd # An analyzer to detect magic numbers.
     - gomodguard # Allow and block list linter for direct Go module dependencies.
     - goprintffuncname # Checks that printf-like functions are named with f at the end
@@ -64,7 +64,7 @@ linters:
     - scopelint # Scopelint checks for unpinned variables in go programs
     - staticcheck # Staticcheck is a go vet on steroids, applying a ton of static analysis checks
     - structcheck # Finds unused struct fields
-    - stylecheck # Stylecheck is a replacement for golint
+    # - stylecheck # Stylecheck is a replacement for golint
     - testpackage # linter that makes you use a separate _test package
     - typecheck # Like the front-end of a Go compiler, parses and type-checks Go code
     - unconvert # Remove unnecessary type conversions
@@ -111,5 +111,4 @@ issues:
     - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
     - G104
     - G307 # Deferring unsafe method "Close" on type "*os.File"
-    - static is a global variable
 

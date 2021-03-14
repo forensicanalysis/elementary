@@ -22,13 +22,12 @@ import contextlib
 import importlib
 import io
 import os
+import pytest
 import shutil
 import sys
 import tempfile
 
-import pytest
-
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 networking = importlib.import_module("elementary-networking")
 
 
@@ -43,6 +42,6 @@ def test_networking(data):
     with io.StringIO() as buf, contextlib.redirect_stdout(buf):
         networking.main(os.path.join(data, "example1.forensicstore"))
         lines = buf.getvalue().split("\n")
-        assert len(lines) == 9 + 2
+        assert len(lines) == 9 + 1
 
     shutil.rmtree(data)

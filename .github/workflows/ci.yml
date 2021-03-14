@@ -89,10 +89,7 @@ jobs:
 
   lint:
     name: Lint Elementary
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+    runs-on: ubuntu-latest
     steps:
       - name: Setup go 1.16
         uses: actions/setup-go@v2
@@ -261,7 +258,7 @@ jobs:
       - run: ./elementary run --debug sigma case1.forensicstore
 
   case2:
-    name: Test Case 2 (import-image, hotfixes)
+    name: Test Case 2 (hotfixes) # import-image
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -278,7 +275,7 @@ jobs:
       - run: ./forensicstore create case2.forensicstore
       - run: curl --fail --output win10_mock.zip --location https://download.artifacthub.org/windows/win10_mock.zip
       - run: unzip win10_mock.zip
-      - run: ./elementary run --debug import-image --input-dir . --input-file win10_mock.vhd case2.forensicstore
+      # - run: ./elementary run --debug import-image --input-dir . --input-file win10_mock.vhd case2.forensicstore
       - run: ./elementary run --debug hotfixes --format csv case2.forensicstore
 
   case3:
@@ -314,7 +311,7 @@ jobs:
       - run: ./elementary install -f
       - run: curl --fail --output usb.forensicstore --location https://download.artifacthub.org/forensics/usb.forensicstore
       - run: ./elementary run --debug usb --format csv usb.forensicstore
-      - run: ./elementary run --debug export --format csv usb.forensicstore
+      - run: ./elementary run --debug export --format json usb.forensicstore
 
   case5:
     name: Test Case 5 (software, export-timesketch)
@@ -331,7 +328,7 @@ jobs:
       - run: ./elementary install -f
       - run: curl --fail --output example2.forensicstore --location https://download.artifacthub.org/forensics/example2.forensicstore
       - run: ./elementary run --debug software --add-to-store --format csv example2.forensicstore
-      - run: ./elementary run --debug export-timesketch --filter type=uninstall_entry --format jsonl example2.forensicstore
+      - run: ./elementary run --debug export-timesketch --timesketch export.jsonl --filter type=uninstall_entry --format jsonl example2.forensicstore
 
   scripts:
     name: Test Scripts
@@ -345,16 +342,16 @@ jobs:
       - run: pip install pylint pytest pytest-cov
       - name: Checkout code
         uses: actions/checkout@v2
-      - run: pip install -r scripts/requirements.txt
+      - run: pip install -r plugin/scripts/requirements.txt
       - name: Python Lint
-        run: pylint *.py --rcfile ../../test/.pylintrc
+        run: pylint *.py --rcfile ../../../test/.pylintrc
         shell: bash
-        working-directory: scripts/scripts
+        working-directory: plugin/scripts/scripts
       - name: Download testdata
         run: bash test/download_testdata.sh
         shell: bash
       - name: Python Test
-        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts/scripts test/python
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=plugin/scripts/scripts test/python
         shell: bash
       - name: Upload coverage
         env:

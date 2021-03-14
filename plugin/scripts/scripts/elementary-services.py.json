@@ -1,0 +1,19 @@
+{
+  "name": "services",
+  "short": "Process windows services",
+  "output": {
+    "header": [
+      "Name",
+      "Description",
+      "DisplayName",
+      "Group",
+      "Start Mode",
+      "Service Type",
+      "ImagePath",
+      "Service DLL",
+      "Service Key Changed",
+      "Parameters Key Changed",
+      "Source Key"
+    ]
+  }
+}

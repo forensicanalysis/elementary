@@ -22,14 +22,12 @@ import contextlib
 import importlib
 import io
 import os
+import pytest
 import shutil
 import sys
 import tempfile
 
-import forensicstore
-import pytest
-
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 services = importlib.import_module("elementary-services")
 
 
@@ -44,6 +42,6 @@ def test_service(data):
     with io.StringIO() as buf, contextlib.redirect_stdout(buf):
         services.main(os.path.join(data, "example1.forensicstore"))
         lines = buf.getvalue().split("\n")
-        assert len(lines) == 624 + 2
+        assert len(lines) == 624 + 1
 
     shutil.rmtree(data)

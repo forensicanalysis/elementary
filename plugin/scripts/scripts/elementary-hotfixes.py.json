@@ -1,0 +1,12 @@
+{
+  "name": "hotfixes",
+  "short": "Process windows hotfixes",
+  "output": {
+    "header": [
+      "Hotfix",
+      "Installed",
+      "Source",
+      "Component"
+    ]
+  }
+}

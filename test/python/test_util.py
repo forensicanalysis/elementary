@@ -31,12 +31,10 @@
 #
 # Author(s): Jonas Plum
 
-import os
 import sys
 
-sys.path.append("scripts/scripts")
+sys.path.append("plugin/scripts/scripts")
 import storeutil
-
 
 
 def test_merge_1():
