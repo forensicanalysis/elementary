@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
+          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
           asset_name: elementary-gui-Windows.zip
           asset_content_type: application/zip
         if: matrix.os == 'windows-latest'
@@ -80,7 +80,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
+          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
           asset_name: elementary-gui-macOS.zip
           asset_content_type: application/zip
         if: matrix.os == 'macos-latest'
@@ -91,7 +91,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
+          asset_path: ./cmd/elementary-gui/output/${{ matrix.os }}.zip
           asset_name: elementary-gui-Linux.zip
           asset_content_type: application/zip
         if: matrix.os == 'ubuntu-latest'
