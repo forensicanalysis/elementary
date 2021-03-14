@@ -36,7 +36,7 @@ page and install with `dpkg -i` and `rpm -i` respectively.
 </details>
 <details><summary><b>manually</b></summary>
 
-[Releases](https://github.com/forensicanalysis/elementary/releases)
+The GitHub [releases](https://github.com/forensicanalysis/elementary/releases) pages provides binaries for all common systems.
 
 </details>
 
