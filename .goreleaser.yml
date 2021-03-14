@@ -129,6 +129,7 @@ scoop:
   homepage: "https://github.com/forensicanalysis/elementary"
   description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
   license: MIT
+  skip_upload: "auto"
 nfpms:
   - replacements: { darwin: macOS, linux: Linux }
     homepage: "https://github.com/forensicanalysis/elementary"

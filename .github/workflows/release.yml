@@ -60,6 +60,12 @@ jobs:
         with: { fetch-depth: 0 }
       - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with: { node-version: '12' }
+      - run: make build-ui
+
       - uses: actions/download-artifact@v2
         with:
           path: cmd/elementary-gui/output

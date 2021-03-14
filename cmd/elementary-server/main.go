@@ -22,7 +22,6 @@
 package main
 
 import (
-	"embed"
 	"io/fs"
 	"log"
 	"net/http"
@@ -31,18 +30,15 @@ import (
 	"strconv"
 
 	"github.com/forensicanalysis/elementary"
-
 	"github.com/forensicanalysis/elementary/cmd/elementary-server/server"
+	"github.com/forensicanalysis/elementary/ui"
 	"github.com/forensicanalysis/forensicstore"
 )
-
-//go:embed dist
-var static embed.FS
 
 const appName = "elementary"
 
 func main() {
-	sub, err := fs.Sub(static, "dist")
+	sub, err := fs.Sub(ui.UI, "dist")
 	if err != nil {
 		log.Fatal(err)
 	}

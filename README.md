@@ -8,6 +8,8 @@ The elementary tool can process forensicstores created with the [artifactcollect
 
 ## 💾 Installation
 
+Elementary is available as a single binary that does not require installation. It can be used e.g. from a usb stick this way. However different installation options are available to make setup and updating of elementary easier.
+
 <details><summary><b>homebrew (macOS and Linux)</b></summary>
 
 If you have the [Homebrew](https://brew.sh/) package manager installed, you can install elementary using:
