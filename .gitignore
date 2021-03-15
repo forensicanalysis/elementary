@@ -40,3 +40,4 @@ bindata.generated.go
 
 cmd/elementary-server/elementary-server
 cmd/elementary/elementary
+.venv

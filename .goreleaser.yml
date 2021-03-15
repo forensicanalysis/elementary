@@ -43,12 +43,12 @@ builds:
 
 archives:
   - id: elementary-archive
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
     builds: [ elementary-darwin, elementary-linux, elementary-windows ]
     replacements: { darwin: macOS, linux: Linux, windows: Windows }
     format_overrides: [ { goos: windows, format: zip } ]
   - id: elementary-server-archive
-    name_template: "{{ .ProjectName }}-server_{{ .Version }}_{{ .Os }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
+    name_template: "{{ .ProjectName }}-server_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
     builds: [ elementary-server-darwin, elementary-server-linux, elementary-server-windows ]
     replacements: { darwin: macOS, linux: Linux, windows: Windows }
     format_overrides: [ { goos: windows, format: zip } ]
