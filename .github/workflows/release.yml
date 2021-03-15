@@ -38,15 +38,15 @@ jobs:
         shell: bash
 
       - name: Pack macOS
-        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}.tar.gz darwin-amd64
+        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.tar.gz darwin-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'macos-latest'
       - name: Pack Linux
-        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}.tar.gz linux-amd64
+        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.tar.gz linux-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'ubuntu-latest'
       - name: Pack Windows
-        run: 7z a elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}.zip windows-amd64
+        run: 7z a elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.zip windows-amd64
         working-directory: cmd/elementary-gui/output
         if: matrix.os == 'windows-latest'
 
