@@ -5,7 +5,7 @@ builds:
     binary: elementary
     main: ./cmd/elementary/.
     goos: [ darwin ]
-    goarch: [ amd64 ]
+    goarch: [ amd64, arm64 ]
     env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
   - id: elementary-linux
     binary: elementary
@@ -25,7 +25,7 @@ builds:
     binary: elementary-server
     main: ./cmd/elementary-server/.
     goos: [ darwin ]
-    goarch: [ amd64 ]
+    goarch: [ amd64, arm64 ]
     env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
   - id: elementary-server-linux
     binary: elementary-server

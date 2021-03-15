@@ -53,7 +53,9 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          path: ./cmd/elementary-gui/output/*
+          path: |
+            ./cmd/elementary-gui/output/*.zip
+            ./cmd/elementary-gui/output/*.tar.gz
           name: elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}
 
   release:
