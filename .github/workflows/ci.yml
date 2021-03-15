@@ -97,8 +97,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - run: |
-          mkdir cmd/elementary-server/dist
-          touch cmd/elementary-server/dist/dummy
+          mkdir ui/dist
+          touch ui/dist/dummy
         shell: bash
       - name: Install golangci-lint & go-acc
         run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
@@ -130,8 +130,8 @@ jobs:
         run: bash test/download_testdata.sh
         shell: bash
       - run: |
-          mkdir cmd/elementary-server/dist
-          touch cmd/elementary-server/dist/dummy
+          mkdir ui/dist
+          touch ui/dist/dummy
         shell: bash
       - run: go list ./...
       - name: Test
