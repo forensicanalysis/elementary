@@ -31,7 +31,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/tidwall/gjson v1.7.2
+	github.com/tidwall/gjson v1.7.4
 	github.com/tidwall/sjson v1.1.5
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
