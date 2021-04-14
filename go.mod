@@ -19,9 +19,8 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/logutils v1.0.0
-	github.com/hashicorp/terraform v0.14.10
+	github.com/hashicorp/terraform v0.15.0
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/olekukonko/tablewriter v0.0.5
@@ -34,7 +33,6 @@ require (
 	github.com/tidwall/gjson v1.7.4
 	github.com/tidwall/sjson v1.1.6
 	github.com/xwb1989/sqlparser v0.0.0-20180606152119-120387863bf2
-	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0
