@@ -17,7 +17,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/forensicanalysis/forensicstore v0.18.1
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/logutils v1.0.0
 	github.com/hashicorp/terraform v0.15.3
