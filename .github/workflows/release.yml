@@ -80,7 +80,7 @@ jobs:
           path: cmd/elementary-gui/output
       - run: rm -rf cmd/elementary-gui/output/ui
         shell: bash
-      - run: sudo apt-get install -y gcc-arm*
+      - run: apt-get install -y gcc-arm*
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         env:
