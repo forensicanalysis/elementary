@@ -12,7 +12,7 @@ builds:
     main: ./cmd/elementary/.
     env: [ CGO_ENABLED=1 ]
     goos: [ linux ]
-    goarch: [ amd64 ]
+    goarch: [ amd64, arm64 ]
   - id: elementary-windows
     binary: elementary
     main: ./cmd/elementary/.
