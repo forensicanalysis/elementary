@@ -18,7 +18,7 @@ builds:
     main: ./cmd/elementary/.
     env: [ CGO_ENABLED=1, CC=arm-linux-gnueabihf-gcc, CXX=arm-linux-gnueabihf-g++, GOARM=7 ]
     goos: [ linux ]
-    goarch: [ arm64 ]
+    goarch: [ arm ]
   - id: elementary-windows
     binary: elementary
     main: ./cmd/elementary/.
