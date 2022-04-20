@@ -9,7 +9,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/asticode/go-astikit v0.29.1
-	github.com/asticode/go-astilectron v0.25.0
+	github.com/asticode/go-astilectron v0.27.0
 	github.com/asticode/go-astilectron-bootstrap v0.4.14
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
