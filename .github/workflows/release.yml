@@ -26,7 +26,7 @@ jobs:
       - run: make build-gui
 
       - name: Upload ui/dist
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: ./ui/dist
           name: ui
@@ -51,7 +51,7 @@ jobs:
         if: matrix.os == 'windows-latest'
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: |
             ./cmd/elementary-gui/output/*.zip

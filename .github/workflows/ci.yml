@@ -199,7 +199,7 @@ jobs:
           ./artifactcollector.exe
           mv *.forensicstore test.forensicstore
       - name: upload test.forensicstore
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test.forensicstore
           path: test.forensicstore
