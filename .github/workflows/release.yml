@@ -71,11 +71,11 @@ jobs:
       - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: ui
           path: ui/dist
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           path: cmd/elementary-gui/output
       - run: rm -rf cmd/elementary-gui/output/ui
