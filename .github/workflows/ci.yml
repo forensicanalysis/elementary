@@ -159,7 +159,7 @@ jobs:
         if: matrix.os == 'windows-latest'
 
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ${{ matrix.os }}
       - run: curl --fail --output ${{ matrix.os }}.zip --location https://github.com/forensicanalysis/forensicstore/releases/download/v0.17.1/${{ matrix.os }}.zip
@@ -212,11 +212,11 @@ jobs:
       - uses: actions/setup-python@v2
         with: { python-version: '3.8' }
       - name: download test.forensicstore
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: test.forensicstore
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
@@ -243,7 +243,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
@@ -265,7 +265,7 @@ jobs:
       - uses: actions/setup-python@v2
         with: { python-version: '3.8' }
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
@@ -284,7 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
@@ -304,7 +304,7 @@ jobs:
       - uses: actions/setup-python@v2
         with: { python-version: '3.8' }
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
@@ -321,7 +321,7 @@ jobs:
       - uses: actions/setup-python@v2
         with: { python-version: '3.8' }
       - name: download elementary
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: elementary ubuntu-latest
       - run: chmod +x elementary
