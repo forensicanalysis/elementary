@@ -10,9 +10,15 @@ builds:
   - id: elementary-linux
     binary: elementary
     main: ./cmd/elementary/.
+    env: [ CGO_ENABLED=1 ]
+    goos: [ linux ]
+    goarch: [ amd64 ]
+  - id: elementary-linux-arm
+    binary: elementary
+    main: ./cmd/elementary/.
     env: [ CGO_ENABLED=1, CC=arm-linux-gnueabihf-gcc, CXX=arm-linux-gnueabihf-g++, GOARM=7 ]
     goos: [ linux ]
-    goarch: [ amd64, arm64 ]
+    goarch: [ arm64 ]
   - id: elementary-windows
     binary: elementary
     main: ./cmd/elementary/.
@@ -44,7 +50,7 @@ builds:
 archives:
   - id: elementary-archive
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
-    builds: [ elementary-darwin, elementary-linux, elementary-windows ]
+    builds: [ elementary-darwin, elementary-linux, elementary-linux-arm, elementary-windows ]
     replacements: { darwin: macOS, linux: Linux, windows: Windows }
     format_overrides: [ { goos: windows, format: zip } ]
   - id: elementary-server-archive
