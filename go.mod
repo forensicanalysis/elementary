@@ -5,7 +5,7 @@ go 1.16
 require (
 	crawshaw.io/sqlite v0.3.2
 	github.com/Microsoft/go-winio v0.4.14 // indirect
-	github.com/Velocidex/ordereddict v0.0.0-20200723153557-9460a6764ab8
+	github.com/Velocidex/ordereddict v0.0.0-20210502082334-cf5d9045c0d1
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/akavel/rsrc v0.10.2 // indirect
 	github.com/asticode/go-astikit v0.29.1
@@ -36,6 +36,6 @@ require (
 	golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	www.velocidex.com/golang/evtx v0.0.1
+	www.velocidex.com/golang/evtx v0.2.0
 	www.velocidex.com/golang/go-prefetch v0.0.0-20200722101157-37e4751dd5ca
 )
