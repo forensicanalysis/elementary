@@ -15,12 +15,11 @@ jobs:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.16
+      - name: Setup go 1.18
         uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: make build-cli
+        with: { go-version: '1.18' }
+      - uses: actions/checkout@v3
+      - run: cd cmd/elementary && go build .
       - name: Go Build
         run: |
           mkdir bin
@@ -33,82 +32,26 @@ jobs:
           name: elementary ${{ matrix.os }}
           path: cmd/elementary/bin
 
-  build-gui:
-    name: Build Elementary GUI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v3
-        with: { python-version: '3.8' }
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with: { node-version: '12' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: make build-gui
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary-gui ${{ matrix.os }}
-          path: cmd/elementary-gui/output
-
-  build-server:
-    name: Build Elementary Server
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v3
-        with: { python-version: '3.8' }
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with: { node-version: '12' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: make build-server
-      - name: Go Build
-        run: |
-          mkdir bin
-          mv elementary* bin
-        shell: bash
-        working-directory: cmd/elementary-server
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary-server ${{ matrix.os }}
-          path: cmd/elementary-server/bin
-
   lint:
     name: Lint Elementary
     runs-on: ubuntu-latest
     steps:
-      - name: Setup go 1.16
+      - name: Setup go 1.18
         uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: |
-          mkdir ui/dist
-          touch ui/dist/dummy
-        shell: bash
-      - name: Install golangci-lint & go-acc
-        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
-        shell: bash
+        with: { go-version: '1.18' }
+      - uses: actions/checkout@v3
 
       - name: Lint
-        run: golangci-lint run --verbose --config .github/.golangci.yml --enable gofmt --enable goimports --enable gofumpt
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.45.2
+          args: --verbose --config .github/.golangci.yml --enable gofmt --enable goimports --enable gofumpt
         if: matrix.os != 'windows-latest'
       - name: Lint Windows
-        run: golangci-lint run --verbose --config .github/.golangci.yml
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.45.2
+          args: --verbose --config .github/.golangci.yml
         if: matrix.os == 'windows-latest'
 
   test:
@@ -118,24 +61,15 @@ jobs:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
-      - name: Setup go 1.16
+      - name: Setup go 1.18
         uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - name: Checkout code
-        uses: actions/checkout@v3
+        with: { go-version: '1.18' }
+      - uses: actions/checkout@v3
 
-      - name: Install go-acc
-        run: go get github.com/ory/go-acc
-      - name: Download testdata
-        run: bash test/download_testdata.sh
-        shell: bash
-      - run: |
-          mkdir ui/dist
-          touch ui/dist/dummy
-        shell: bash
+      - run: go install github.com/ory/go-acc@latest
+      - run: bash test/download_testdata.sh
       - run: go list ./...
-      - name: Test
-        run: go-acc ./...
+      - run: go-acc ./...
       - name: Upload coverage
         env:
           CI: "true"

@@ -6,61 +6,8 @@ on:
       - '*'
 
 jobs:
-  build-gui:
-    name: Build elementary GUI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v3
-        with: { python-version: '3.9' }
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with: { node-version: '12' }
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - run: make build-gui
-
-      - name: Upload ui/dist
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./ui/dist
-          name: ui
-        if: matrix.os == 'ubuntu-latest'
-
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
-        shell: bash
-
-      - name: Pack macOS
-        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.tar.gz darwin-amd64
-        working-directory: cmd/elementary-gui/output
-        if: matrix.os == 'macos-latest'
-      - name: Pack Linux
-        run: tar -czvf elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.tar.gz linux-amd64
-        working-directory: cmd/elementary-gui/output
-        if: matrix.os == 'ubuntu-latest'
-      - name: Pack Windows
-        run: 7z a elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}_amd64.zip windows-amd64
-        working-directory: cmd/elementary-gui/output
-        if: matrix.os == 'windows-latest'
-
-      - name: Upload
-        uses: actions/upload-artifact@v3
-        with:
-          path: |
-            ./cmd/elementary-gui/output/*.zip
-            ./cmd/elementary-gui/output/*.tar.gz
-          name: elementary-gui_${{ steps.get_version.outputs.version }}_${{ runner.os }}
-
   release:
     name: Release
-    needs: [ build-gui ]
     runs-on: ubuntu-latest
     container:
       image: bepsays/ci-goreleaser:1.16.0-2
@@ -71,15 +18,6 @@ jobs:
       - name: Fetch tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: ui
-          path: ui/dist
-      - uses: actions/download-artifact@v3
-        with:
-          path: cmd/elementary-gui/output
-      - run: rm -rf cmd/elementary-gui/output/ui
-        shell: bash
       - run: apt-get update && apt-get install -y gcc-arm*
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2

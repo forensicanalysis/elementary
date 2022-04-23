@@ -58,7 +58,7 @@ func ExtractFilter(filtersets []string) Filter {
 		filterelement := map[string]string{}
 		for _, kv := range strings.Split(filterset, ",") {
 			kvl := strings.SplitN(kv, "=", 2)
-			if len(kvl) == 2 { //nolint: gomnd
+			if len(kvl) == 2 {
 				filterelement[kvl[0]] = kvl[1]
 			}
 		}
