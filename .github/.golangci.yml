@@ -46,7 +46,7 @@ linters:
     # - gofmt # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification
     # - goimports # Goimports does everything that gofmt does. Additionally it checks unused imports
     # - golint # Golint differs from gofmt. Gofmt reformats Go source code, whereas golint prints out style mistakes
-    - gomnd # An analyzer to detect magic numbers.
+    # - gomnd # An analyzer to detect magic numbers.
     - gomodguard # Allow and block list linter for direct Go module dependencies.
     - goprintffuncname # Checks that printf-like functions are named with f at the end
     - gosec # Inspects source code for security problems
@@ -59,7 +59,7 @@ linters:
     # - nestif # Reports deeply nested if statements
     # - prealloc # Finds slice declarations that could potentially be preallocated
     - rowserrcheck # checks whether Err of rows is checked successfully
-    - scopelint # Scopelint checks for unpinned variables in go programs
+    # - scopelint # Scopelint checks for unpinned variables in go programs
     - staticcheck # Staticcheck is a go vet on steroids, applying a ton of static analysis checks
     - structcheck # Finds unused struct fields
     # - stylecheck # Stylecheck is a replacement for golint
@@ -93,7 +93,7 @@ linters:
     # - nolintlint # Reports ill-formed or insufficient nolint directives
     - paralleltest # paralleltest detects missing usage of t.Parallel() method in your Go test
     - predeclared # find code that shadows one of Go's predeclared identifiers
-    - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
+    # - revive # Fast, configurable, extensible, flexible, and beautiful linter for Go. Drop-in replacement of golint.
     - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed.
     - thelper # thelper detects golang test helpers without t.Helper() call and checks the consistency of test helpers
     - tparallel # tparallel detects inappropriate usage of t.Parallel() method in your Go test codes

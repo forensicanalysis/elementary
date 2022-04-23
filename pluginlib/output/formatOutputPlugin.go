@@ -52,7 +52,7 @@ func (s *FormatOutputPlugin) Run(p pluginlib.Plugin, _ pluginlib.LineWriter) err
 
 	var dest io.Writer
 	if path != "" {
-		f, err := os.Create(path)
+		f, err := os.Create(path) //#nosec
 		if err != nil {
 			log.Println(err)
 		}

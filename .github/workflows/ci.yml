@@ -40,15 +40,18 @@ jobs:
         uses: actions/setup-go@v3
         with: { go-version: '1.18' }
       - uses: actions/checkout@v3
-      - name: Install golangci-lint & go-acc
-        run: curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
-        shell: bash
 
       - name: Lint
-        run: golangci-lint run --verbose --config .github/.golangci.yml --enable gofmt --enable goimports --enable gofumpt
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.45.2
+          args: --verbose --config .github/.golangci.yml --enable gofmt --enable goimports --enable gofumpt
         if: matrix.os != 'windows-latest'
       - name: Lint Windows
-        run: golangci-lint run --verbose --config .github/.golangci.yml
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.45.2
+          args: --verbose --config .github/.golangci.yml
         if: matrix.os == 'windows-latest'
 
   test:
