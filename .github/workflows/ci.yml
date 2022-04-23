@@ -33,60 +33,6 @@ jobs:
           name: elementary ${{ matrix.os }}
           path: cmd/elementary/bin
 
-  build-gui:
-    name: Build Elementary GUI
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v3
-        with: { python-version: '3.8' }
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with: { node-version: '12' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: make build-gui
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary-gui ${{ matrix.os }}
-          path: cmd/elementary-gui/output
-
-  build-server:
-    name: Build Elementary Server
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-    steps:
-      - name: Setup go 1.16
-        uses: actions/setup-go@v3
-        with: { go-version: '1.16' }
-      - uses: actions/setup-python@v3
-        with: { python-version: '3.8' }
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with: { node-version: '12' }
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - run: make build-server
-      - name: Go Build
-        run: |
-          mkdir bin
-          mv elementary* bin
-        shell: bash
-        working-directory: cmd/elementary-server
-      - name: Upload
-        uses: actions/upload-artifact@master
-        with:
-          name: elementary-server ${{ matrix.os }}
-          path: cmd/elementary-server/bin
-
   lint:
     name: Lint Elementary
     runs-on: ubuntu-latest

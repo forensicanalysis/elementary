@@ -15,13 +15,6 @@
             "postUpdateOptions": [
                 "gomodTidy"
             ]
-        },
-        {
-            "datasources": [
-                "npm"
-            ],
-            "groupName": "npm",
-            "schedule": ["after 9pm on sunday"]
         }
     ],
     "labels": [
@@ -29,8 +22,5 @@
     ],
     "assignees": [
         "cugu"
-    ],
-    "ignoreDeps": [
-        "sass-loader"
     ]
 }

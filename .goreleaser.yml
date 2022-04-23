@@ -27,40 +27,12 @@ builds:
     goos: [ windows ]
     goarch: [ amd64 ]
 
-  - id: elementary-server-darwin
-    binary: elementary-server
-    main: ./cmd/elementary-server/.
-    goos: [ darwin ]
-    goarch: [ amd64, arm64 ]
-    env: [ CGO_ENABLED=1, CC=o64-clang, CXX=o64-clang++ ]
-  - id: elementary-server-linux
-    binary: elementary-server
-    main: ./cmd/elementary-server/.
-    env: [ CGO_ENABLED=1 ]
-    goos: [ linux ]
-    goarch: [ amd64 ]
-  - id: elementary-server-windows
-    binary: elementary-server
-    main: ./cmd/elementary-server/.
-    ldflags: [ "-extldflags '-static'" ]
-    env: [ CGO_ENABLED=1, CC=x86_64-w64-mingw32-gcc, CXX=x86_64-w64-mingw32-g++ ]
-    goos: [ windows ]
-    goarch: [ amd64 ]
-
 archives:
   - id: elementary-archive
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
     builds: [ elementary-darwin, elementary-linux, elementary-linux-arm, elementary-windows ]
     replacements: { darwin: macOS, linux: Linux, windows: Windows }
     format_overrides: [ { goos: windows, format: zip } ]
-  - id: elementary-server-archive
-    name_template: "{{ .ProjectName }}-server_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}"
-    builds: [ elementary-server-darwin, elementary-server-linux, elementary-server-windows ]
-    replacements: { darwin: macOS, linux: Linux, windows: Windows }
-    format_overrides: [ { goos: windows, format: zip } ]
-release:
-  extra_files:
-    - glob: ./cmd/elementary-gui/output/*
 brews:
   - name: elementary
     ids: [ elementary-archive ]
@@ -70,16 +42,6 @@ brews:
     homepage: "https://github.com/forensicanalysis/elementary"
     description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
     license: "MIT"
-    skip_upload: "auto"
-  - name: elementary-server
-    ids: [ elementary-server-archive ]
-    tap: { owner: forensicanalysis, name: homebrew-tap }
-    commit_author: { name: Jonas Plum, email: git@jonasplum.de }
-    folder: Formula
-    homepage: "https://github.com/forensicanalysis/elementary"
-    description: "Process and show forensic artifacts (e.g. eventlogs, usb devices, network devices...)."
-    license: "MIT"
-    install: bin.install "elementary-server"
     skip_upload: "auto"
 scoop:
   bucket: { owner: forensicanalysis, name: homebrew-tap }
