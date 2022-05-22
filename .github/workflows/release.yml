@@ -20,7 +20,7 @@ jobs:
 
       - run: apt-get update && apt-get install -y gcc-arm*
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
