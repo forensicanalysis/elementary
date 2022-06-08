@@ -87,7 +87,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - run: doskey python3=python
         if: matrix.os == 'windows-latest'
@@ -143,7 +143,7 @@ jobs:
     needs: [ collect, build ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - name: download test.forensicstore
         uses: actions/download-artifact@v3
@@ -196,7 +196,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v3
@@ -235,7 +235,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v3
@@ -252,7 +252,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - name: download elementary
         uses: actions/download-artifact@v3
@@ -271,7 +271,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest ]
     steps:
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with: { python-version: '3.8' }
       - run: pip install pylint==2.8.3 pytest pytest-cov
       - name: Checkout code
