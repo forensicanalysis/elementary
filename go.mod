@@ -28,5 +28,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	www.velocidex.com/golang/evtx v0.2.0
-	www.velocidex.com/golang/go-prefetch v0.0.0-20200722101157-37e4751dd5ca
+	www.velocidex.com/golang/go-prefetch v0.0.0-20220801101854-338dbe61982a
 )
