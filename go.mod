@@ -5,7 +5,7 @@ go 1.16
 require (
 	crawshaw.io/sqlite v0.3.2
 	github.com/Microsoft/go-winio v0.4.14 // indirect
-	github.com/Velocidex/ordereddict v0.0.0-20220428153415-da46091cd216
+	github.com/Velocidex/ordereddict v0.0.0-20221110130714-6a7cb85851cd
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
