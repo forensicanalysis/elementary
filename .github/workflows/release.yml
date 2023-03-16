@@ -10,7 +10,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     container:
-      image: bepsays/ci-goreleaser:1.16.0-2
+      image: bepsays/ci-goreleaser:1.17.0-2
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
