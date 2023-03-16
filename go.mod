@@ -22,7 +22,7 @@ require (
 	github.com/otiai10/copy v1.7.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
-	github.com/tidwall/gjson v1.14.1
+	github.com/tidwall/gjson v1.14.4
 	github.com/tidwall/sjson v1.2.4
 	golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
