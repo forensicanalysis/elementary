@@ -16,7 +16,7 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - name: Setup go 1.18
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with: { go-version: '1.18' }
       - uses: actions/checkout@v3
       - run: cd cmd/elementary && go build .
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup go 1.18
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with: { go-version: '1.18' }
       - uses: actions/checkout@v3
 
@@ -62,7 +62,7 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - name: Setup go 1.18
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with: { go-version: '1.18' }
       - uses: actions/checkout@v3
 
